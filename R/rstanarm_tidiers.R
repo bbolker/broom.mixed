@@ -16,8 +16,14 @@
 #' @examples
 #' 
 #' \dontrun{
-#' fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
-#'                   iter = 300, chains = 2)
+#' if (require("rstanarm")) { 
+#'     fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
+#'                       iter = 300, chains = 2)
+#'   }
+#' }
+#' ## load example data
+#' fit <- readRDS(system.file("example_data","rstanarm_ex.rds",package="broom.mixed"))
+#' 
 #' # non-varying ("population") parameters
 #' tidy(fit, intervals = TRUE, prob = 0.5)
 #' 
@@ -29,8 +35,13 @@
 #' 
 #' # glance method
 #' glance(fit)
+#' \dontrun{
 #' glance(fit, looic = TRUE, cores = 1)
 #' }
+#' ## note that this glance() call will produce a warning recommending
+#' ## that you specify \code{k_threshold=0.7}
+#' 
+#' 
 #'  
 NULL
 

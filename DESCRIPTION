@@ -33,6 +33,8 @@ Imports:
     dplyr,
     tidyr,
     plyr,
+    purrr,
+    tibble,
     reshape2,
     nlme,
     methods,

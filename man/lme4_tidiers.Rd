@@ -24,7 +24,7 @@
 \item{x}{An object of class \code{merMod}, such as those from \code{lmer},
 \code{glmer}, or \code{nlmer}}
 
-\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters); "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms); "ran_modes" (conditional modes/BLUPs/latent variable estimates); or "coefs" (predicted parameter values for each group, as returned by \code{\link[lme4]{coef.merMod}})}
+\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters); "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms); "ran_modes" (conditional modes/BLUPs/latent variable estimates); or "ran_coefs" (predicted parameter values for each group, as returned by \code{\link[lme4]{coef.merMod}})}
 
 \item{scales}{scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects; inverse-link transformations (exponentiation or logistic) are not yet implemented, but may be in the future.}
 
@@ -103,7 +103,14 @@ if (require("lme4")) {
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, effects = "fixed", conf.int=TRUE)
     tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
+    ## pp <- profile(lmm1)
+    lmm1_prof <- readRDS(system.file("example_data","lmm1_prof.rds",
+                                     package="broom.mixed"))
+    tidy(lmm1, conf.int=TRUE, conf.method="profile", profile=lmm1_prof)
+    ## conditional modes (group-level deviations from population-level estimate)
     tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
+    ## coefficients (group-level estimates)
+    tidy(lmm1, effects = "ran_coefs")
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
     
@@ -121,6 +128,12 @@ if (require("lme4")) {
     tidy(nm1, effects = "fixed")
     head(augment(nm1, Orange))
     glance(nm1)
+    detach("package:lme4")
+}
+if (require("lmerTest")) {
+   lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+   tidy(lmm1)
+   detach("package:lmerTest")  # clean up 
 }
 }
 \seealso{

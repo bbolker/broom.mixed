@@ -45,6 +45,12 @@
 #'     tidy(nm1, effects = "fixed")
 #'     head(augment(nm1, Orange))
 #'     glance(nm1)
+#'     detach("package:lme4")
+#' }
+#' if (require("lmerTest")) {
+#'    lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+#'    tidy(lmm1)
+#'    detach("package:lmerTest")  # clean up 
 #' }
 NULL
 
@@ -88,7 +94,31 @@ confint.rlmerMod <- function(x, parm,
 #' @importFrom nlme VarCorr ranef
 #' @importFrom methods is
 #' @importFrom broom fix_data_frame
-#' 
+#'
+#'
+
+## list of regex matches for (g)lmer columns -> broom names
+col_matches <- list(estimate="Estimate",
+                    std.error="Std\\. Error",
+                    df = "df",
+                    statistic = "(t|Z) value",
+                    p.value = "Pr\\(>|[tZ]\\)")
+
+regex_match <- function(x,table) {
+    r <- sapply(x,
+           function(z) {
+              m <- vapply(col_matches,grepl,x=z,logical(1))
+              if (any(m)) return(which(m)) else return(NA)
+    })
+    return(unname(r))
+}
+
+## rename columns according to regex matches
+rename_regex_match <- function(x,table=col_matches) {
+    names(x) <- names(table)[regex_match(names(x),table)]
+    return(x)
+}
+              
 #' @export
 tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
                         scales = NULL, ## c("sdcor","vcov",NA),
@@ -113,18 +143,22 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
     if (length(miss <- setdiff(effects,effect_names))>0)
         stop("unknown effect type ",miss)
     base_nn <- c("estimate", "std.error", "statistic", "p.value")
+    
     ret_list <- list()
     if ("fixed" %in% effects) {
         # return tidied fixed effects rather than random
-        ss <- summary(x)
-        ret <- stats::coef(ss)
+        ## not quite sure why implicit/automatic method dispatch doesn't work,
+        ##  but we seem to need this to get the right summary for  merModLmerTest
+        ##  objects ...
+        sum_fun <- selectMethod("summary",class(x))
+        ss <- sum_fun(x)
+        ret <- stats::coef(ss) %>% data.frame(check.names=FALSE) %>%
+            rename_regex_match()
+        
         if (debug) {
             cat("output from coef(summary(x)):\n")
             print(coef(ss))
         }
-        if (is(x,"merModLmerTest")) {
-            ret <- ret[,!colnames(ret) %in% "df"]
-        }            
 
         # p-values may or may not be included
         nn <- base_nn[1:ncol(ret)]
@@ -133,12 +167,27 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
             p <- profile
         } else p <- x
 
+        ## FIXME: use in general utils?
+        cifun <- function(x,...) {
+            r <- confint(x,...) %>%
+                data.frame %>%
+                setNames(c("conf.low","conf.high"))
+            return(r)
+        }
+
+        reorder_frame <- function(x,first_cols=c("effect","group","term","estimate")) {
+            ## order of first arg to intersect() determines order of results ...
+            first_cols <- intersect(first_cols,names(x))
+            other_cols <- setdiff(names(x),first_cols)
+            return(x[,c(first_cols,other_cols)])
+        }
+          
         if (conf.int) {
             if (is(x,"merMod") || is(x,"rlmerMod")) {
-                cifix <- confint(p,parm="beta_",method=conf.method,...)
+                cifix <- cifun(p,parm="beta_",method=conf.method,...)
             } else {
                 ## ?? for glmmTMB?  check ...
-                cifix <- confint(p,...)
+                cifix <- cifun(p,...)
             }
             ret <- data.frame(ret,cifix,stringsAsFactors=FALSE)
             nn <- c(nn,"conf.low","conf.high")
@@ -147,8 +196,9 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
             ret <- data.frame(ret,group="fixed",stringsAsFactors=FALSE)
             nn <- c(nn,"group")
         }
-        ret_list$fixed <-
-            fix_data_frame(ret, newnames = nn)
+        ret_list$fixed <- ret %>%
+            tibble::rownames_to_column("term") %>%
+            reorder_frame()
     }
     if ("ran_pars" %in% effects) {
         if (is.null(scales)) {
@@ -197,9 +247,7 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
                         c("group","estimate"))
 
         if (conf.int) {
-            ciran <- confint(p,parm="theta_",method=conf.method,...) %>%
-                as.data.frame %>%
-                setNames(c("conf.low","conf.high"))
+            ciran <- cifun(p,parm="theta_",method=conf.method,...)
             ret <- data.frame(ret,ciran)
         }
         ret_list$ran_pars <- ret %>% tibble::rownames_to_column("term")

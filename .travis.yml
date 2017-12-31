@@ -1,0 +1,15 @@
+## See https://docs.travis-ci.com/user/languages/r/
+language: r 
+sudo: false
+r:
+##  - oldrel
+  - release
+  - devel
+
+cache: packages
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+

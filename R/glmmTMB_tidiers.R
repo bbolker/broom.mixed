@@ -18,7 +18,9 @@
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)
-#'     ## tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
+#'     \dontrun{
+#'        tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
+#'     }
 #'     ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)
@@ -103,18 +105,18 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
         nn <- base_nn[1:ncol(ret$cond)]
     
         if (conf.int) {
-          if (component != "cond")
-            stop("confidence intervals only implemented for conditional component")
-            ## at present confint only does conditional component anyway ...
-            ## Wald -> wald
-            cifix <- confint(x,method=tolower(conf.method),component="cond",...)
-            ## hack: conditional component includes random-effect parameters
-            ## as well, don't want those right now ... need more detailed
-            ## control for components?
-            ## ?? why does confint include Estimate column ???
-            cifix <- cifix[seq(nrow(ret)),1:2]
-            ret <- data.frame(ret,cifix)
-            nn <- c(nn,"conf.low","conf.high")
+          if (any(component != "cond"))
+              warning("confidence intervals only implemented for conditional component")
+          ## at present confint only does conditional component anyway ...
+          ## Wald -> wald
+          cifix <- confint(x,method=tolower(conf.method),component="cond",
+                           estimate=FALSE,
+                           ## conditional component
+                           ## includes random-effect parameters
+                           ## as well, don't want those right now ...
+                           parm=seq(nrow(ret$cond)),...)
+          ret$cond <- data.frame(ret$cond,cifix)
+          nn <- c(nn,"conf.low","conf.high")
         }
         if ("ran_pars" %in% effects || "ran_modes" %in% effects) {
             ret <- lapply(ret, function(x) data.frame(x,group="fixed"))
@@ -137,8 +139,9 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
           class(vv$cond) <- "VarCorr.merMod"
         }
         if ("zi" %in% component) {
-          vv$zi <- VarCorr(x)[["zi"]]
-          class(vv$zi) <- "VarCorr.merMod"
+          if (!is.null(vv$zi <- VarCorr(x)[["zi"]])) {
+              class(vv$zi) <- "VarCorr.merMod"
+          }
         }
     
         ret <- plyr::ldply(vv, as.data.frame, .id = "component")

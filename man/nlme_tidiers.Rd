@@ -7,7 +7,8 @@
 \alias{glance.lme}
 \title{Tidying methods for mixed effects models}
 \usage{
-\method{tidy}{lme}(x, effects = "random", ...)
+\method{tidy}{lme}(x, effects = c("ran_pars", "fixed"), conf.int = FALSE,
+  conf.level = 0.95, ...)
 
 \method{augment}{lme}(x, data = x$data, newdata, ...)
 
@@ -18,6 +19,10 @@
 or \code{nlme}}
 
 \item{effects}{Either "random" (default) or "fixed"}
+
+\item{conf.int}{whether to include a confidence interval}
+
+\item{conf.level}{confidence level for CI}
 
 \item{...}{extra arguments (not used)}
 
@@ -78,13 +83,12 @@ warning is raised and the incomplete rows are dropped.
 \examples{
 
 if (require("nlme") & require("lme4")) {
-    # example regressions are from lme4 documentation, but used for nlme
+    # example regressions are from lme4 documentation
     lmm1 <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
-    
     
     startvec <- c(Asym = 200, xmid = 725, scal = 350)
     nm1 <- nlme(circumference ~ SSlogis(age, Asym, xmid, scal),

@@ -10,17 +10,19 @@
 #' The structure depends on the method chosen.
 #' 
 #' @name nlme_tidiers
+#'
+#' @inheritParams tidy.merMod
 #' 
 #' @examples
 #' 
 #' if (require("nlme") & require("lme4")) {
-#'     # example regressions are from lme4 documentation, but used for nlme
+#'     # example regressions are from lme4 documentation
 #'     lmm1 <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
+#'     tidy(lmm1, conf.int = TRUE)
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)
-#'     
 #'     
 #'     startvec <- c(Asym = 200, xmid = 725, scal = 350)
 #'     nm1 <- nlme(circumference ~ SSlogis(age, Asym, xmid, scal),
@@ -54,39 +56,143 @@
 #'   \item{p.value}{P-value computed from t-statistic}
 #' 
 #' @importFrom plyr ldply
+#' @importFrom nlme getVarCov
 #' @import dplyr
+#' ## @importFrom dplyr data_frame
 #' 
 #' @export
-tidy.lme <- function(x, effects = "random", ...) {
+tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
+                     scales = NULL,
+                     conf.int = FALSE,
+                     conf.level = 0.95,
+                     ...) {
+
+    effect_names <- c("ran_pars", "fixed", "ran_modes", "ran_coefs")
+    if (length(miss <- setdiff(effects,effect_names))>0)
+        stop("unknown effect type ",miss)
 
     ## R CMD check false positives
     term <- estimate <- .id <- level <- std.error <- NULL
 
-    effects <- match.arg(effects, c("random", "fixed"))
-    if (effects == "fixed") {
-        # return tidied fixed effects rather than random
-        ret <- summary(x)$tTable
-
-        # p-values are always there in nlme before Douglas banned them in lme4
-        nn <- c("estimate", "std.error", "statistic", "p.value") 
-        # remove DF
-        return(fix_data_frame(ret[,-3], newnames = nn, newcol = "term"))
+    if (!is.null(scales)) {
+        if (length(scales) != length(effects)) {
+            stop("if scales are specified, values (or NA) must be provided ",
+                 "for each effect")
+        }
     }
 
-    # fix to be a tidy data frame
-    fix <- function(g) {
-        newg <- fix_data_frame(g, newnames = colnames(g), newcol = "level")
-        # fix_data_frame doesn't create a new column if rownames are numeric,
-        # which doesn't suit our purposes
-        newg$level <- rownames(g)
-        cbind(.id = attr(g,"grpNames"),newg )
+    ret_list <- list()
+    
+    if ("fixed" %in% effects) {
+        # return tidied fixed effects
+        ret <- summary(x)[["tTable"]] %>% data.frame(check.names=FALSE) %>%
+                        rename_regex_match() %>%
+                            tibble::rownames_to_column("term")
+        if (conf.int) {
+             cifix <- intervals(x,which="fixed")[["fixed"]] %>%
+                data.frame() %>%
+                dplyr::select(lower,upper) %>%
+                setNames(c("conf.low","conf.high")) %>%
+                tibble::rownames_to_column("term")
+             ret <- dplyr::full_join(ret,cifix,by="term")
+        }
+
+        ran_effs <- sprintf("ran_%s",c("pars","modes","coefs"))
+        if (any(purrr::map_lgl(ran_effs, ~. %in% effects))) {
+            ## add group="fixed" to tidy table for fixed effects
+            ret <- mutate(ret,effect="fixed",group="fixed")
+        }
+
+        ret_list$fixed <- ret %>%
+            reorder_frame()
     }
 
-    # combine them and gather terms
-    ret <-  fix(stats::coef(x))    %>%
-        tidyr::gather(term, estimate, -.id, -level)
-    colnames(ret)[1] <- "group"
-    ret
+    
+    if ("ran_pars" %in% effects) {
+        if (is.null(scales)) {
+            rscale <- "sdcor"
+        } else rscale <- scales[effects=="ran_pars"]
+        if (!rscale %in% c("sdcor","vcov"))
+            stop(sprintf("unrecognized ran_pars scale %s",sQuote(rscale)))
+        vc <- nlme::getVarCov(x)
+        ran_prefix <- switch(rscale,
+                             vcov=c("var","cov"),
+                             sdcor=c("sd","cor"))
+        grplen <- attr(x$modelStruct$reStruct,"plen")
+        if (length(grplen)>1) {
+            warning("not yet reliable for models with >1 level")
+        }
+        nmvec <- outer(colnames(vc),rownames(vc),
+                       function(x,y) { ifelse(x==y,
+                                sprintf("%s_%s",
+                                        ran_prefix[1],
+                                        x),
+                                sprintf("%s_%s.%s",
+                                        ran_prefix[2],
+                                        x,y))
+                                })
+        lwrtri <- function(x) { x[lower.tri(x,diag=TRUE)] }
+        nmvec <- c(lwrtri(nmvec),
+                   sprintf("%s_%s",ran_prefix[1],"Observation"))
+        grpnames <- c(rep(names(grplen),grplen),"Residual")
+        if (rscale=="vcov") {
+            vals <- c(lwrtri(vc),sigma(x)^2)
+        } else {
+            vals <- cov2cor(vc)
+            diag(vals) <- sqrt(diag(vc))
+            vals <- c(lwrtri(vals),sigma(x))
+        }
+        ret <- dplyr::data_frame(effect="ran_pars",
+                   group=grpnames,
+                   term=c(nmvec),
+                   estimate=c(vals))
+
+        if (conf.int) {
+            ii <- intervals(x,which="var-cov")$reStruct
+            trfun <- function(z) {
+                nm <- rownames(z)
+                nm <- sub("\\(","_",
+                   sub(")$","",
+                     sub(",",".",nm)))
+                ## ugh, swap order of vars in cor term
+                corterms <- grepl("^cor",nm)
+                re <- "_([^\\.]+)\\.(.+)$"
+                nm[corterms] <-
+                    sub(re,"_\\2.\\1",nm[corterms],
+                        perl=TRUE)
+                return(dplyr::data_frame(term=nm,conf.low=z[,"lower"],
+                           conf.high=z[,"upper"]))
+            }
+            ci <- dplyr::bind_rows(lapply(ii,trfun),.id="group")
+            if (rscale!="sdcor") {
+                ## FIXME: transform/recompute from scratch
+                warning("confidence intervals for ran pars only available on sdcor scale")
+                ci$conf.low <- ci$conf.high <- NA
+            }
+            ## FIXME: also do confint on residual
+            ret <- dplyr::full_join(ret,ci,by=c("group","term"))
+        }
+        ret_list$ran_pars <- ret
+    }
+    
+    if ("ran_modes" %in% effects) {
+
+        ret_list$ran_modes <-
+            ranef(x) %>%
+            tibble::rownames_to_column("level") %>%
+            tidyr::gather(key=term,value=estimate,-level)
+        ## FIXME: group?
+    }
+    if ("ran_coefs" %in% effects) {
+        ret_list$ran_coefs <-
+            stats::coef(x) %>%
+            tibble::rownames_to_column("level") %>%
+            tidyr::gather(key=term,value=estimate,-level)
+        ## FIXME: group?
+    }
+
+    ret <-  bind_rows(ret_list)
+    return(ret)
 }
 
 

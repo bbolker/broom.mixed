@@ -8,8 +8,14 @@ r:
 
 cache: packages
 
-install:
- - install_aptget r-cran-rcpp r-cran-rcppeigen r-cran-stringr r-cran-digest r-cran-mvtnorm r-cran-ggplot2 r-cran-coda
+apt_packages:
+ - r-cran-rcpp 
+ - r-cran-rcppeigen
+ - r-cran-stringr 
+ - r-cran-digest 
+ - r-cran-mvtnorm 
+ - r-cran-ggplot2 
+ - r-cran-coda
 
 notifications:
   email:

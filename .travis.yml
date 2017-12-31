@@ -1,6 +1,6 @@
 ## See https://docs.travis-ci.com/user/languages/r/
 language: r 
-sudo: false
+sudo: required
 r:
 ##  - oldrel
   - release

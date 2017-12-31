@@ -30,7 +30,7 @@
       (description modified from TJ Mahr at
       \url{https://github.com/tidyverse/broom/issues/96}):
       \itemize{
-	\item Random effect variances and covariances can be now extracted. 
+	\item Random effect variances and covariances can now be extracted. 
 	\code{effects = "ran_pars"} returns the standard deviations/correlations
 	of random effects (if \code{scales="sdcor"} [default])
 	or their variances

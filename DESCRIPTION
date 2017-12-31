@@ -45,7 +45,6 @@ Suggests:
     testthat,
     ggplot2,
     Matrix,
-    purrr,
     MCMCglmm,
     lme4,
     rstan,

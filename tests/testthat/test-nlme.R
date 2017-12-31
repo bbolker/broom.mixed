@@ -9,11 +9,16 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     
     test_that("tidy works on nlme/lme fits", {
         td <- tidy(fit)
+        expect_equal(names(td),
+           c("effect", "group", "term", "estimate",
+             "std.error", "df", "statistic", "p.value"))
     })
     
     test_that("augment works on lme4 fits with or without data", {
-        au <- augment(fit)
-        au <- augment(fit, d)
+        au1 <- augment(fit)
+        au2 <- augment(fit, d)
+        expect_equal(au1,au2)
+        expect_equal(dim(au),c(578,7))
     })
     dNAs <- d
     dNAs$y[c(1, 3, 5)] <- NA
@@ -65,12 +70,12 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     testFit(lme(yield ~ ordered(nitro)*Variety, data = Oats, 
                 random = ~1/Block/Variety))
     # There are cases where no data set is returned in the result 
-    # We can do nothing about this inconsitency but give a useful error message in augment
+    # We can do nothing about this inconsistency but give a useful error message in augment
     fit  = nlme(conc ~ SSfol(Dose, Time, lKe, lKa, lCl), data = Theoph,
                 random = pdDiag(lKe + lKa + lCl ~ 1))
     test_that(
         "Fit without data in returned structure works when data are given", {
-            testFit(fit, Theoph)
+        expect_true(testFit(fit, Theoph))
         })
     # When no data are passed, a meaningful message is issued
     expect_error(augment(fit), "explicit")

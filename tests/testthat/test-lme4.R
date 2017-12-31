@@ -9,6 +9,10 @@ if (require(lme4, quietly = TRUE)) {
     
     test_that("tidy works on lme4 fits", {
         td <- tidy(fit)
+        expect_equal(dim(td),c(12,6))
+        expect_equal(names(td),
+             c("effect", "group", "term", "estimate",
+               "std.error", "statistic"))
     })
 
     test_that("scales works", {
@@ -30,12 +34,14 @@ if (require(lme4, quietly = TRUE)) {
                         family=poisson, seed=101))[[1]]
        gfit <- glmer(y~(1|f)+(1|g),data=dd,family=poisson)
        expect_equal(as.character(tidy(gfit,effects="ran_pars")$term),
-                                 paste("sd_(Intercept)",c("f","g"),sep="."))
+                                 rep("sd_(Intercept)",2))
    })
               
     test_that("augment works on lme4 fits with or without data", {
-        au <- augment(fit)
-        au <- augment(fit, d)
+        au1 <- augment(fit)
+        au2 <- augment(fit, d)
+        ## FIXME: columns not ordered the same??
+        expect_equal(au1,au2[names(au1)])
     })
 
     dNAs <- d
@@ -60,13 +66,15 @@ if (require(lme4, quietly = TRUE)) {
 
     test_that("glance works on lme4 fits", {
         g <- glance(fit)
+        expect_equal(dim(g),c(1,6))
     })
 
     test_that("ran_modes works", {
         fm1 <- lmer(Reaction~Days+(1|Subject),sleepstudy)
         fm2 <- lmer(Reaction~Days+(Days|Subject),sleepstudy)
-        tidy(fm1,"ran_modes")
-        tidy(fm2,"ran_modes")
-        
+        td1 <- tidy(fm1,"ran_modes")
+        td2 <- tidy(fm2,"ran_modes")
+        expect_equal(dim(td1),c(18,6))
+        expect_equal(dim(td2),c(36,6))
     })
 }

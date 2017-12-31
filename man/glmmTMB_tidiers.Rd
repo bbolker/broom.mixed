@@ -8,7 +8,7 @@
 \title{Tidying methods for glmmTMB models}
 \usage{
 \method{tidy}{glmmTMB}(x, effects = c("ran_pars", "fixed"),
-  component = "cond", scales = NULL, ran_prefix = NULL,
+  component = c("cond", "zi"), scales = NULL, ran_prefix = NULL,
   conf.int = FALSE, conf.level = 0.95, conf.method = "Wald", ...)
 
 \method{augment}{glmmTMB}(x, data = stats::model.frame(x), newdata, ...)
@@ -90,7 +90,9 @@ if (require("glmmTMB") && require("lme4")) {
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, effects = "fixed", conf.int=TRUE)
-    ## tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
+    \dontrun{
+       tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
+    }
     ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
     head(augment(lmm1, sleepstudy))
     glance(lmm1)

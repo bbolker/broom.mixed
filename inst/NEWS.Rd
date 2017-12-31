@@ -13,10 +13,23 @@
       group-level estimates
     }
   }
+  \subsection{NEW FEATURES}{
+     \itemize{
+       \item improved \code{nlme} tidiers
+       \item improved \code{glmmTMB} tidiers (can handle some
+       zero-inflation parameters)
+       \item \code{lme4} tidiers now optionally take a pre-computed
+       \code{profile} argument when using \code{conf.method="profile"}
+
+     }
+  }
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
-      \item \code{lme4} tidiers now optionally take a pre-computed
-      \code{profile} argument when using \code{conf.method="profile"}
+      \item \code{term} names for random-effect parameters no longer
+      contain a (redundant) group specifier (at least for \code{lme4}
+      models); use something like
+      \code{tidyr::unite(term,term,group,sep=".")} 
+      to collapse the two columns
     }
   }
 }

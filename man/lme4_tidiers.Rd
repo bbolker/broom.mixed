@@ -110,7 +110,11 @@ if (require("lme4")) {
     ## conditional modes (group-level deviations from population-level estimate)
     tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
     ## coefficients (group-level estimates)
-    tidy(lmm1, effects = "ran_coefs")
+    (rcoef1 <- tidy(lmm1, effects = "ran_coefs"))
+    ## reconstitute standard coefficient-by-level table
+    if (require(tidyr)) {
+       spread(rcoef1,key=term,value=estimate)
+    }
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
     
@@ -133,6 +137,7 @@ if (require("lme4")) {
 if (require("lmerTest")) {
    lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
    tidy(lmm1)
+   glance(lmm1)
    detach("package:lmerTest")  # clean up 
 }
 }

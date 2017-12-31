@@ -7,8 +7,8 @@
 \alias{glance.lme}
 \title{Tidying methods for mixed effects models}
 \usage{
-\method{tidy}{lme}(x, effects = c("ran_pars", "fixed"), conf.int = FALSE,
-  conf.level = 0.95, ...)
+\method{tidy}{lme}(x, effects = c("ran_pars", "fixed"), scales = NULL,
+  conf.int = FALSE, conf.level = 0.95, ...)
 
 \method{augment}{lme}(x, data = x$data, newdata, ...)
 
@@ -19,6 +19,8 @@
 or \code{nlme}}
 
 \item{effects}{Either "random" (default) or "fixed"}
+
+\item{scales}{scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects; inverse-link transformations (exponentiation or logistic) are not yet implemented, but may be in the future.}
 
 \item{conf.int}{whether to include a confidence interval}
 
@@ -87,6 +89,7 @@ if (require("nlme") & require("lme4")) {
     lmm1 <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")
+    tidy(lmm1, conf.int = TRUE)
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
     

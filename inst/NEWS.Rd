@@ -25,6 +25,28 @@
   }
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
+      \item The default behaviour of most mixed-model tidiers has
+      changed/will gradually be changed to the following
+      (description modified from TJ Mahr at
+      \url{https://github.com/tidyverse/broom/issues/96}):
+      \itemize{
+	\item Random effect variances and covariances can be now extracted. 
+	\code{effects = "ran_pars"} returns the standard deviations/correlations
+	of random effects (if \code{scales="sdcor"} [default])
+	or their variances
+	and covariances (if \code{scales = "varcov"})
+	\item Random effects estimates are now extracted with 
+	\code{effects = "ran_coefs"} for the group-level
+	estimates (previously these effects were 
+	extracted with \code{tidy(model, "random")}) or
+	\code{effects = "ran_modes"} for the conditional modes
+	(deviations of the group-level parameters from the
+	population-level estimates)
+	\item \code{effects} can take a vector of values (those listed
+	above, plus "fixed" for fixed effects). The default value
+	is \code{effects = c("ran_pars", "fixed")} which extracts random 
+	effect variances/covariances and fixed effect estimates.
+      }
       \item \code{term} names for random-effect parameters no longer
       contain a (redundant) group specifier (at least for \code{lme4}
       models); use something like

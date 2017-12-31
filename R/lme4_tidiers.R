@@ -97,8 +97,9 @@ confint.rlmerMod <- function(x, parm,
 #' @importFrom tidyr gather spread
 #' @importFrom purrr map
 #' @importFrom nlme VarCorr ranef
-#' @importFrom methods is
+#' @importFrom methods is selectMethod
 #' @importFrom broom fix_data_frame
+#' @importFrom stats cov2cor
 
 #' @export
 tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
@@ -208,17 +209,19 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
             return(p)
         }
 
-        rownames(ret) <- paste(apply(ret[c("var1","var2")],1,pfun))
+        ## don't try to assign as rowname (non-unique anyway),
+        ## make it directly into a term column
+        ret[["term"]] <- apply(ret[c("var1","var2")],1,pfun)
 
         ## keep only desired term, rename
-        ret <- setNames(ret[c("grp",rscale)],
-                        c("group","estimate"))
+        ret <- setNames(ret[c("grp","term",rscale)],
+                        c("group","term","estimate"))
 
         if (conf.int) {
             ciran <- cifun(p,parm="theta_",method=conf.method,...)
             ret <- data.frame(ret,ciran)
         }
-        ret_list$ran_pars <- ret %>% tibble::rownames_to_column("term")
+        ret_list$ran_pars <- ret
     }
 
     

@@ -8,6 +8,9 @@ r:
 
 cache: packages
 
+install:
+ - ./travis-tool.sh install_aptget r-cran-rcpp r-cran-rcppeigen r-cran-stringr r-cran-digest r-cran-mvtnorm r-cran-ggplot2
+
 notifications:
   email:
     on_success: change

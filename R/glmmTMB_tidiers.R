@@ -77,9 +77,9 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
 
     ## R CMD check false positives
     term <- estimate <- .id <- level <- std.error <- NULL
-    
-    if (length(component)>1 || component!="cond") {
-        stop("only works for conditional component")
+
+    if (length(component[!component %in% c("cond", "zi")]) > 0L) {
+        stop("only works for conditional and (partly for) zero-inflation components")
     }
     effect_names <- c("ran_pars", "fixed", "ran_modes")
     if (!is.null(scales)) {
@@ -91,15 +91,20 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
     if (length(miss <- setdiff(effects,effect_names))>0)
         stop("unknown effect type ",miss)
     base_nn <- c("estimate", "std.error", "statistic", "p.value")
+    ret <- list()
     ret_list <- list()
     if ("fixed" %in% effects) {
         # return tidied fixed effects rather than random
-        ret <- stats::coef(summary(x))[[component]]
-
+        if ("cond" %in% component) ret$cond <- stats::coef(summary(x))[["cond"]]
+        if ("zi" %in% component) ret$zi <- stats::coef(summary(x))[["zi"]]
+    
         # p-values may or may not be included
-        nn <- base_nn[1:ncol(ret)]
-
+        # HACK: use the columns from the conditional component, preserving previous behaviour
+        nn <- base_nn[1:ncol(ret$cond)]
+    
         if (conf.int) {
+          if (component != "cond")
+            stop("confidence intervals only implemented for conditional component")
             ## at present confint only does conditional component anyway ...
             ## Wald -> wald
             cifix <- confint(x,method=tolower(conf.method),component="cond",...)
@@ -112,11 +117,11 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
             nn <- c(nn,"conf.low","conf.high")
         }
         if ("ran_pars" %in% effects || "ran_modes" %in% effects) {
-            ret <- data.frame(ret,group="fixed")
+            ret <- lapply(ret, function(x) data.frame(x,group="fixed"))
             nn <- c(nn,"group")
         }
-        ret_list$fixed <-
-            broom::fix_data_frame(ret, newnames = nn)
+        ret_list$fixed <- plyr::ldply(ret, .fun = broom::fix_data_frame,
+                                      newnames = nn, .id = "component")
     }
     if ("ran_pars" %in% effects &&
         !all(sapply(VarCorr(x),is.null))) {
@@ -126,9 +131,17 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
         if (!rscale %in% c("sdcor","vcov"))
             stop(sprintf("unrecognized ran_pars scale %s",sQuote(rscale)))
         ## kluge for now ...
-        vv <- VarCorr(x)[[component]]
-        class(vv) <- "VarCorr.merMod"
-        ret <- as.data.frame(vv)
+        vv <- list()
+        if ("cond" %in% component){
+          vv$cond <- VarCorr(x)[["cond"]]
+          class(vv$cond) <- "VarCorr.merMod"
+        }
+        if ("zi" %in% component) {
+          vv$zi <- VarCorr(x)[["zi"]]
+          class(vv$zi) <- "VarCorr.merMod"
+        }
+    
+        ret <- plyr::ldply(vv, as.data.frame, .id = "component")
         ret[] <- lapply(ret, function(x) if (is.factor(x))
                                                  as.character(x) else x)
         if (is.null(ran_prefix)) {
@@ -161,8 +174,8 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
         }
         
         ## replicate lme4:::tnames, more or less
-        ret_list$ran_pars <- broom::fix_data_frame(ret[c("grp",rscale)],
-                                            newnames=c("group","estimate"))
+        ret_list$ran_pars <- broom::fix_data_frame(ret[c("component","rownames",rscale,"grp")],
+                                                   newnames=c("component","term","estimate","group"))
     }
     if ("ran_modes" %in% effects) {
         ## fix each group to be a tidy data frame

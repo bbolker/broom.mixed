@@ -2,6 +2,9 @@
 ## test tidy, augment, glance methods from nlme-tidiers.R
 stopifnot(require("testthat"), require("broom.mixed"))
 
+## HACK: need to find the right generic
+tidy <- broom.mixed:::tidy.lme
+
 if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     context("nlme models")
     

@@ -1,6 +1,9 @@
 stopifnot(require("testthat"), require("broom.mixed"))
 ## test tidy, augment, glance methods from lme4-tidiers.R
 
+## HACK: need to make sure we find the right generic!
+tidy <- broom.mixed:::tidy.merMod
+
 if (require(lme4, quietly = TRUE)) {
     context("lme4 models")
     
@@ -9,9 +12,9 @@ if (require(lme4, quietly = TRUE)) {
     fit <<- lmer(y ~ tx*x + (x | subj), data=d)
     
     test_that("tidy works on lme4 fits", {
-        ## n.b. have to specify tidy
-        ##   because the old version from broom may be found first
-        td <- broom::tidy(fit)
+        td <- tidy(fit)
+        print(dim(td))
+        print(names(td))
         expect_equal(dim(td),c(12,6))
         expect_equal(names(td),
              c("effect", "group", "term", "estimate",

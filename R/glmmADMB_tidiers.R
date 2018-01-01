@@ -12,7 +12,7 @@
 #'
 #' @examples
 #' 
-#' if (require("glmmADMB") && require("lme4")) {
+#' if (require("broom") && require("glmmADMB") && require("lme4")) {
 #'     # example regressions are from lme4 documentation
 #'     lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
 #'           family="gaussian")

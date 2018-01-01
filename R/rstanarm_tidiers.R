@@ -22,24 +22,26 @@
 #'   }
 #' }
 #' ## load example data
-#' fit <- readRDS(system.file("example_data","rstanarm_ex.rds",package="broom.mixed"))
+#' #' fit <- readRDS(system.file("example_data","rstanarm_ex.rds",package="broom.mixed"))
+#'
+#' if (require("broom")) {
+#'   # non-varying ("population") parameters
+#'   tidy(fit, intervals = TRUE, prob = 0.5)
 #' 
-#' # non-varying ("population") parameters
-#' tidy(fit, intervals = TRUE, prob = 0.5)
+#'   # hierarchical sd & correlation parameters
+#'   tidy(fit, parameters = "hierarchical")
 #' 
-#' # hierarchical sd & correlation parameters
-#' tidy(fit, parameters = "hierarchical")
+#'   # group-specific deviations from "population" parameters
+#'   tidy(fit, parameters = "varying")
 #' 
-#' # group-specific deviations from "population" parameters
-#' tidy(fit, parameters = "varying")
-#' 
-#' # glance method
-#' glance(fit)
-#' \dontrun{
-#' glance(fit, looic = TRUE, cores = 1)
-#' }
-#' ## note that this glance() call will produce a warning recommending
-#' ## that you specify \code{k_threshold=0.7}
+#'   # glance method
+#'    glance(fit)
+#'   \dontrun{
+#'      glance(fit, looic = TRUE, cores = 1)
+#'   }
+#'   ## note that this glance() call will produce a warning recommending
+#'   ## that you specify \code{k_threshold=0.7}
+#' } ## if broom available
 #' 
 #' 
 #'  

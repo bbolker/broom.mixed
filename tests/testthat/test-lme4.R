@@ -1,14 +1,17 @@
-# test tidy, augment, glance methods from lme4-tidiers.R
+stopifnot(require("testthat"), require("broom.mixed"))
+## test tidy, augment, glance methods from lme4-tidiers.R
 
 if (require(lme4, quietly = TRUE)) {
     context("lme4 models")
     
     d <- as.data.frame(ChickWeight)
     colnames(d) <- c("y", "x", "subj", "tx")
-    fit <- lmer(y ~ tx*x + (x | subj), data=d)
+    fit <<- lmer(y ~ tx*x + (x | subj), data=d)
     
     test_that("tidy works on lme4 fits", {
-        td <- tidy(fit)
+        ## n.b. have to specify tidy
+        ##   because the old version from broom may be found first
+        td <- broom::tidy(fit)
         expect_equal(dim(td),c(12,6))
         expect_equal(names(td),
              c("effect", "group", "term", "estimate",
@@ -27,14 +30,15 @@ if (require(lme4, quietly = TRUE)) {
         expect_error(tidy(fit,scales="vcov"),
                      "must be provided for each effect")
               })
+    
     test_that("tidy works with more than one RE grouping variable", {
        dd <- expand.grid(f=factor(1:10),g=factor(1:5),rep=1:3)
        dd$y <- suppressMessages(simulate(~(1|f)+(1|g),newdata=dd,
                         newparams=list(beta=1,theta=c(1,1)),
                         family=poisson, seed=101))[[1]]
        gfit <- glmer(y~(1|f)+(1|g),data=dd,family=poisson)
-       expect_equal(as.character(tidy(gfit,effects="ran_pars")$term),
-                                 rep("sd_(Intercept)",2))
+       tnames <- as.character(tidy(gfit,effects="ran_pars")$term)
+       expect_equal(tnames,rep("sd_(Intercept)",2))
    })
               
     test_that("augment works on lme4 fits with or without data", {

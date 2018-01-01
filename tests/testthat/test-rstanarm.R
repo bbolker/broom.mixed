@@ -1,9 +1,8 @@
-# test tidy and glance methods from rstanarm_tidiers.R
+## test tidy and glance methods from rstanarm_tidiers.R
+stopifnot(require("testthat"), require("broom.mixed"), require("broom"))
 
 context("rstanarm tidiers")
-suppressPackageStartupMessages(library(rstanarm))
-
-if (require(rstanarm, quietly = TRUE)) {
+if (suppressPackageStartupMessages(require(rstanarm, quietly=TRUE))) {
     set.seed(2016)
     capture.output(
         fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
@@ -38,4 +37,4 @@ if (require(rstanarm, quietly = TRUE)) {
         expect_equal(colnames(g1), c("algorithm", "pss", "nobs", "sigma"))
         expect_equal(colnames(g2), c(colnames(g1), "looic", "elpd_loo", "p_loo"))
     })
-}
+}  ## rstanarm available

@@ -1,4 +1,6 @@
-# test tidy, augment, glance methods from nlme-tidiers.R
+
+## test tidy, augment, glance methods from nlme-tidiers.R
+stopifnot(require("testthat"), require("broom.mixed"))
 
 if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     context("nlme models")
@@ -18,7 +20,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
         au1 <- augment(fit)
         au2 <- augment(fit, d)
         expect_equal(au1,au2)
-        expect_equal(dim(au),c(578,7))
+        expect_equal(dim(au1),c(578,7))
     })
     dNAs <- d
     dNAs$y[c(1, 3, 5)] <- NA

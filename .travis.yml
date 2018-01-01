@@ -4,7 +4,7 @@ sudo: required
 r:
 ##  - oldrel
   - release
-  - devel
+##  - devel
 
 cache: packages
 

@@ -1,6 +1,10 @@
 ## To do
 
-- general cleanup, API design ...
-- address/import GH issues from broom: https://github.com/tidyverse/broom/issues/223 , https://github.com/tidyverse/broom/issues/162, https://github.com/tidyverse/broom/issues/126, https://github.com/tidyverse/broom/issues/125, https://github.com/tidyverse/broom/issues/96
+- parameter naming
+- general approach for model components (conditional, z-i, dispersion model ...)
+- generalize API to all tidiers
+     - parameter names
+     - checklist
+     - ability to extract (1) fixef (2) var-cov pars, either scale (3) ran modes (4) ran coefs
 - MCMCglmm ranef tidiers https://stackoverflow.com/questions/47598123/how-do-i-extract-random-effects-from-mcmcglmm/47598440#47598440
-- ~figure out what to do about off-CRAN packages (glmmADMB, INLA)~
+- INLA tidiers?

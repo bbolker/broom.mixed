@@ -160,13 +160,15 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
             nn <- c(nn,"conf.low","conf.high")
         }
         ran_effs <- sprintf("ran_%s",c("pars","modes","coefs"))
+
+        ## need to save rownames before mutate() destroys them ...
+        ret <- ret %>% tibble::rownames_to_column("term")
+
         if (any(purrr::map_lgl(ran_effs, ~. %in% effects))) {
             ## add group="fixed" to tidy table for fixed effects
             ret <- mutate(ret,group="fixed")
         }
-        ret_list$fixed <- ret %>%
-            tibble::rownames_to_column("term") %>%
-            reorder_frame()
+        ret_list$fixed <-  reorder_frame(ret)
     }
     if ("ran_pars" %in% effects) {
         if (is.null(scales)) {

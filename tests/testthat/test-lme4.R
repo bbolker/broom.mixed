@@ -19,6 +19,11 @@ if (require(lme4, quietly = TRUE)) {
         expect_equal(names(td),
              c("effect", "group", "term", "estimate",
                "std.error", "statistic"))
+        expect_equal(td$term,
+                     c("(Intercept)", "tx2", "tx3", "tx4", "x",
+                       "tx2:x", "tx3:x", "tx4:x",
+                       "sd_(Intercept)", "sd_x",
+                       "cor_(Intercept).x", "sd_Observation"))
     })
 
     test_that("scales works", {

@@ -79,7 +79,7 @@ finish_glance <- function(ret=data.frame(),x) {
         return(tt)
     }
     
-    newvals <- data.frame(sigma=sigma(x),
+    newvals <- data.frame(sigma=tfun(sigma(x)),
                           logLik=tfun(as.numeric(stats::logLik(x))),
                           AIC=tfun(stats::AIC(x)),
                           BIC=tfun(stats::BIC(x)),

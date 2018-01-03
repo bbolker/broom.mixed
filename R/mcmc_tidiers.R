@@ -12,6 +12,7 @@
 #' @param drop.pars Parameters not to include in the output (such
 #' as log-probability information)
 #' @param rhat,ess (logical) include Rhat and/or effective sample size estimates?
+#' @param index add index column, remove index from term
 #' @param ... unused
 #' 
 #' @name mcmc_tidiers
@@ -22,41 +23,38 @@
 #' # Using example from "RStan Getting Started"
 #' # https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
 #' 
-#' model_file <- system.file("extdata", "8schools.stan", package = "broom")
-#' 
+#' model_file <- system.file("example_data", "8schools.stan", package = "broom.mixed")
 #' schools_dat <- list(J = 8, 
 #'                     y = c(28,  8, -3,  7, -1,  1, 18, 12),
 #'                     sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
-#' 
-#' if (require("broom") && requireNamespace("rstan", quietly = TRUE)) {
-#'   infile <- system.file("extdata", "rstan_example.rda", package = "broom")
-#'   if (infile=="") {
-#'      set.seed(2015)
-#'      rstan_example <- rstan::stan(file = model_file, data = schools_dat, 
-#'                         iter = 100, chains = 2)
-#'   } else {
-#'   # the object from the above code was saved as rstan_example.rda
-#'     load(infile)
-#'   }
-#'   tidy(rstan_example)
-#'   tidy(rstan_example, conf.int = TRUE, pars = "theta")
+#' \dontrun{
+#'   if (require(rstan)) {
+#'       set.seed(2015)
+#'       rstan_example <- rstan::stan(file = model_file, data = schools_dat, 
+#'                          iter = 1000, chains = 2, save_dso = FALSE)
+#'      }
+#' }
+#' rstan_example <- readRDS(system.file("example_data", "rstan_example.rds", package = "broom.mixed"))
+#' if (require(broom)) {
+#'    tidy(rstan_example)
+#'    tidy(rstan_example, conf.int = TRUE, pars = "theta")
 #'   
-#'   td_mean <- tidy(rstan_example, conf.int = TRUE)
-#'   td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
-#'   
-#'   library(dplyr)
-#'   library(ggplot2)
-#'   tds <- rbind(mutate(td_mean, method = "mean"),
+#'    td_mean <- tidy(rstan_example, conf.int = TRUE)
+#'    td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
+#'
+#'    if (require(dplyr) && require(ggplot2)) {
+#'       tds <- rbind(mutate(td_mean, method = "mean"),
 #'                mutate(td_median, method = "median")) %>%
-#'   mutate(type=ifelse(grepl("^theta",term),"theta",
+#'          mutate(type=ifelse(grepl("^theta",term),"theta",
 #'               ifelse(grepl("^eta",term),"eta",
-#'                      "other")))
+#'                     "other")))
 #'   
-#'   ggplot(tds, aes(estimate, term)) +
-#'     geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),height=0) +
-#'     geom_point(aes(color = method))+
-#'     facet_wrap(~type,scale="free",ncol=1)
-#' } ## stan
+#'        ggplot(tds, aes(estimate, term)) +
+#'         geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),height=0) +
+#'         geom_point(aes(color = method))+
+#'         facet_wrap(~type,scale="free",ncol=1)
+#'    } ## require(dplyr,ggplot2)
+#' } ## if require(broom)
 #' 
 #' if (requireNamespace("MCMCglmm", quietly = TRUE)) {
 #'     data(PlodiaPO,package="MCMCglmm")  
@@ -75,6 +73,7 @@ tidyMCMC <- function(x,
                      drop.pars = c("lp__","deviance"),
                      rhat = FALSE,
                      ess = FALSE,
+                     index = FALSE,
                      ...) {
     
     estimate.method <- match.arg(estimate.method)

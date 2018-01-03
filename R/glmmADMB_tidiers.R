@@ -15,7 +15,7 @@
 #' if (require("broom") && require("glmmADMB") && require("lme4")) {
 #'     # example regressions are from lme4 documentation
 #'     ## lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
-#'           family="gaussian")
+#'     ##           family="gaussian")
 #'     load(system.file("example_data","glmmADMB_ex.rda",package="broom.mixed"))
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)

@@ -15,7 +15,8 @@
 #' if (require("broom") && require("glmmTMB") && require("lme4")) {
 #'     
 #'     # example regressions are from lme4 documentation
-#'     lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+#'     ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+#'     readRDS(system.file("example_data","glmmTMB_ex.rds",package="broom.mixed"))
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)
@@ -269,6 +270,5 @@ augment.glmmTMB <- function(x, data = stats::model.frame(x), newdata,
 #' @rawNamespace if(getRversion()>='3.3.0') importFrom(stats, sigma) else importFrom(lme4,sigma)
 #' @export
 glance.glmmTMB <- function(x, ...) {
-    ret <- unrowname(data.frame(sigma = sigma(x)))
-    broom::finish_glance(ret, x)
+    finish_glance(x=x)
 }

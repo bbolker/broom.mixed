@@ -87,7 +87,8 @@ warning is raised and the incomplete rows are dropped.
 if (require("broom") && require("glmmTMB") && require("lme4")) {
     
     # example regressions are from lme4 documentation
-    lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+    ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+    readRDS(system.file("example_data","glmmTMB_ex.rds",package="broom.mixed"))
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, effects = "fixed", conf.int=TRUE)

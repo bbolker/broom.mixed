@@ -13,8 +13,6 @@ if (require(lme4, quietly = TRUE)) {
     
     test_that("tidy works on lme4 fits", {
         td <- tidy(fit)
-        print(dim(td))
-        print(names(td))
         expect_equal(dim(td),c(12,6))
         expect_equal(names(td),
              c("effect", "group", "term", "estimate",

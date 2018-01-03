@@ -12,7 +12,7 @@
 
 \method{augment}{lme}(x, data = x$data, newdata, ...)
 
-\method{glance}{lme}(x, ...)
+\method{glance}{lme}(x)
 }
 \arguments{
 \item{x}{An object of class \code{lme}, such as those from \code{lme}
@@ -63,8 +63,9 @@ with columns (each prepended by a .) added. Included are the columns
   \item{logLik}{the data's log-likelihood under the model}
   \item{AIC}{the Akaike Information Criterion}
   \item{BIC}{the Bayesian Information Criterion}
-  \item{deviance}{returned as NA. To quote Brian Ripley on R-help:
- McCullagh & Nelder (1989) would be the authorative reference, but the 1982
+  \item{deviance}{returned as NA. To quote Brian Ripley on R-help
+\url{https://stat.ethz.ch/pipermail/r-help/2006-May/104744.html}
+ McCullagh & Nelder (1989) would be the authorative [sic] reference, but the 1982
 first edition manages to use 'deviance' in three separate senses on one
 page. }
 }

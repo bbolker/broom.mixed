@@ -64,4 +64,60 @@ reorder_frame <- function(x,first_cols=c("effect","group","term","estimate")) {
     other_cols <- setdiff(names(x),first_cols)
     return(x[,c(first_cols,other_cols)])
 }
-          
+
+## FIXME: store functions to run as a list of expressions,
+##  allow user-specified 'skip' argument?
+finish_glance <- function(ret=data.frame(),x) {
+
+    stopifnot(length(ret)==0 || nrow(ret)==1)
+    
+    ## catch NULL, numeric(0), error responses
+
+    tfun <- function(e) {
+        tt <- tryCatch(eval(substitute(e)),error=function(e) NA)
+        if (length(tt)==0) tt <- NA
+        return(tt)
+    }
+    
+    newvals <- data.frame(sigma=sigma(x),
+                          logLik=tfun(as.numeric(stats::logLik(x))),
+                          AIC=tfun(stats::AIC(x)),
+                          BIC=tfun(stats::BIC(x)),
+                          deviance=suppressWarnings(tfun(stats::deviance(x))),
+                          df.residual=tfun(stats::df.residual(x)))
+    ## drop NA values
+    newvals <- newvals[!vapply(newvals,is.na,logical(1))]
+
+    if (length(ret)==0) {
+        return(unrowname(newvals))
+    } else {
+        return(unrowname(data.frame(ret,newvals)))
+    }
+}
+
+######
+## experimental finish_glance ...
+f2 <- function(ret=data.frame(),x,skip_funs=character(0)) {
+
+    tfun <- function(f) {
+        tt <- tryCatch(f(x),error=function(e) NA)
+        if (length(tt)==0) tt <- NA
+        return(tt)
+    }
+
+    stopifnot(length(ret)==0 || nrow(ret)==1)
+
+    funs <- c("logLik","AIC","BIC","deviance","df.residual")
+    funs <- setdiff(funs,skip_funs)
+
+    newvals <- lapply(funs, function(f) as.numeric(tfun(get(f,"package:stats"))))
+    newvals <- as.data.frame(newvals)
+    names(newvals) <- funs
+    ## drop NA values
+    newvals <- newvals[!vapply(newvals,is.na,logical(1))]
+    if (length(ret)==0) {
+        return(unrowname(newvals))
+    } else {
+        return(unrowname(data.frame(ret,newvals)))
+    }
+}

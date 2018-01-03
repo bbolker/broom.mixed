@@ -14,8 +14,9 @@
 #' 
 #' if (require("broom") && require("glmmADMB") && require("lme4")) {
 #'     # example regressions are from lme4 documentation
-#'     lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
+#'     ## lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
 #'           family="gaussian")
+#'     load(system.file("example_data","glmmADMB_ex.rda",package="broom.mixed"))
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)
 #'     ## tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
@@ -282,9 +283,10 @@ augment.glmmadmb <- function(x, data = stats::model.frame(x), newdata, ...) {
 #' 
 #' @export
 glance.glmmadmb <- function(x, ...) {
-    ## FIXME: may need to be fixed via @importFrom/NAMESPACE ?
-    ## sigma <- if (getRversion()>="3.3.0") stats::sigma else lme4::sigma
-    if (is.null(s <- x$alpha)) s <- NA
-    ret <- unrowname(data.frame(sigma = s))
-    finish_glance(ret, x)
+    ## hack, glmmADMB doesn't have a sigma.glmmADMB method (yet)
+    sigma.glmmADMB <- function(x) {
+        if (is.null(s <- x$alpha)) s <- NA
+        return(s)
+    }
+    return(finish_glance(x=x))
 }

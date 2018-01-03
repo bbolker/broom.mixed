@@ -256,17 +256,14 @@ augment.lme <- function(x, data = x$data, newdata, ...) {
 #'   \item{logLik}{the data's log-likelihood under the model}
 #'   \item{AIC}{the Akaike Information Criterion}
 #'   \item{BIC}{the Bayesian Information Criterion}
-#'   \item{deviance}{returned as NA. To quote Brian Ripley on R-help:
-#'  McCullagh & Nelder (1989) would be the authorative reference, but the 1982
+#'   \item{deviance}{returned as NA. To quote Brian Ripley on R-help
+#' \url{https://stat.ethz.ch/pipermail/r-help/2006-May/104744.html}
+#'  McCullagh & Nelder (1989) would be the authorative [sic] reference, but the 1982
 #' first edition manages to use 'deviance' in three separate senses on one
 #' page. }
-#' 
+#'
 #' @export
-glance.lme <- function(x, ...) {
-    ret <- unrowname(data.frame(sigma = x$sigma))
-    ret = finish_glance(ret, x)
-    ret$deviance = NA
-#    ret$deviance = -2 * x$logLik # Or better leave this out totally?
-    ret
+glance.lme <- function(x) {
+    finish_glance(x=x)
 }
 

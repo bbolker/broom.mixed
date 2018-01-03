@@ -46,21 +46,23 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
         expect_equal(nrow(au), nrow(dNAs))
         expect_equal(complete.cases(au), complete.cases(dNAs))
     })
-    
+
+    ## FIXME: weak tests - only shows that no error occurs and
+    ##  the right type is returned!
     test_that("glance works on nlme fits", {
-        g <- glance(fit)
+        expect_is(glance(fit),"data.frame")
     })
     
     
     testFit <- function(fit, data = NULL){
         test_that("Pinheiro/Bates fit works", {
-            tidy(fit, "fixed")
-            tidy(fit)
-            glance(fit)
+            expect_is(tidy(fit, "fixed"),"data.frame")
+            expect_is(tidy(fit),"data.frame")
+            expect_is(glance(fit),"data.frame")
             if (is.null(data)) {
-                augment(fit)
+                expect_is(augment(fit),"data.frame")
             } else {
-                augment(fit, data)
+                expect_is(augment(fit, data),"data.frame")
             }
         })
     }

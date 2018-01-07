@@ -1,0 +1,10 @@
+#!/bin/bash
+### https://stackoverflow.com/questions/4589731/git-blame-statistics
+FILES=`echo R/*.R | sed -e "s#R/##g"`
+cd ../broom
+for i in $FILES; do
+    if [ "$i" != "utilities.R" ] && [ -e R/$i ]; then
+       echo "***  $i"
+       git blame --line-porcelain R/$i | grep "^author " | sort | uniq
+    fi
+done

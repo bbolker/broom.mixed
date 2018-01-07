@@ -2,3 +2,4 @@ TODO.md
 man-roxygen
 .Rhistory
 .travis.yml
+misc/*

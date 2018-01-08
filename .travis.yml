@@ -1,6 +1,8 @@
 language: r
 sudo: false
-r: release
+r: 
+  - release
+  - devel
 cache: packages
 
 latex: true

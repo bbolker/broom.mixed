@@ -3,3 +3,5 @@ man-roxygen
 .Rhistory
 .travis.yml
 misc/*
+^.*\.Rproj$
+^\.Rproj\.user$

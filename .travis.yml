@@ -1,24 +1,38 @@
-## See https://docs.travis-ci.com/user/languages/r/
-language: r 
-sudo: required
-r:
-##  - oldrel
-  - release
-##  - devel
-
+language: r
+sudo: false
+r: release
 cache: packages
 
-apt_packages:
- - r-cran-rcpp 
- - r-cran-rcppeigen
- - r-cran-stringr 
- - r-cran-digest 
- - r-cran-mvtnorm 
- - r-cran-ggplot2 
- - r-cran-coda
+latex: true
+r_build_args: '--no-build-vignettes --no-manual'
+r_check_args: '--ignore-vignettes --no-manual'
 
-notifications:
-  email:
-    on_success: change
-    on_failure: change
+r_github_packages:
+  - jimhester/covr
+
+env:
+  matrix:
+    - CXX_OLEVEL=2 CXX=clang++
+
+before_install:
+  - mkdir -p ~/.R/
+  - echo "CXX = `R CMD config CXX`" >> ~/.R/Makevars
+  - echo "CXXFLAGS = `R CMD config CXXFLAGS` -pedantic -g0" >> ~/.R/Makevars
+  - export CLANG_EXTRA_ARG=""
+  - if [[ $CXX = "clang++" ]] ;  then export CLANG_EXTRA_ARG=" -Qunused-arguments -fcolor-diagnostics " ; fi
+  - sed -i.bak "s/ g++/ ${CXX}${CLANG_EXTRA_ARG}/" ~/.R/Makevars
+  - sed -i.bak "s/O[0-3]/O$CXX_OLEVEL/" ~/.R/Makevars
+
+script:
+  - |
+    travis_wait 59 R CMD build .
+    travis_wait 59 R CMD check broom.mixed*tar.gz
+
+after_script:
+  - tar -ztvf broom.mixed_*.tar.gz
+  - echo ${NOT_CRAN}
+
+after_success:
+  - travis_wait 40 tar -C .. -xf $PKG_TARBALL
+  - travis_wait 40 Rscript -e 'covr::coveralls()'
 

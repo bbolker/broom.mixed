@@ -1,6 +1,6 @@
 language: r
 sudo: false
-r: devel
+r: release
 cache: packages
 
 latex: false
@@ -25,8 +25,8 @@ before_install:
 
 script:
   - |
-    travis_wait 100 R CMD build .
-    travis_wait 100 R CMD check broom.mixed*tar.gz
+    travis_wait 59 R CMD build .
+    travis_wait 59 R CMD check broom.mixed*tar.gz
 
 after_script:
   - tar -ztvf broom.mixed_*.tar.gz

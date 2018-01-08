@@ -4,8 +4,8 @@ r: release
 cache: packages
 
 latex: false
-r_build_args: '--no-build-vignettes'
-r_check_args: '--ignore-vignettes'
+r_build_args: '--no-build-vignettes --no-manual'
+r_check_args: '--ignore-vignettes --no-manual'
 
 r_github_packages:
   - jimhester/covr

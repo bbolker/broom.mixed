@@ -3,7 +3,7 @@ sudo: false
 r: release
 cache: packages
 
-latex: false
+latex: true
 r_build_args: '--no-build-vignettes --no-manual'
 r_check_args: '--ignore-vignettes --no-manual'
 

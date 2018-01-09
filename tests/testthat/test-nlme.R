@@ -78,8 +78,8 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     testFit <- function(fit, data = NULL){
         test_that("Pinheiro/Bates fit works", {
             expect_is(tidy(fit, "fixed"), "data.frame")
-            expect_warning(td <- tidy(fit), "ran_pars not yet implemented")
-            expect_is(td, "data.frame")
+            # TODO: Better idea than suppressWarnings to avoid "ran_pars" ??
+            expect_is(suppressWarnings(tidy(fit)), "data.frame")
             expect_is(glance(fit), "data.frame")
             if (is.null(data)) {
                 expect_is(augment(fit), "data.frame")

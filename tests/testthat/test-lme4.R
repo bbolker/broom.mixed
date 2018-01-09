@@ -115,5 +115,17 @@ if (require(lme4, quietly = TRUE)) {
         expect_equal(dim(td1),c(18,6))
         expect_equal(dim(td2),c(36,6))
     })
+
+    test_that("testing lmerTest p-values behind Douglas Bates' back", {
+      library(lmerTest)
+      lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+      td <- broom.mixed::tidy(lmm1, "fixed")
+      expect_equal(names(td),
+                   c("effect", "term", "estimate",
+                     "std.error", "df", "statistic", "p.value"))
+      td_ran <- broom::tidy(lmm1, "ran_pars")
+      expect_equal(names(td_ran), c("effect","group", "term", "estimate"))
+      #expect_false(all(is.na(td_ran$estimate)))
+    })
     
 }

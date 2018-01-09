@@ -39,6 +39,7 @@ Imports:
     reshape2,
     nlme,
     methods,
+    stringr,
     coda
 Suggests:
     knitr,

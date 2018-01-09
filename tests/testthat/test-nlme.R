@@ -20,6 +20,26 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
              "std.error", "df", "statistic", "p.value"))
     })
     
+    test_that("tidy works on non-linear fits",{
+      fm1 <- nlme(height ~ SSasymp(age, Asym, R0, lrc),
+                  data = Loblolly,
+                  fixed = Asym + R0 + lrc ~ 1,
+                  random = Asym ~ 1,
+                  start = c(Asym = 103, R0 = -8.5, lrc = -3.3))
+      td <- expect_warning(tidy(fm1), "ran_pars not yet implemented")
+      expect_equal(names(td),
+                   c("effect", "group", "term", "estimate",
+                     "std.error", "df", "statistic", "p.value"))
+      td_ran <- expect_warning(tidy(fm1, "ran_pars"))
+      expect_is(td_ran, "tbl_df")
+      expect_equal(ncol(td_ran), 0)
+      expect_equal(nrow(td_ran), 0)
+      td_fix <- tidy(fm1, "fixed")
+      expect_equal(names(td_fix), 
+                   c("term", "estimate",
+                     "std.error", "df", "statistic", "p.value"))
+    })
+
     test_that("augment works on lme4 fits with or without data", {
         au1 <- augment(fit)
         au2 <- augment(fit, d)
@@ -57,13 +77,14 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     
     testFit <- function(fit, data = NULL){
         test_that("Pinheiro/Bates fit works", {
-            expect_is(tidy(fit, "fixed"),"data.frame")
-            expect_is(tidy(fit),"data.frame")
-            expect_is(glance(fit),"data.frame")
+            expect_is(tidy(fit, "fixed"), "data.frame")
+            expect_warning(td <- tidy(fit), "ran_pars not yet implemented")
+            expect_is(td, "data.frame")
+            expect_is(glance(fit), "data.frame")
             if (is.null(data)) {
-                expect_is(augment(fit),"data.frame")
+                expect_is(augment(fit), "data.frame")
             } else {
-                expect_is(augment(fit, data),"data.frame")
+                expect_is(augment(fit, data), "data.frame")
             }
         })
     }
@@ -87,4 +108,17 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
         })
     # When no data are passed, a meaningful message is issued
     expect_error(augment(fit), "explicit")
+    
+    test_that("testing lmerTest p-values behind Douglas Bates' back", {
+      library(lmerTest)
+      lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+      td <- broom::tidy(lmm1, "fixed")
+      expect_equal(names(td),
+                   c("effect", "term", "estimate",
+                     "std.error", "df", "statistic", "p.value"))
+      td_ran <- broom::tidy(lmm1, "ran_pars")
+      expect_equal(names(td_ran), c("effect","group", "term", "estimate"))
+      #expect_false(all(is.na(td_ran$estimate)))
+    })
+
 }

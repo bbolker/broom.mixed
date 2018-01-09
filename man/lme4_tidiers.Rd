@@ -104,7 +104,7 @@ if (require("broom") && require("lme4")) {
     tidy(lmm1, effects = "fixed", conf.int=TRUE)
     tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
     ## pp <- profile(lmm1)
-    lmm1_prof <- readRDS(system.file("example_data","lmm1_prof.rds",
+    lmm1_prof <- readRDS(system.file("extdata","lmm1_prof.rds",
                                      package="broom.mixed"))
     tidy(lmm1, conf.int=TRUE, conf.method="profile", profile=lmm1_prof)
     ## conditional modes (group-level deviations from population-level estimate)

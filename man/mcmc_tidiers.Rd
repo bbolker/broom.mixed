@@ -64,7 +64,7 @@ Tidying methods for MCMC (Stan, JAGS, etc.) fits
 # Using example from "RStan Getting Started"
 # https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
 
-model_file <- system.file("example_data", "8schools.stan", package = "broom.mixed")
+model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
 schools_dat <- list(J = 8, 
                     y = c(28,  8, -3,  7, -1,  1, 18, 12),
                     sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
@@ -75,7 +75,7 @@ schools_dat <- list(J = 8,
                          iter = 1000, chains = 2, save_dso = FALSE)
      }
 }
-rstan_example <- readRDS(system.file("example_data", "rstan_example.rds", package = "broom.mixed"))
+rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
 if (require(broom)) {
    tidy(rstan_example)
    tidy(rstan_example, conf.int = TRUE, pars = "theta")

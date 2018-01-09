@@ -1,7 +1,7 @@
 ## run in pkg root
 
 save_file <- function(...,pkg,type="rda") {
-    f <- file.path("inst","example_data",sprintf("%s_example.%s",pkg,type))
+    f <- file.path("inst","extdata",sprintf("%s_example.%s",pkg,type))
     if (type=="rda") {
         save(...,file=f)
     } else {
@@ -22,21 +22,21 @@ run_pkg <- function(pkg,e) {
 
 run_pkg("rstan",
 {
-    model_file <- system.file("example_data", "8schools.stan", package = "broom.mixed")
+    model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
     schools_dat <- list(J = 8, 
                         y = c(28,  8, -3,  7, -1,  1, 18, 12),
                         sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
     set.seed(2015)
     rstan_example <- stan(file = model_file, data = schools_dat, 
                           iter = 1000, chains = 2, save_dso = FALSE)
-    save_file(rstan_example,pkg="rstan",type="rds")
+    save_file(rstan_example,pkg="rstan",type="rda")
 })
 
 run_pkg("glmmTMB",
 {
     data(sleepstudy,package="lme4")
     lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
-    save_file(lmm1,pkg="glmmTMB",type="rds")
+    save_file(lmm1,pkg="glmmTMB",type="rda")
 })
 
 run_pkg("glmmADMB",
@@ -51,5 +51,5 @@ run_pkg("rstanarm",
 {
     fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
                       iter = 300, chains = 2)
-    save_file(fit,pkg="rstanarm",type="rds")
+    save_file(fit,pkg="rstanarm",type="rda")
 })

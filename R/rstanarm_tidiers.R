@@ -22,7 +22,7 @@
 #'   }
 #' }
 #' ## load example data
-#' fit <- readRDS(system.file("example_data","rstanarm_example.rds",package="broom.mixed"))
+#' fit <- readRDS(system.file("extdata","rstanarm_example.rds",package="broom.mixed"))
 #'
 #' if (require("broom")) {
 #'   # non-varying ("population") parameters

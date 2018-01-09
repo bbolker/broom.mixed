@@ -16,7 +16,7 @@
 #'     
 #'     # example regressions are from lme4 documentation
 #'     ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
-#'     lmm1 <- readRDS(system.file("example_data","glmmTMB_example.rds",package="broom.mixed"))
+#'     lmm1 <- readRDS(system.file("extdata","glmmTMB_example.rds",package="broom.mixed"))
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)

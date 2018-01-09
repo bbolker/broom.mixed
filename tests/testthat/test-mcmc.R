@@ -4,7 +4,11 @@ stopifnot(require("testthat"), require("broom.mixed"))
 context("mcmc tidiers")
 
 if (suppressPackageStartupMessages(require(rstan, quietly = TRUE)))  {
-  rstan_tests <- function(rstan_example) {
+
+  test_that("tidy returns indexes if requested on rstanarm fits", {
+  
+      # Make sure that (inst/)extdata/run_examples.R was run to generate rds
+    rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
     td <- broom::tidy(rstan_example) # For S3 only, avoid importing broom full namespace
     expect_equal(names(td), c("term", "estimate", "std.error"))
     expect_equal(nrow(td), 18)
@@ -27,35 +31,5 @@ if (suppressPackageStartupMessages(require(rstan, quietly = TRUE)))  {
     td <- tidyMCMC(rstan_example, ess = TRUE)
     expect_equal(names(td), c("term", "estimate", "std.error", "ess"))
     expect_equal(nrow(td), 18)
-  }
-  
-  test_that("tidy returns indexes if requested on rstanarm fits (not CRAN)", {
-    skip_on_cran()
-    set.seed(2016)
-    model_file <-
-      system.file("example_data", "8schools.stan", package = "broom.mixed")
-    schools_dat <- list(
-      J = 8,
-      y = c(28,  8, -3,  7, -1,  1, 18, 12),
-      sigma = c(15, 10, 16, 11,  9, 11, 10, 18)
-    )
-    rstan_example_notcran <- stan(
-      file = model_file,
-      data = schools_dat,
-      iter = 100,
-      chains = 2
-    )
-    # Sanity check for rds versions
-    # TODO: does not work currently, anyone knows a more portable way to check
-    # that the compiled model result has been updated?
-##    rstan_example <- 
-##      readRDS(system.file("example_data", "rstan_example.rds", package = "broom.mixed"))
-##    expect_equal(rstan_example, rstan_example_notcran)
-    rstan_tests(rstan_example_notcran)
-  })
-  
-  test_that("tidy returns indexes if requested on rstanarm fits (CRAN)", {
-    rstan_example <- readRDS(system.file("example_data", "rstan_example.rds", package = "broom.mixed"))
-    rstan_tests(rstan_example)
   })
 }

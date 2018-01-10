@@ -20,6 +20,14 @@ run_pkg <- function(pkg,e) {
   }
 }
 
+run_pkg("lme4",
+        {
+          lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+          pp <- profile(lmm1)
+          save_file(pp, pkg="lme4", type = "rds")
+        })
+
+
 run_pkg("rstan",
         {
           model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")

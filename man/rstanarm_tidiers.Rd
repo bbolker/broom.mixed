@@ -21,9 +21,9 @@ Value section for details.}
 
 \item{intervals}{If \code{TRUE} columns for the lower and upper bounds of the
 \code{100*prob}\% posterior uncertainty intervals are included. See 
-\code{\link[rstanarm]{posterior_interval}} for details.}
+\code{\link[rstanarm]{posterior_interval.stanreg}} for details.}
 
-\item{prob}{See \code{\link[rstanarm]{posterior_interval}}.}
+\item{prob}{See \code{\link[rstanarm]{posterior_interval.stanreg}}.}
 
 \item{...}{For \code{glance}, if \code{looic=TRUE}, optional arguments to 
 \code{\link[rstanarm]{loo.stanreg}}.}
@@ -55,14 +55,14 @@ parameters.
 Setting \code{parameters="auxiliary"} will select parameters other than those
 included by the other options. The particular parameters depend on which 
 \pkg{rstanarm} modeling function was used to fit the model. For example, for 
-models fit using \code{\link[rstanarm]{stan_glm.nb}} the overdispersion 
+models fit using \code{\link[rstanarm]{stan_glm}} the overdispersion 
 parameter is included if \code{parameters="aux"}, for 
 \code{\link[rstanarm]{stan_lm}} the auxiliary parameters include the residual
 SD, R^2, and log(fit_ratio), etc.
 
 If \code{intervals=TRUE}, columns for the \code{lower} and \code{upper} 
 values of the posterior intervals computed with 
-\code{\link[rstanarm]{posterior_interval}} are also included.
+\code{\link[rstanarm]{posterior_interval.stanreg}} are also included.
 
 \code{glance} returns one row with the columns
   \item{algorithm}{The algorithm used to fit the model.}

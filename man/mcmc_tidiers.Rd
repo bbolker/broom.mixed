@@ -48,7 +48,8 @@ as log-probability information)}
 
 \item{rhat, ess}{(logical) include Rhat and/or effective sample size estimates?}
 
-\item{index}{add index column, remove index from term}
+\item{index}{Add index column, remove index from term. For example, 
+\code{term a[13]} becomes \code{term a} and \code{index 13}.}
 
 \item{...}{unused}
 

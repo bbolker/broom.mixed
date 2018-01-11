@@ -6,20 +6,12 @@ Date: 2017-12-03
 Authors@R: c(
     person("Ben", "Bolker", email = "bolker@mcmaster.ca", role = c("aut", "cre")),
     person("David", "Robinson", email = "admiral.david@gmail.com", role = "aut"),
-    person("Matthieu", "Gomez", email = "mattg@princeton.edu", role = "ctb"),
-    person("Boris", "Demeshev", email = "boris.demeshev@gmail.com", role = "ctb"),
-    person("Dieter", "Menne", email = "dieter.menne@menne-biomed.de", role = "ctb"),
-    person("Benjamin", "Nutter", email = "nutter@battelle.org", role = "ctb"),
-    person("Luke", "Johnston", email = "luke.johnston@mail.utoronto.ca", role = "ctb"),
-    person("Francois", "Briatte", email = "f.briatte@gmail.com", role = "ctb"),
-    person("Jeffrey", "Arnold", email = "jeffrey.arnold@gmail.com", role = "ctb"),
-    person("Jonah", "Gabry", email = "jsg2201@columbia.edu", role = "ctb"),
-    person("Luciano", "Selzer", email = "luciano.selzer@gmail.com", role = "ctb"),
-    person("Gavin", "Simpson", email = "ucfagls@gmail.com", role = "ctb"),
-    person("Jens", "Preussner", email = " jens.preussner@mpi-bn.mpg.de", role = "ctb"),
-    person("Jay", "Hesselberth", email = "jay.hesselberth@gmail.com", role = "ctb"),
-    person("Hadley", "Wickham", email = "hadley@rstudio.com", role = "ctb"),
-    person("Will", "Petry", email = NA, role = "ctb")
+    person("Dieter", "Menne", role = "ctb"),
+    person("Jonah", "Gabry", role = "ctb"),
+    person("Paul", "Buerkner", role = "ctb"),
+    person("Christopher", "Hua", role = "ctb"),
+    person("Will", "Petry", role = "ctb"),
+    person("Josh", "Wiley", role = "ctb")
     )
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 Description: Convert statistical analysis objects from R into tidy data frames,

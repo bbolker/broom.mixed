@@ -22,7 +22,7 @@
 #'   }
 #' }
 #' ## load example data
-#' fit <- readRDS(system.file("example_data","rstanarm_example.rds",package="broom.mixed"))
+#' fit <- readRDS(system.file("extdata","rstanarm_example.rds",package="broom.mixed"))
 #'
 #' if (require("broom")) {
 #'   # non-varying ("population") parameters
@@ -52,10 +52,10 @@ NULL
 #' @param parameters One or more of \code{"non-varying"}, \code{"varying"}, 
 #'   \code{"hierarchical"}, \code{"auxiliary"} (can be abbreviated). See the
 #'   Value section for details.
-#' @param prob See \code{\link[rstanarm]{posterior_interval}}.
+#' @param prob See \code{\link[rstanarm]{posterior_interval.stanreg}}.
 #' @param intervals If \code{TRUE} columns for the lower and upper bounds of the
 #'   \code{100*prob}\% posterior uncertainty intervals are included. See 
-#'   \code{\link[rstanarm]{posterior_interval}} for details.
+#'   \code{\link[rstanarm]{posterior_interval.stanreg}} for details.
 #' 
 #' @return 
 #' When \code{parameters="non-varying"} (the default), \code{tidy.stanreg} returns
@@ -77,14 +77,14 @@ NULL
 #' Setting \code{parameters="auxiliary"} will select parameters other than those
 #' included by the other options. The particular parameters depend on which 
 #' \pkg{rstanarm} modeling function was used to fit the model. For example, for 
-#' models fit using \code{\link[rstanarm]{stan_glm.nb}} the overdispersion 
+#' models fit using \code{\link[rstanarm]{stan_glm}} the overdispersion 
 #' parameter is included if \code{parameters="aux"}, for 
 #' \code{\link[rstanarm]{stan_lm}} the auxiliary parameters include the residual
 #' SD, R^2, and log(fit_ratio), etc.
 #' 
 #' If \code{intervals=TRUE}, columns for the \code{lower} and \code{upper} 
 #' values of the posterior intervals computed with 
-#' \code{\link[rstanarm]{posterior_interval}} are also included.
+#' \code{\link[rstanarm]{posterior_interval.stanreg}} are also included.
 #' 
 #' @export
 tidy.stanreg <- function(x, 

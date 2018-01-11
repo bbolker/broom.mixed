@@ -12,7 +12,8 @@
 #' @param drop.pars Parameters not to include in the output (such
 #' as log-probability information)
 #' @param rhat,ess (logical) include Rhat and/or effective sample size estimates?
-#' @param index add index column, remove index from term
+#' @param index Add index column, remove index from term. For example, 
+#' \code{term a[13]} becomes \code{term a} and \code{index 13}.
 #' @param ... unused
 #' 
 #' @name mcmc_tidiers
@@ -23,7 +24,7 @@
 #' # Using example from "RStan Getting Started"
 #' # https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
 #' 
-#' model_file <- system.file("example_data", "8schools.stan", package = "broom.mixed")
+#' model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
 #' schools_dat <- list(J = 8, 
 #'                     y = c(28,  8, -3,  7, -1,  1, 18, 12),
 #'                     sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
@@ -34,7 +35,7 @@
 #'                          iter = 1000, chains = 2, save_dso = FALSE)
 #'      }
 #' }
-#' rstan_example <- readRDS(system.file("example_data", "rstan_example.rds", package = "broom.mixed"))
+#' rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
 #' if (require(broom)) {
 #'    tidy(rstan_example)
 #'    tidy(rstan_example, conf.int = TRUE, pars = "theta")
@@ -94,8 +95,18 @@ tidyMCMC <- function(x,
                 mean = colMeans(ss),
                 median = apply(ss, 2, median))
 
-    ret <- data.frame(estimate = m,
-                      std.error = apply(ss, 2, sd))
+    # Extract indexes and remove [] if requested
+    if (index){
+      ret <- data.frame(term0 = sub("\\[\\d+\\]", "", names(m)),
+                        index = as.integer(stringr::str_match(names(m), "\\[(\\d+)\\]")[,2]),
+                        estimate = m,
+                        std.error = apply(ss, 2, stats::sd))
+      
+    } else {
+      ret <- data.frame(estimate = m,
+                        std.error = apply(ss, 2, stats::sd))
+    }
+
     if (conf.int) {
         levs <- c((1 - conf.level) / 2, (1 + conf.level) / 2)
 

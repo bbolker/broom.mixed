@@ -23,7 +23,35 @@ if (require(lme4, quietly = TRUE)) {
                        "sd_(Intercept)", "sd_x",
                        "cor_(Intercept).x", "sd_Observation"))
     })
+    
+    test_that("tidy/glance works on glmer fits",{
+      gm <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
+                  cbpp, binomial, nAGQ = 0)
+      ggm <- glance(gm)
+      expect_equal(names(ggm), c("sigma", "logLik", "AIC", "BIC", "deviance", "df.residual"))
+      td <- tidy(gm)
+      expect_equal(names(td),
+                   c("effect", "group", "term", "estimate",
+                     "std.error", "statistic", "p.value"))
+      td_ran <- tidy(gm, "ran_pars")
+      expect_equal(names(td_ran), c("effect","group", "term", "estimate"))
+    })
 
+    test_that("tidy works on non-linear fits",{
+      startvec <- c(Asym = 200, xmid = 725, scal = 350)
+      # use nAGQ = 0 to avoid warnings
+      nm <- nlmer(circumference ~ SSlogis(age, Asym, xmid, scal) ~ Asym|Tree,
+                  Orange, start = startvec, nAGQ = 0L)
+      gnm <- glance(nm)
+      expect_equal(names(gnm), c("sigma", "logLik", "AIC", "BIC", "deviance", "df.residual"))
+      td <- tidy(nm)
+      expect_equal(names(td),
+                   c("effect", "group", "term", "estimate",
+                     "std.error", "statistic"))
+      td_ran <- tidy(nm, "ran_pars")
+      expect_equal(names(td_ran), c("effect","group", "term", "estimate"))
+    })
+    
     test_that("scales works", {
         t1 <- tidy(fit,effects="ran_pars")
         t2 <- tidy(fit,effects="ran_pars",scales="sdcor")
@@ -87,4 +115,5 @@ if (require(lme4, quietly = TRUE)) {
         expect_equal(dim(td1),c(18,6))
         expect_equal(dim(td2),c(36,6))
     })
+
 }

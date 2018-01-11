@@ -11,7 +11,8 @@ Authors@R: c(
     person("Paul", "Buerkner", role = "ctb"),
     person("Christopher", "Hua", role = "ctb"),
     person("Will", "Petry", role = "ctb"),
-    person("Josh", "Wiley", role = "ctb")
+    person("Josh", "Wiley", role = "ctb"),
+    person("Patrick", "Kennedy", role = "ctb")
     )
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 Description: Convert statistical analysis objects from R into tidy data frames,

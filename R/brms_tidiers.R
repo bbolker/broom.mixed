@@ -14,15 +14,16 @@
 #' @param x Fitted model object from the \pkg{brms} package. See 
 #'   \code{\link[brms]{brmsfit-class}}.
 #' @examples
-#' \dontrun{
-#'  library(brms)
-#'  fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
-#'             iter = 500, chains = 2)
-#'  tidy(fit)
-#'  tidy(fit, parameters = "^sd_", intervals = FALSE)
-#'  tidy(fit, par_type = "non-varying")
-#'  tidy(fit, par_type = "varying")
-#'  tidy(fit, par_type = "hierarchical", robust = TRUE)
+#'  ## library(brms)
+#'  ## fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
+#'  ##           iter = 500, chains = 2)
+#'  fit <- readRDS(system.file("extdata","brmsfit_example.rds",package="broom.mixed"))
+#'  if (require("broom")) {
+#'    tidy(fit)
+#'    tidy(fit, parameters = "^sd_", intervals = FALSE)
+#'    tidy(fit, par_type = "non-varying")
+#'    tidy(fit, par_type = "varying")
+#'    tidy(fit, par_type = "hierarchical", robust = TRUE)
 #' }
 #'  
 NULL

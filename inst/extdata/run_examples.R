@@ -61,3 +61,11 @@ run_pkg("rstanarm",
                             iter = 300, chains = 2)
           save_file(fit,pkg="rstanarm",type="rds")
         })
+
+
+run_pkg("brms",
+        {
+            fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
+                       iter = 500, chains = 2, save_dso=FALSE)
+            save_file(fit,pkg="brmsfit",type="rds")
+        })

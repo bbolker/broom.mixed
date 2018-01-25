@@ -442,3 +442,13 @@ augment.ranef.mer <- function(x,
               lb=estimate-ci.val*std.error,
               ub=estimate+ci.val*std.error)
 }
+
+## experimental
+@export
+tidy.gamm4 <- function(x,...) {
+    ## gamm4 returns an *unclassed* list of length two
+    ## (mer, gam)
+    r <- tidy(x$mer,...)
+    r$term <- gsub("^X","",r$term)
+    return(r)
+}

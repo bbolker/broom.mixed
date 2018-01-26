@@ -457,3 +457,8 @@ tidy.gamm4 <- function(x,...) {
 augment.gamm4 <- function(x,...) {
     return(augment(x$mer,...))
 }
+
+##' @export
+glance.gamm4 <- function(x,...) {
+    return(glance(x$mer,...))
+}

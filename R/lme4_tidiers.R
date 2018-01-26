@@ -452,3 +452,8 @@ tidy.gamm4 <- function(x,...) {
     r$term <- gsub("^X","",r$term)
     return(r)
 }
+
+@export
+augment.gamm4 <- function(x,...) {
+    return(augment(x$mer,...))
+}

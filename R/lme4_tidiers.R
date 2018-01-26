@@ -444,7 +444,7 @@ augment.ranef.mer <- function(x,
 }
 
 ## experimental
-@export
+##' @export
 tidy.gamm4 <- function(x,...) {
     ## gamm4 returns an *unclassed* list of length two
     ## (mer, gam)
@@ -453,7 +453,7 @@ tidy.gamm4 <- function(x,...) {
     return(r)
 }
 
-@export
+##' @export
 augment.gamm4 <- function(x,...) {
     return(augment(x$mer,...))
 }

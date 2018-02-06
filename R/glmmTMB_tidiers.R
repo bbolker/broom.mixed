@@ -163,13 +163,17 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
             }
             return(p)
         }
-            
-        ret$rownames <- paste(apply(ret[c("var1","var2")],1,pfun),
-                               ret[,"grp"],sep=".")
 
-        ## FIXME: this is ugly, but maybe necessary?
-        ## set 'term' column explicitly, disable broom::fix_data_frame
-        ##  rownames -> term conversion
+        ## DRY! try to refactor glmmTMB/lme4 tidiers
+        
+        ## don't try to assign as rowname (non-unique anyway),
+        ## make it directly into a term column
+        ret[["term"]] <- apply(ret[c("var1","var2")],1,pfun)
+
+        ## keep only desired term, rename
+        ret <- setNames(ret[c("grp","term",rscale)],
+                        c("group","term","estimate"))
+
         ## rownames(ret) <- seq(nrow(ret))
 
         if (conf.int) {
@@ -177,11 +181,9 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
             ret <- data.frame(ret,ciran)
             nn <- c(nn,"conf.low","conf.high")
         }
-        
-        ## replicate lme4:::tnames, more or less
-        ret_list$ran_pars <- broom::fix_data_frame(ret[c("component","rownames",rscale,"grp")],
-                                                   newnames=c("component","term","estimate","group"))
+        ret_list$ran_pars <- ret
     }
+    
     if ("ran_modes" %in% effects) {
         ## fix each group to be a tidy data frame
 

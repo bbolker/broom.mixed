@@ -333,7 +333,7 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
 
     respCols <- c("mu", "offset", "sqrtXwt", "sqrtrwt", "weights",
                   "wtres", "gam", "eta")
-    cols <- lapply(respCols, function(n) x@resp[[n]])
+    cols <- lapply(respCols, slot, object=x@resp)
     names(cols) <- paste0(".", respCols)
     cols <- as.data.frame(compact(cols))  # remove missing fields
     

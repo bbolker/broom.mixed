@@ -5,6 +5,9 @@ stopifnot(require("testthat"), require("broom.mixed"))
 tidy <- broom.mixed:::tidy.merMod
 
 if (require(lme4, quietly = TRUE)) {
+    fm1 <- lmer(Reaction~Days+(1|Subject),sleepstudy)
+    fm2 <- lmer(Reaction~Days+(Days|Subject),sleepstudy)
+
     context("lme4 models")
     
     d <- as.data.frame(ChickWeight)
@@ -27,7 +30,7 @@ if (require(lme4, quietly = TRUE)) {
     test_that("tidy/glance works on glmer fits",{
       gm <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
                   cbpp, binomial, nAGQ = 0)
-      ggm <- glance(gm)
+      ggm <- broom::glance(gm)
       expect_equal(names(ggm), c("sigma", "logLik", "AIC", "BIC", "deviance", "df.residual"))
       td <- tidy(gm)
       expect_equal(names(td),
@@ -42,7 +45,7 @@ if (require(lme4, quietly = TRUE)) {
       # use nAGQ = 0 to avoid warnings
       nm <- nlmer(circumference ~ SSlogis(age, Asym, xmid, scal) ~ Asym|Tree,
                   Orange, start = startvec, nAGQ = 0L)
-      gnm <- glance(nm)
+      gnm <- broom::glance(nm)
       expect_equal(names(gnm), c("sigma", "logLik", "AIC", "BIC", "deviance", "df.residual"))
       td <- tidy(nm)
       expect_equal(names(td),
@@ -76,8 +79,8 @@ if (require(lme4, quietly = TRUE)) {
    })
               
     test_that("augment works on lme4 fits with or without data", {
-        au1 <- augment(fit)
-        au2 <- augment(fit, d)
+        au1 <- broom::augment(fit)
+        au2 <- broom::augment(fit, d)
         ## FIXME: columns not ordered the same??
         expect_equal(au1,au2[names(au1)])
     })
@@ -87,7 +90,7 @@ if (require(lme4, quietly = TRUE)) {
     
     test_that("augment works on lme4 fits with NAs", {
         fitNAs <- lmer(y ~ tx*x + (x | subj), data = dNAs)
-        au <- augment(fitNAs)
+        au <- broom::augment(fitNAs)
         expect_equal(nrow(au), sum(complete.cases(dNAs)))
     })
     
@@ -95,7 +98,7 @@ if (require(lme4, quietly = TRUE)) {
         fitNAs <- lmer(y ~ tx*x + (x | subj), data = dNAs, na.action = "na.exclude")
         
         #expect_error(suppressWarnings(augment(fitNAs)))
-        au <- augment(fitNAs, dNAs)
+        au <- broom::augment(fitNAs, dNAs)
         
         # with na.exclude, should have NAs in the output where there were NAs in input
         expect_equal(nrow(au), nrow(dNAs))
@@ -103,17 +106,20 @@ if (require(lme4, quietly = TRUE)) {
     })
 
     test_that("glance works on lme4 fits", {
-        g <- glance(fit)
+        g <- broom::glance(fit)
         expect_equal(dim(g),c(1,6))
     })
 
     test_that("ran_modes works", {
-        fm1 <- lmer(Reaction~Days+(1|Subject),sleepstudy)
-        fm2 <- lmer(Reaction~Days+(Days|Subject),sleepstudy)
         td1 <- tidy(fm1,"ran_modes")
         td2 <- tidy(fm2,"ran_modes")
         expect_equal(dim(td1),c(18,6))
         expect_equal(dim(td2),c(36,6))
+    })
+
+    test_that("confint preserves term names", {
+        td3 <- tidy(fm1,conf.int=TRUE,conf.method="Wald",effects="fixed")
+        expect_equal(td3$term,c("(Intercept)","Days"))
     })
 
 }

@@ -16,25 +16,25 @@
 #'     
 #'     # example regressions are from lme4 documentation
 #'     ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
-#'     lmm1 <- readRDS(system.file("extdata","glmmTMB_example.rds",package="broom.mixed"))
+#'     load(system.file("extdata","glmmTMB_example.rda",package="broom.mixed"))
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)
 #'     \dontrun{
-#'        tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
+#'        ## FIXME: fails on stored model fit?
+#'        tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="uniroot")
 #'     }
 #'     ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)
 #'     
-#'     glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
-#'                   data = cbpp, family = binomial, weights=size)
+#'     ## glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
+#'     ##                  data = cbpp, family = binomial, weights=size)
 #'     tidy(glmm1)
 #'     tidy(glmm1, effects = "fixed")
 #'     head(augment(glmm1, cbpp))
 #'     head(augment(glmm1, cbpp, type.residuals="pearson"))
 #'     glance(glmm1)
-#'     
 #' }
 NULL
 
@@ -60,6 +60,9 @@ NULL
 #'   \item{std.error}{standard error}
 #'   \item{statistic}{t- or Z-statistic (\code{NA} for modes)}
 #'   \item{p.value}{P-value computed from t-statistic (may be missing/NA)}
+#'
+#' @note zero-inflation parameters (including the intercept) are reported
+#' on the logit scale
 #' 
 #' @importFrom plyr ldply rbind.fill
 #' @import dplyr
@@ -82,6 +85,11 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
     ## R CMD check false positives
     term <- estimate <- .id <- level <- std.error <- NULL
 
+    ss <- stats::coef(summary(x))
+    ss <- ss[!sapply(ss,is.null)]
+    ## FIXME: warn if !missing(component) and component includes
+    ##  NULL terms
+    component <- intersect(component,names(ss))
     if (length(component[!component %in% c("cond", "zi")]) > 0L) {
         stop("only works for conditional and (partly for) zero-inflation components")
     }
@@ -99,33 +107,37 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
     ret_list <- list()
     if ("fixed" %in% effects) {
         # return tidied fixed effects rather than random
-        if ("cond" %in% component) ret$cond <- stats::coef(summary(x))[["cond"]]
-        if ("zi" %in% component) ret$zi <- stats::coef(summary(x))[["zi"]]
-    
+        ret <- lapply(ss,
+                      function(x) {
+            x %>% as.data.frame %>%
+                setNames(c("estimate", "std.error", "statistic", "p.value"))
+        })
         # p-values may or may not be included
         # HACK: use the columns from the conditional component, preserving previous behaviour
         nn <- base_nn[1:ncol(ret$cond)]
-    
         if (conf.int) {
-          if (any(component != "cond"))
-              warning("confidence intervals only implemented for conditional component")
-          ## at present confint only does conditional component anyway ...
-          ## Wald -> wald
-          cifix <- confint(x,method=tolower(conf.method),component="cond",
-                           estimate=FALSE,
-                           ## conditional component
-                           ## includes random-effect parameters
-                           ## as well, don't want those right now ...
-                           parm=seq(nrow(ret$cond)),...)
-          ret$cond <- data.frame(ret$cond,cifix)
-          nn <- c(nn,"conf.low","conf.high")
+            for (comp in component) {
+                cifix <- confint(x,method=tolower(conf.method),
+                                 component=comp,
+                                 estimate=FALSE,
+                                 ## conditional/zi components
+                                 ## include random-effect parameters
+                                 ## as well, don't want those right now ...
+                                 parm=seq(nrow(ret[[comp]])),...) %>%
+                    as.data.frame %>%
+                    setNames(c("conf.low","conf.high"))
+                ret[[comp]] <- bind_cols(
+                    tibble::rownames_to_column(ret[[comp]],var="term"),
+                    cifix)
+            }
+            nn <- c(nn,"conf.low","conf.high")
         }
         if ("ran_pars" %in% effects || "ran_modes" %in% effects) {
             ret <- lapply(ret, function(x) data.frame(x,group="fixed"))
             nn <- c(nn,"group")
         }
-        ret_list$fixed <- plyr::ldply(ret, .fun = broom::fix_data_frame,
-                                      newnames = nn, .id = "component")
+        ret_list$fixed <- plyr::ldply(ret, .fun = reorder_frame,
+                                      .id = "component")
     }
     if ("ran_pars" %in% effects &&
         !all(sapply(VarCorr(x),is.null))) {

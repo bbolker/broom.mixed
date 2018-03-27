@@ -83,30 +83,34 @@ rows (typically with NAs in place of the new columns). If the original data
 is not provided to \code{augment} and \code{na.action = "na.exclude"}, a
 warning is raised and the incomplete rows are dropped.
 }
+\note{
+zero-inflation parameters (including the intercept) are reported
+on the logit scale
+}
 \examples{
 if (require("broom") && require("glmmTMB") && require("lme4")) {
     
     # example regressions are from lme4 documentation
     ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
-    lmm1 <- readRDS(system.file("extdata","glmmTMB_example.rds",package="broom.mixed"))
+    load(system.file("extdata","glmmTMB_example.rda",package="broom.mixed"))
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, effects = "fixed", conf.int=TRUE)
     \dontrun{
-       tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
+       ## FIXME: fails on stored model fit?
+       tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="uniroot")
     }
     ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
     
-    glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
-                  data = cbpp, family = binomial, weights=size)
+    ## glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
+    ##                  data = cbpp, family = binomial, weights=size)
     tidy(glmm1)
     tidy(glmm1, effects = "fixed")
     head(augment(glmm1, cbpp))
     head(augment(glmm1, cbpp, type.residuals="pearson"))
     glance(glmm1)
-    
 }
 }
 \seealso{

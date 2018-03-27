@@ -43,8 +43,11 @@ run_pkg("rstan",
 run_pkg("glmmTMB",
         {
           data(sleepstudy,package="lme4")
+          data(cbpp,package="lme4")
           lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
-          save_file(lmm1,pkg="glmmTMB",type="rds")
+          glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
+                           data = cbpp, family = binomial, weights=size)
+          save_file(lmm1,glmm1,pkg="glmmTMB",type="rda")
         })
 
 run_pkg("glmmADMB",

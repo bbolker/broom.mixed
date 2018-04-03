@@ -110,7 +110,8 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
         ret <- lapply(ss,
                       function(x) {
             x %>% as.data.frame %>%
-                setNames(c("estimate", "std.error", "statistic", "p.value"))
+                setNames(c("estimate", "std.error", "statistic", "p.value")) %>%
+                tibble::rownames_to_column("term")
         })
         # p-values may or may not be included
         # HACK: use the columns from the conditional component, preserving previous behaviour

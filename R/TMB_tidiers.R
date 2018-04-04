@@ -1,11 +1,23 @@
-library(TMB)
-## devtools::install_github("bbolker/broom.mixed")
-runExample("simple",thisR=TRUE)
-sdreport(obj)
-tidy.TMB <- function(object,effect=c("fixed","random"),se=TRUE,
+##' Tidying methods for TMB models
+##'
+##' @param x An object of class \code{TMB} (you may need to use
+##' \code{class(obj) <- "TMB"} on your results from TMB)
+##' @param conf.method 
+##' @inheritParams glmmTMB_tidiers
+##' @importFrom TMB sdreport
+##' @importFrom glmmTMB tmbroot
+##' @examples
+##' \dontrun{
+##' runExample("simple",thisR=TRUE)
+##' class(obj) <- "TMB"
+##' tidy(obj,conf.int=TRUE,conf.method="wald")
+##' tidy(obj,conf.int=TRUE,conf.method="uniroot")
+##' }
+tidy.TMB <- function(x,effect=c("fixed","random"),se=TRUE,
                      conf.int=FALSE,
+                     conf.level = 0.95,
                      conf.method=c("wald","uniroot","profile")) {
-    sdr <- sdreport(object)
+    sdr <- sdreport(x)
     retlist <- list()
     if ("fixed" %in% effect) {
         ss <- summary(sdr,select="fixed") %>%
@@ -16,12 +28,25 @@ tidy.TMB <- function(object,effect=c("fixed","random"),se=TRUE,
             rename(estimate=Estimate,std.error="Std. Error")
         if (conf.int) {
             if (tolower(conf.method=="wald")) {
-                ## FIXME: allow alpha spec
-                qval <- qnorm(0.975)
-                ss <- mutate(ss,conf.low
+                qval <- qnorm((1+conf.level)/2)
+                ss <- mutate(ss,
+                             conf.low=estimate-qval*std.error,
+                             conf.high=estimate+qval*std.error)
+            } else if (conf.method=="uniroot") {
+                ## FIXME: allow parm specs
+                ## FIXME: avoid calling sdreport again inside tmbroot?
+                ## do.call(rbind,...) because bind_rows needs named list
+                tt <- do.call(rbind,
+                              lapply(seq(nrow(ss)),
+                                     glmmTMB:::tmbroot,obj=x))
+                ss$conf.low <- tt[,"lwr"]
+                ss$conf.high <- tt[,"upr"]
+            } else {
+                ##  profile:
+                ##  call TMB:::confint.TMB(TMB::tmbprofile(x,params))
+                stop(sprintf("conf.method=%s not implemented",conf.method))
             }
-    }
-
+        }
     }
     retlist$fixed <- ss
     ret <- dplyr::bind_rows(retlist,.id="type")
@@ -29,12 +54,7 @@ tidy.TMB <- function(object,effect=c("fixed","random"),se=TRUE,
     ##   and p-value (2*pnorm(abs(statistic),lower.tail=FALSE))
     ##   if requested
     ##
-    ## ## FIXME: get confidence intervals if requested
-    ##  Wald: find qnorm(0.975)*c(-1,1)*std.error+estimate
-    ##  uniroot: call glmmTMB:::tmbroot
-    ##  profile: call TMB:::confint.TMB(TMB::tmbprofile(object,params))
+
     return(ret)
 }
 
-class(object) <- "TMB"
-tidy(object)

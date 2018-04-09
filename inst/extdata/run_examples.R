@@ -21,11 +21,13 @@ run_pkg <- function(pkg,e) {
 }
 
 run_pkg("lme4",
-        {
-          lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
-          pp <- profile(lmm1)
-          save_file(pp, pkg="lme4", type = "rds")
-        })
+{
+    lmm0 <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy)
+    lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+    lmm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days | Subject), sleepstudy)
+    pp <- profile(lmm1)
+    save_file(pp, lmm0, lmm1, lmm2, pkg="lme4", type = "rda")
+})
 
 
 run_pkg("rstan",

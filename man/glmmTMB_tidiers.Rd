@@ -101,6 +101,7 @@ if (require("broom") && require("glmmTMB") && require("lme4")) {
        tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="uniroot")
     }
     ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
+    data("sleepstudy",package="lme4")
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
     

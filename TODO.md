@@ -1,5 +1,6 @@
 ## To do
 
+- make tidyMCMC work (issue)
 - parameter naming
 - general approach for model components (conditional, z-i, dispersion model ...)
 - generalize API to all tidiers

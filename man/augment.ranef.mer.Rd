@@ -23,8 +23,8 @@ Augmentation for random effects (for caterpillar plots etc.)
 }
 \examples{
 if (require("lme4")) {
-   fit <- lmer(Reaction~Days+(Days|Subject),sleepstudy)
-   rr <- ranef(fit,condVar=TRUE)
+   load(system.file("extdata","lme4_example.rda",package="broom.mixed"))
+   rr <- ranef(lmm1,condVar=TRUE)
    aa <- broom::augment(rr)
    ## Q-Q plot:
    if (require(ggplot2) && require(dplyr)) {

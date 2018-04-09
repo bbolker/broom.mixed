@@ -25,6 +25,7 @@
 #'        tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="uniroot")
 #'     }
 #'     ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
+#'     data("sleepstudy",package="lme4")
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)
 #'     
@@ -127,9 +128,8 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
                                  parm=seq(nrow(ret[[comp]])),...) %>%
                     as.data.frame %>%
                     setNames(c("conf.low","conf.high"))
-                ret[[comp]] <- bind_cols(
-                    tibble::rownames_to_column(ret[[comp]],var="term"),
-                    cifix)
+                ret[[comp]] <- bind_cols(ret[[comp]],
+                                         cifix)
             }
             nn <- c(nn,"conf.low","conf.high")
         }

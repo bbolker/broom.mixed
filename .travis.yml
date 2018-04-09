@@ -28,6 +28,8 @@ before_install:
 script:
   - |
     travis_wait 59 R CMD build .
+    echo "install.packages('devtools')" | R --vanilla --slave
+    echo "devtools::install_github('glmmTMB/glmmTMB')" | R --vanilla --slave
     travis_wait 59 R CMD check broom.mixed*tar.gz
 
 after_script:

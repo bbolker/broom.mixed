@@ -33,7 +33,9 @@ Imports:
     nlme,
     methods,
     stringr,
-    coda
+    coda,
+    glmmTMB,
+    TMB
 Suggests:
     knitr,
     testthat,
@@ -44,7 +46,6 @@ Suggests:
     rstan,
     rstanarm,
     brms,
-    glmmTMB,
     mgcv,
     gamlss,
     lmerTest,

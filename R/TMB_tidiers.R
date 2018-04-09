@@ -2,8 +2,9 @@
 ##'
 ##' @param x An object of class \code{TMB} (you may need to use
 ##' \code{class(obj) <- "TMB"} on your results from TMB)
-##' @param conf.method 
 ##' @inheritParams glmmTMB_tidiers
+##' @param effect which effects should be returned?
+##' @param conf.method method for computing confidence intervals
 ##' @importFrom TMB sdreport
 ##' @importFrom glmmTMB tmbroot
 ##' @examples
@@ -13,10 +14,12 @@
 ##' tidy(obj,conf.int=TRUE,conf.method="wald")
 ##' tidy(obj,conf.int=TRUE,conf.method="uniroot")
 ##' }
-tidy.TMB <- function(x,effect=c("fixed","random"),se=TRUE,
+tidy.TMB <- function(x,effect=c("fixed","random"),
                      conf.int=FALSE,
                      conf.level = 0.95,
                      conf.method=c("wald","uniroot","profile")) {
+    ## R CMD check/global variables
+    Estimate <- estimate <- std.error <- NULL
     sdr <- sdreport(x)
     retlist <- list()
     if ("fixed" %in% effect) {
@@ -38,7 +41,7 @@ tidy.TMB <- function(x,effect=c("fixed","random"),se=TRUE,
                 ## do.call(rbind,...) because bind_rows needs named list
                 tt <- do.call(rbind,
                               lapply(seq(nrow(ss)),
-                                     glmmTMB:::tmbroot,obj=x))
+                                     glmmTMB::tmbroot,obj=x))
                 ss$conf.low <- tt[,"lwr"]
                 ss$conf.high <- tt[,"upr"]
             } else {

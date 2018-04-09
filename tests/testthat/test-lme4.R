@@ -5,8 +5,8 @@ stopifnot(require("testthat"), require("broom.mixed"))
 tidy <- broom.mixed:::tidy.merMod
 
 if (require(lme4, quietly = TRUE)) {
-    fm1 <- lmer(Reaction~Days+(1|Subject),sleepstudy)
-    fm2 <- lmer(Reaction~Days+(Days|Subject),sleepstudy)
+    load(system.file("extdata","lme4_example.rda",package="broom.mixed",
+                     mustWork=TRUE))
 
     context("lme4 models")
     
@@ -111,14 +111,16 @@ if (require(lme4, quietly = TRUE)) {
     })
 
     test_that("ran_modes works", {
-        td1 <- tidy(fm1,"ran_modes")
-        td2 <- tidy(fm2,"ran_modes")
-        expect_equal(dim(td1),c(18,6))
+        td0 <- tidy(lmm0,"ran_modes")
+        td1 <- tidy(lmm1,"ran_modes")
+        td2 <- tidy(lmm2,"ran_modes")
+        expect_equal(dim(td0),c(18,6))
+        expect_equal(dim(td1),c(36,6))
         expect_equal(dim(td2),c(36,6))
+        expect_equal(names(td1),names(td2))
     })
-
     test_that("confint preserves term names", {
-        td3 <- tidy(fm1,conf.int=TRUE,conf.method="Wald",effects="fixed")
+        td3 <- tidy(lmm0,conf.int=TRUE,conf.method="Wald",effects="fixed")
         expect_equal(td3$term,c("(Intercept)","Days"))
     })
 

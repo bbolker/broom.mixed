@@ -68,7 +68,17 @@ confint.rlmerMod <- function(x, parm,
     }
     return(confint(x,parm=parm, method="Wald", ...))
 }
-    
+
+## FIXME: relatively trivial/only used in one place, could
+## probably be eliminated?
+fix_ran_modes <- function(g) {
+    term <- level <- estimate <- NULL
+    r <- g %>%
+        tibble::rownames_to_column("level") %>%
+        gather(term,estimate,-level)
+    return(r)
+}
+
 #' @rdname lme4_tidiers
 #'
 #' @param debug print debugging output?
@@ -113,7 +123,8 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
                         ...) {
 
     ## R CMD check false positives
-    term <- estimate <- .id <- level <- std.error <- NULL
+    variable <- level <- term <- estimate <- std.error <- grpvar <-
+        .id <- grp <- condval <- condsd <- NULL
 
     effect_names <- c("ran_pars", "fixed", "ran_modes", "ran_coefs")
     if (!is.null(scales)) {
@@ -229,37 +240,13 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
         ret_list$ran_pars <- ret
     }
 
-    
-    getSE <- function(x) {
-        v <- attr(x,"postVar")
-        re_sd <- sqrt(t(apply(v,3,diag)))
-        ## for single random effect term, need to re-transpose
-        if (nrow(re_sd)==1) re_sd <- t(re_sd)
-        r <- setNames(data.frame(re_sd,row.names=rownames(x)),
-                      colnames(x))
-        return(r)
-    }
-    fix_ran_modes <- function(g, do_SE=FALSE) {
-        r <- g %>%
-            tibble::rownames_to_column("level") %>%
-            gather(term,estimate,-level)
-g
-        if (do_SE) {
-            newg.se <- getSE(g) %>%
-                tibble::rownames_to_column("level") %>%
-                gather(term,std.error,-level)
-
-            r <- full_join(r,newg.se,by=c("level","term"))
-        }
-        return(r)
-    }
-
     if ("ran_modes" %in% effects) {
         ## fix each group to be a tidy data frame
 
         ret <- ranef(x,condVar=TRUE)  %>%
-            purrr::map(fix_ran_modes, do_SE=TRUE) %>%
-            bind_rows(.id="group")
+            as.data.frame() %>%
+            dplyr::rename(group=grpvar,level=grp,
+                          estimate=condval, std.error=condsd)
 
         if (conf.int) {
             if (conf.method != "Wald")
@@ -275,7 +262,7 @@ g
     }
     if ("ran_coefs" %in% effects) {
         ret <- coef(x) %>%
-            purrr::map(fix_ran_modes, do_SE=FALSE) %>%
+            purrr::map(fix_ran_modes) %>%
             bind_rows(.id="group")
         
         if (conf.int) {
@@ -378,8 +365,8 @@ glance.merMod <- function(x, ...) {
 ##' @importFrom plyr ldply
 ##' @examples
 ##' if (require("lme4")) {
-##'    fit <- lmer(Reaction~Days+(Days|Subject),sleepstudy)
-##'    rr <- ranef(fit,condVar=TRUE)
+##'    load(system.file("extdata","lme4_example.rda",package="broom.mixed"))
+##'    rr <- ranef(lmm1,condVar=TRUE)
 ##'    aa <- broom::augment(rr)
 ##'    ## Q-Q plot:
 ##'    if (require(ggplot2) && require(dplyr)) {
@@ -411,7 +398,8 @@ augment.ranef.mer <- function(x,
                                  reorder=TRUE,
                                  order.var=1, ...) {
 
-    variable <- level <- estimate <- std.error <- NULL
+    variable <- level <- estimate <- std.error <- grpvar <-
+        grp <- condval <- condsd <- NULL
     tmpf <- function(z) {
         if (is.character(order.var) && !order.var %in% names(z)) {
             order.var <- 1

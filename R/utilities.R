@@ -121,3 +121,25 @@ f2 <- function(ret=data.frame(),x,skip_funs=character(0)) {
         return(unrowname(data.frame(ret,newvals)))
     }
 }
+
+## like process_lm, but without lm-specific confint stuff
+## applied *downstream* (after CIs etc have already been added)
+trans_coef <- function (ret, x, conf.int = FALSE, conf.level = 0.95, exponentiate = FALSE,
+                        trans = identity) {
+    ## FIXME: should transform sds as well
+    if (missing(trans)) {
+        if (exponentiate) {
+            if (is.null(x$family) || !grepl("log",x$family$link)) {
+                warning(paste("Exponentiating coefficients, ",
+                              "but model did not use ", 
+                              "a (log, logit, cloglog) link function"))
+            }
+            trans <- exp
+        } else {
+            trans <- identity
+        }
+    }
+    ret <- (ret
+        %>% mutate_at(intersect(c("term","conf.low","conf.high")),trans))
+    return(ret)
+}

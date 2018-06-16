@@ -134,7 +134,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
             nn <- c(nn,"conf.low","conf.high")
         }
         if ("ran_pars" %in% effects || "ran_modes" %in% effects) {
-            ret <- lapply(ret, function(x) data.frame(x,group="fixed"))
+            ret <- purrr::map(ret, ~ mutate(.,group="fixed"))
             nn <- c(nn,"group")
         }
         ret_list$fixed <- plyr::ldply(ret, .fun = reorder_frame,
@@ -159,9 +159,11 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
           }
         }
     
-        ret <- plyr::ldply(vv, as.data.frame, .id = "component")
-        ret[] <- lapply(ret, function(x) if (is.factor(x))
-                                                 as.character(x) else x)
+        ret <- (
+            purrr::map(vv, as.data.frame)
+            %>% bind_rows(.id="component")
+            %>% mutate_if(., is.factor, as.character)
+        )
         if (is.null(ran_prefix)) {
             ran_prefix <- switch(rscale,
                                  vcov=c("var","cov"),
@@ -184,14 +186,21 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
         ret[["term"]] <- apply(ret[c("var1","var2")],1,pfun)
 
         ## keep only desired term, rename
-        ret <- setNames(ret[c("grp","term",rscale)],
-                        c("group","term","estimate"))
+        ## FIXME: should use select + tidyeval + rename ... ?
+        ret <- setNames(ret[c("component","grp","term",rscale)],
+                        c("component","group","term","estimate"))
 
         ## rownames(ret) <- seq(nrow(ret))
 
         if (conf.int) {
-            ciran <- confint(x,parm="theta_",method=conf.method,...)
-            ret <- data.frame(ret,ciran)
+            ciran <- (confint(x,parm="theta_",method=conf.method,
+                              estimate=FALSE,
+                              ...)
+                %>% as_tibble()
+                %>% setNames(c("conf.low","conf.high"))
+            )
+            ret <- bind_cols(ret,ciran)
+            ##  FIXME: is nn mech used any more??
             nn <- c(nn,"conf.low","conf.high")
         }
         ret_list$ran_pars <- ret

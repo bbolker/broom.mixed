@@ -9,12 +9,14 @@
 \title{Tidying methods for mixed effects models}
 \usage{
 \method{tidy}{merMod}(x, effects = c("ran_pars", "fixed"), scales = NULL,
-  ran_prefix = NULL, conf.int = FALSE, conf.level = 0.95,
-  conf.method = "Wald", profile = NULL, debug = FALSE, ...)
+  exponentiate = FALSE, ran_prefix = NULL, conf.int = FALSE,
+  conf.level = 0.95, conf.method = "Wald", profile = NULL,
+  debug = FALSE, ...)
 
 \method{tidy}{rlmerMod}(x, effects = c("ran_pars", "fixed"), scales = NULL,
-  ran_prefix = NULL, conf.int = FALSE, conf.level = 0.95,
-  conf.method = "Wald", profile = NULL, debug = FALSE, ...)
+  exponentiate = FALSE, ran_prefix = NULL, conf.int = FALSE,
+  conf.level = 0.95, conf.method = "Wald", profile = NULL,
+  debug = FALSE, ...)
 
 \method{augment}{merMod}(x, data = stats::model.frame(x), newdata, ...)
 
@@ -27,6 +29,8 @@
 \item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters); "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms); "ran_modes" (conditional modes/BLUPs/latent variable estimates); or "ran_coefs" (predicted parameter values for each group, as returned by \code{\link[lme4]{coef.merMod}})}
 
 \item{scales}{scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects; inverse-link transformations (exponentiation or logistic) are not yet implemented, but may be in the future.}
+
+\item{exponentiate}{whether to exponentiate the coefficient estimates and confidence intervals (common for logistic regression)}
 
 \item{ran_prefix}{a length-2 character vector specifying the strings to use as prefixes for self- (variance/standard deviation) and cross- (covariance/correlation) random effects terms}
 

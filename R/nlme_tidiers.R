@@ -209,7 +209,6 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
     return(ret)
 }
 
-
 #' @rdname nlme_tidiers
 #' 
 #' @param data original data this was fitted on; if not given this will
@@ -267,3 +266,18 @@ glance.lme <- function(x) {
     finish_glance(x=x)
 }
 
+#' @rdname nlme_tidiers
+#' @export
+tidy.gls <- function(x, 
+                     conf.int = FALSE,
+                     conf.level = 0.95,
+                     ...) {
+    summary(x)[["tTable"]] %>%
+        as.data.frame() %>%
+        tibble::rownames_to_column(var="term") %>%
+        dplyr::rename(estimate=Value,
+                      std.error=Std.Error,
+                      statistic=`t-value`,
+                      p.value=`p-value`)
+        
+}

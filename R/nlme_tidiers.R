@@ -34,6 +34,11 @@
 #'     tidy(nm1, effects = "fixed")
 #'     head(augment(nm1, Orange))
 #'     glance(nm1)
+#'
+#'     gls1 <- gls(follicles ~ sin(2*pi*Time) + cos(2*pi*Time), Ovary,
+#'                          correlation = corAR1(form = ~ 1 | Mare))
+#'     tidy(gls1)
+#'     glance(gls1)
 #' }
 #' 
 #' @rdname nlme_tidiers
@@ -273,11 +278,24 @@ tidy.gls <- function(x,
                      conf.level = 0.95,
                      ...) {
     summary(x)[["tTable"]] %>%
-        as.data.frame() %>%
+        as.data.frame() %>% ## have to convert to df *first*
         tibble::rownames_to_column(var="term") %>%
+        as_tibble() %>%
         dplyr::rename(estimate=Value,
                       std.error=Std.Error,
                       statistic=`t-value`,
                       p.value=`p-value`)
         
+}
+
+glance.gls <- function(x) {
+    ss <- summary(x)
+    with(ss,
+         tibble::tibble(sigma,
+                        df=dims[["p"]],
+                        logLik,
+                        AIC,
+                        BIC,
+                        df.residual=dims[["N"]]-dims[["p"]])
+         )
 }

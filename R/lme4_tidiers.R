@@ -38,6 +38,7 @@
 #'     glmm1 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
 #'                   data = cbpp, family = binomial)
 #'     tidy(glmm1)
+#'     tidy(glmm1,exponentiate=TRUE)
 #'     tidy(glmm1, effects = "fixed")
 #'     head(augment(glmm1, cbpp))
 #'     glance(glmm1)
@@ -87,7 +88,7 @@ fix_ran_modes <- function(g) {
 #' @param conf.level confidence level for CI
 #' @param conf.method method for computing confidence intervals (see \code{lme4::confint.merMod})
 #' @param scales scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects; inverse-link transformations (exponentiation or logistic) are not yet implemented, but may be in the future.
-#' @param exponentiate  whether to exponentiate the coefficient estimates and confidence intervals (common for logistic regression)
+#' @param exponentiate  whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression)
 #' @param ran_prefix a length-2 character vector specifying the strings to use as prefixes for self- (variance/standard deviation) and cross- (covariance/correlation) random effects terms
 #' @param profile pre-computed profile object, for speed when using \code{conf.method="profile"}
 #' 
@@ -184,6 +185,15 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
             ## add group="fixed" to tidy table for fixed effects
             ret <- mutate(ret,group="fixed")
         }
+
+        if (exponentiate) {
+            vv <- intersect(c("estimate","conf.low","conf.high"),names(ret))
+            ret <- (ret
+                %>% mutate_at(vars(vv), ~exp(.))
+                %>% mutate(std.error=std.error*estimate)
+            )
+        }
+        
         ret_list$fixed <-  reorder_frame(ret)
     }
     if ("ran_pars" %in% effects) {

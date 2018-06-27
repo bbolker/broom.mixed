@@ -5,6 +5,7 @@
 \alias{tidy.lme}
 \alias{augment.lme}
 \alias{glance.lme}
+\alias{tidy.gls}
 \title{Tidying methods for mixed effects models}
 \usage{
 \method{tidy}{lme}(x, effects = c("ran_pars", "fixed"), scales = NULL,
@@ -13,6 +14,8 @@
 \method{augment}{lme}(x, data = x$data, newdata, ...)
 
 \method{glance}{lme}(x)
+
+\method{tidy}{gls}(x, conf.int = FALSE, conf.level = 0.95, ...)
 }
 \arguments{
 \item{x}{An object of class \code{lme}, such as those from \code{lme}
@@ -104,6 +107,11 @@ if (require("broom") && require("nlme") & require("lme4")) {
     tidy(nm1, effects = "fixed")
     head(augment(nm1, Orange))
     glance(nm1)
+
+    gls1 <- gls(follicles ~ sin(2*pi*Time) + cos(2*pi*Time), Ovary,
+                         correlation = corAR1(form = ~ 1 | Mare))
+    tidy(gls1)
+    glance(gls1)
 }
 
 }

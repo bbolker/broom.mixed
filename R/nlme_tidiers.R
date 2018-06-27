@@ -277,6 +277,7 @@ tidy.gls <- function(x,
                      conf.int = FALSE,
                      conf.level = 0.95,
                      ...) {
+    . <- Value <- Std.Error <- `t-value` <- `p-value` <- NULL ## glob var checks
     summary(x)[["tTable"]] %>%
         as.data.frame() %>% ## have to convert to df *first*
         tibble::rownames_to_column(var="term") %>%

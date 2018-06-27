@@ -286,7 +286,11 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
         ret_list$ran_coefs <- ret
     }
 
-    return(dplyr::bind_rows(ret_list,.id="effect"))
+    ret <- (ret_list
+        %>% dplyr::bind_rows(.id="effect")
+        %>% as_tibble())
+    
+    return(ret)
 }
 
 #' @rdname lme4_tidiers

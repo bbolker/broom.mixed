@@ -84,7 +84,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
                         ...) {
 
     ## R CMD check false positives
-    term <- estimate <- .id <- level <- std.error <- NULL
+    term <- estimate <- .id <- level <- std.error <- . <- NULL
 
     ss <- stats::coef(summary(x))
     ss <- ss[!sapply(ss,is.null)]

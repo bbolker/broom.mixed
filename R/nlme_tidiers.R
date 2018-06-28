@@ -289,6 +289,7 @@ tidy.gls <- function(x,
         
 }
 
+#' @export
 glance.gls <- function(x) {
     ss <- summary(x)
     with(ss,

@@ -79,18 +79,18 @@ if (require(lme4, quietly = TRUE)) {
    })
               
     test_that("augment works on lme4 fits with or without data", {
-        au1 <- broom::augment(fit)
-        au2 <- broom::augment(fit, d)
+        au1 <- suppressWarnings(broom::augment(fit))
+        au2 <- suppressWarnings(broom::augment(fit, d))
         ## FIXME: columns not ordered the same??
         expect_equal(au1,au2[names(au1)])
     })
 
-    dNAs <- d
-    dNAs$y[c(1, 3, 5)] <- NA
+    dNAs <<- d
+    dNAs$y[c(1, 3, 5)] <<- NA
     
     test_that("augment works on lme4 fits with NAs", {
         fitNAs <- lmer(y ~ tx*x + (x | subj), data = dNAs)
-        au <- broom::augment(fitNAs)
+        au <- suppressWarnings(broom::augment(fitNAs))
         expect_equal(nrow(au), sum(complete.cases(dNAs)))
     })
     

@@ -14,6 +14,7 @@
 ##' tidy(obj,conf.int=TRUE,conf.method="wald")
 ##' tidy(obj,conf.int=TRUE,conf.method="uniroot")
 ##' }
+##' @export
 tidy.TMB <- function(x,effect=c("fixed","random"),
                      conf.int=FALSE,
                      conf.level = 0.95,

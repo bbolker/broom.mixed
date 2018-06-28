@@ -25,8 +25,8 @@ run_pkg("lme4",
     lmm0 <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy)
     lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
     lmm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days | Subject), sleepstudy)
-    pp <- profile(lmm1)
-    save_file(pp, lmm0, lmm1, lmm2, pkg="lme4", type = "rda")
+    lmm1_prof <- profile(lmm1)
+    save_file(lmm1_prof, lmm0, lmm1, lmm2, pkg="lme4", type = "rda")
 })
 
 

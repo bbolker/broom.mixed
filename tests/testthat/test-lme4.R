@@ -86,7 +86,7 @@ if (require(lme4, quietly = TRUE)) {
     })
 
     dNAs <<- d
-    dNAs$y[c(1, 3, 5)] <<- NA
+    dNAs$y[c(1, 3, 5)] <- NA
     
     test_that("augment works on lme4 fits with NAs", {
         fitNAs <- lmer(y ~ tx*x + (x | subj), data = dNAs)

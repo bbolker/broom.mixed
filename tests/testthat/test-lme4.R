@@ -115,10 +115,10 @@ if (require(lme4, quietly = TRUE)) {
         td1 <- tidy(lmm1,"ran_modes")
         expect_equal(dim(td0),c(18,6))
         expect_equal(dim(td1),c(36,6))
-        expect_equal(names(td1),names(td2))
         if (packageVersion("lme4")>="1.1.18") {
             td2 <- tidy(lmm2,"ran_modes")
             expect_equal(dim(td2),c(36,6))
+            expect_equal(names(td1),names(td2))
         }
     })
     test_that("confint preserves term names", {

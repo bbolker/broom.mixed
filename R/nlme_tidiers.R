@@ -75,7 +75,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
     ## R CMD global var check
     lower <- upper <- NULL
     
-    effect_names <- c("ran_pars", "fixed", "ran_modes", "ran_coefs")
+    effect_names <- c("ran_pars", "fixed", "ran_vals", "ran_coefs")
     if (length(miss <- setdiff(effects,effect_names))>0)
         stop("unknown effect type ",miss)
 
@@ -194,9 +194,9 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
         ret_list$ran_pars <- ret
     }
     
-    if ("ran_modes" %in% effects) {
+    if ("ran_vals" %in% effects) {
 
-        ret_list$ran_modes <-
+        ret_list$ran_vals <-
             ranef(x) %>%
             tibble::rownames_to_column("level") %>%
             tidyr::gather(key=term,value=estimate,-level)

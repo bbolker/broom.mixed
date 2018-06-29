@@ -25,7 +25,7 @@
 #'                                      package="broom.mixed"))
 #'     tidy(lmm1, conf.int=TRUE, conf.method="profile", profile=lmm1_prof)
 #'     ## conditional modes (group-level deviations from population-level estimate)
-#'     tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
+#'     tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
 #'     ## coefficients (group-level estimates)
 #'     (rcoef1 <- tidy(lmm1, effects = "ran_coefs"))
 #'     ## reconstitute standard coefficient-by-level table
@@ -72,7 +72,7 @@ confint.rlmerMod <- function(x, parm,
 
 ## FIXME: relatively trivial/only used in one place, could
 ## probably be eliminated?
-fix_ran_modes <- function(g) {
+fix_ran_vals <- function(g) {
     term <- level <- estimate <- NULL
     r <- g %>%
         tibble::rownames_to_column("level") %>%
@@ -83,7 +83,7 @@ fix_ran_modes <- function(g) {
 #' @rdname lme4_tidiers
 #'
 #' @param debug print debugging output?
-#' @param effects A character vector including one or more of "fixed" (fixed-effect parameters); "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms); "ran_modes" (conditional modes/BLUPs/latent variable estimates); or "ran_coefs" (predicted parameter values for each group, as returned by \code{\link[lme4]{coef.merMod}})
+#' @param effects A character vector including one or more of "fixed" (fixed-effect parameters); "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms); "ran_vals" (conditional modes/BLUPs/latent variable estimates); or "ran_coefs" (predicted parameter values for each group, as returned by \code{\link[lme4]{coef.merMod}})
 #' @param conf.int whether to include a confidence interval
 #' @param conf.level confidence level for CI
 #' @param conf.method method for computing confidence intervals (see \code{lme4::confint.merMod})
@@ -129,7 +129,7 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
     variable <- level <- term <- estimate <- std.error <- grpvar <-
         .id <- grp <- condval <- condsd <- NULL
 
-    effect_names <- c("ran_pars", "fixed", "ran_modes", "ran_coefs")
+    effect_names <- c("ran_pars", "fixed", "ran_vals", "ran_coefs")
     if (!is.null(scales)) {
         if (length(scales) != length(effects)) {
             stop("if scales are specified, values (or NA) must be provided ",
@@ -252,7 +252,7 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
         ret_list$ran_pars <- ret
     }
 
-    if ("ran_modes" %in% effects) {
+    if ("ran_vals" %in% effects) {
         ## fix each group to be a tidy data frame
 
         ret <- ranef(x,condVar=TRUE)  %>%
@@ -270,11 +270,11 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
                                conf.high=estimate+mult*std.error)
         }
 
-        ret_list$ran_modes <- ret
+        ret_list$ran_vals <- ret
     }
     if ("ran_coefs" %in% effects) {
         ret <- coef(x) %>%
-            purrr::map(fix_ran_modes) %>%
+            purrr::map(fix_ran_vals) %>%
             bind_rows(.id="group")
         
         if (conf.int) {

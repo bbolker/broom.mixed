@@ -110,13 +110,13 @@ if (require(lme4, quietly = TRUE)) {
         expect_equal(dim(g),c(1,6))
     })
 
-    test_that("ran_modes works", {
-        td0 <- tidy(lmm0,"ran_modes")
-        td1 <- tidy(lmm1,"ran_modes")
+    test_that("ran_vals works", {
+        td0 <- tidy(lmm0,"ran_vals")
+        td1 <- tidy(lmm1,"ran_vals")
         expect_equal(dim(td0),c(18,6))
         expect_equal(dim(td1),c(36,6))
         if (packageVersion("lme4")>="1.1.18") {
-            td2 <- tidy(lmm2,"ran_modes")
+            td2 <- tidy(lmm2,"ran_vals")
             expect_equal(dim(td2),c(36,6))
             expect_equal(names(td1),names(td2))
         }

@@ -20,7 +20,7 @@
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)
 #'     ## tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
-#'     ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
+#'     ## tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)
 #'     
@@ -37,7 +37,7 @@ NULL
 #' @rdname glmmadmb_tidiers
 #'
 #' @param component Which component(s) to report for (e.g., conditional, zero-inflation, dispersion: at present only works for "cond")
-#' @param effects A character vector including one or more of "fixed" (fixed-effect parameters), "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms) or "ran_modes" (conditional modes/BLUPs/latent variable estimates)
+#' @param effects A character vector including one or more of "fixed" (fixed-effect parameters), "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms) or "ran_vals" (conditional modes/BLUPs/latent variable estimates)
 #' @param conf.int whether to include a confidence interval
 #' @param conf.level confidence level for CI
 #' @param conf.method method for computing confidence intervals (see \code{\link[lme4]{confint.merMod}})
@@ -78,7 +78,7 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
         stop("only works for conditional component")
     }
     if (conf.method != "Wald") stop("only Wald CIs available")
-    effect_names <- c("ran_pars", "fixed", "ran_modes")
+    effect_names <- c("ran_pars", "fixed", "ran_vals")
     if (!is.null(scales)) {
         if (length(scales) != length(effects)) {
             stop("if scales are specified, values (or NA) must be provided ",
@@ -101,7 +101,7 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
             ret <- data.frame(ret,cifix)
             nn <- c(nn,"conf.low","conf.high")
         }
-        if ("ran_pars" %in% effects || "ran_modes" %in% effects) {
+        if ("ran_pars" %in% effects || "ran_vals" %in% effects) {
             ret <- data.frame(ret,group="fixed")
             nn <- c(nn,"group")
         }
@@ -164,7 +164,7 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
         ret_list$ran_pars <- fix_data_frame(ret[c("grp",rscale)],
                                             newnames=c("group","estimate"))
     }
-    if ("ran_modes" %in% effects) {
+    if ("ran_vals" %in% effects) {
         ## fix each group to be a tidy data frame
 
         nn <- c("estimate", "std.error")
@@ -210,7 +210,7 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
         }
 
         ret <- dplyr::rename(ret,grp=.id)
-        ret_list$ran_modes <- ret
+        ret_list$ran_vals <- ret
     }
     return(rbind.fill(ret_list))
 }

@@ -19,7 +19,7 @@
 \item{x}{An object of class \code{merMod}, such as those from \code{lmer},
 \code{glmer}, or \code{nlmer}}
 
-\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters), "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms) or "ran_modes" (conditional modes/BLUPs/latent variable estimates)}
+\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters), "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms) or "ran_vals" (conditional modes/BLUPs/latent variable estimates)}
 
 \item{component}{which component to extract (e.g. \code{cond} for conditional effects (i.e., traditional fixed effects); \code{zi} for zero-inflation model; \code{disp} for dispersion model}
 
@@ -100,7 +100,7 @@ if (require("broom") && require("glmmTMB") && require("lme4")) {
        ## FIXME: fails on stored model fit?
        tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="uniroot")
     }
-    ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
+    ## tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
     data("sleepstudy",package="lme4")
     head(augment(lmm1, sleepstudy))
     glance(lmm1)

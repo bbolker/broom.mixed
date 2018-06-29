@@ -3,11 +3,17 @@
 \name{brms_tidiers}
 \alias{brms_tidiers}
 \alias{tidy.brmsfit}
+\alias{glance.brmsfit}
+\alias{augment.brmsfit}
 \title{Tidying methods for a brms model}
 \usage{
 \method{tidy}{brmsfit}(x, parameters = NA, par_type = c("all",
   "non-varying", "varying", "hierarchical"), robust = FALSE,
   intervals = TRUE, prob = 0.9, ...)
+
+\method{glance}{brmsfit}(x, looic = FALSE, ...)
+
+\method{augment}{brmsfit}()
 }
 \arguments{
 \item{x}{Fitted model object from the \pkg{brms} package. See 

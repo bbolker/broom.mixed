@@ -19,7 +19,7 @@
 \item{x}{An object of class \code{glmmadmb}
 \code{glmer}, or \code{nlmer}}
 
-\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters), "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms) or "ran_modes" (conditional modes/BLUPs/latent variable estimates)}
+\item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters), "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms) or "ran_vals" (conditional modes/BLUPs/latent variable estimates)}
 
 \item{component}{Which component(s) to report for (e.g., conditional, zero-inflation, dispersion: at present only works for "cond")}
 
@@ -97,7 +97,7 @@ if (require("broom") && require("glmmADMB") && require("lme4")) {
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, effects = "fixed", conf.int=TRUE)
     ## tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
-    ## tidy(lmm1, effects = "ran_modes", conf.int=TRUE)
+    ## tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
     

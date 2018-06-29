@@ -3,11 +3,9 @@ stopifnot(require("testthat"), require("broom.mixed"), require("broom"))
 
 context("rstanarm tidiers")
 if (suppressPackageStartupMessages(require(rstanarm, quietly=TRUE))) {
-    set.seed(2016)
-    capture.output(
-        fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
-                               iter = 200, chains = 2)
-    )
+    fit <<- readRDS(system.file("extdata","rstanarm_example.rds",package="broom.mixed"))
+    ## fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
+    ## iter = 200, chains = 2)
     
     context("rstanarm models")
     test_that("tidy works on rstanarm fits", {

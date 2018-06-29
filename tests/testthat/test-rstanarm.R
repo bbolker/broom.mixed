@@ -12,22 +12,22 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly=TRUE))) {
     context("rstanarm models")
     test_that("tidy works on rstanarm fits", {
         td1 <- tidy(fit)
-        td2 <- tidy(fit, parameters = "varying")
-        td3 <- tidy(fit, parameters = "hierarchical")
-        td4 <- tidy(fit, parameters = "auxiliary")
+        td2 <- tidy(fit, effects = "ran_vals")
+        td3 <- tidy(fit, effects = "ran_pars")
+        td4 <- tidy(fit, effects = "auxiliary")
         expect_equal(colnames(td1), c("term", "estimate", "std.error"))
     })
     
-    test_that("tidy with multiple 'parameters' selections works on rstanarm fits", {
-      td1 <- tidy(fit, parameters = c("varying", "auxiliary"))
+    test_that("tidy with multiple 'effects' selections works on rstanarm fits", {
+      td1 <- tidy(fit, effects = c("ran_vals", "auxiliary"))
       expect_true(all(c("sigma", "mean_PPD") %in% td1$term))
       expect_equal(colnames(td1), c("term", "estimate", "std.error", "level", "group"))
     })
     
-    test_that("intervals works on rstanarm fits", {
-        td1 <- tidy(fit, intervals = TRUE, prob = 0.8)
-        td2 <- tidy(fit, parameters = "varying", intervals = TRUE, prob = 0.5)
-        nms <- c("level", "group", "term", "estimate", "std.error", "lower", "upper")
+    test_that("conf.int works on rstanarm fits", {
+        td1 <- tidy(fit, conf.int = TRUE, prob = 0.8)
+        td2 <- tidy(fit, effects = "ran_vals", conf.int = TRUE, prob = 0.5)
+        nms <- c("level", "group", "term", "estimate", "std.error", "conf.low", "conf.high")
         expect_equal(colnames(td2), nms)
     })
     

@@ -119,3 +119,17 @@ tidy.brmsfit <- function(x, parameters = NA,
     }
     out
 }
+
+#' @rdname brms_tidiers
+#' @export
+glance.brmsfit <- function(x, looic = FALSE, ...) {
+    ## defined in rstanarm_tidiers.R
+    glance_stan(x, looic=looic, type="brmsfit", ...)
+}
+
+#' @rdname brms_tidiers
+#' @export
+augment.brmsfit <- function() {}
+
+
+    

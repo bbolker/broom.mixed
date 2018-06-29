@@ -204,7 +204,6 @@ tidy.stanreg <- function(x,
 #'   models fit to very large datasets this can be a slow computation.
 #' @param ... For \code{glance}, if \code{looic=TRUE}, optional arguments to 
 #'   \code{\link[rstanarm]{loo.stanreg}}.
-#' 
 #' @return \code{glance} returns one row with the columns
 #'   \item{algorithm}{The algorithm used to fit the model.}
 #'   \item{pss}{The posterior sample size (except for models fit using 
@@ -223,29 +222,47 @@ tidy.stanreg <- function(x,
 #' 
 #' @export
 glance.stanreg <- function(x, looic = FALSE, ...) {
+    glance_stan(x, looic=looic, type="stanreg", ...)
+}
+
+
+glance_stan <- function(x, looic = FALSE, ...) {
     sigma <- if (getRversion() >= "3.3.0") {
         get("sigma", asNamespace("stats"))
     } else {
         get("sigma", asNamespace("rstanarm"))
     }
-    ret <- data.frame(algorithm = x$algorithm) 
+    if (type=="stanreg") {
+        algo <- x$algorithm
+        sim <- x$stanfit@sim
+    } else {
+        algo <- x$fit@stan_args[["method"]]
+        sim <- x$fit@sim
+    }
+        
+    ret <- data.frame(algorithm = algo)
 
-    if (x$algorithm != "optimizing") {
-        pss <- x$stanfit@sim$n_save
-        if (x$algorithm == "sampling")
-            pss <- sum(pss - x$stanfit@sim$warmup2)
+    if (algo != "optimizing") {
+        pss <- sim$n_save
+        if (algo == "sampling") {
+            pss <- sum(pss - sim$warmup2)
+        }
         ret <- data.frame(ret, pss = pss)
     }
     
     ret <- data.frame(ret, nobs = stats::nobs(x), sigma = sigma(x))
     if (looic) {
-        if (x$algorithm == "sampling") {
-            loo1 <- rstanarm::loo(x, ...)
-            loo1_est <- loo1[["estimates"]]
-            ret <- data.frame(ret,
-                              looic=loo1_est[rownames(ret),"Estimate"])
+        if (algo == "sampling") {
+            if (type=="stanreg") {
+                loo1 <- rstanarm::loo(x, ...)
+            } else {
+                loo1 <- brms::loo(x,...)
+                loo1_est <- loo1[["estimates"]]
+                ret <- data.frame(ret,
+                                  looic=loo1_est[rownames(ret),"Estimate"])
+            }
         } else {
-          message("looic only available for models fit using MCMC")  
+            message("looic only available for models fit using MCMC")  
         }
     }
     as_tibble(unrowname(ret))

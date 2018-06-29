@@ -25,12 +25,6 @@
 #'    tidy(fit, effects = "ran_vals")
 #'    tidy(fit, effects = "ran_pars", robust = TRUE)
 #' 
-#'   # glance method
-#'    glance(fit)
-#'   \dontrun{
-#'      glance(fit, looic = TRUE, cores = 1)
-#'   }
-#'
 #' }
 #'  
 NULL
@@ -138,6 +132,14 @@ tidy.brmsfit <- function(x, parameters = NA,
 }
 
 #' @rdname brms_tidiers
+#' @examples
+#' # glance method
+#'    glance(fit)
+#'   \dontrun{
+#'      glance(fit, looic = TRUE, cores = 1)
+#'   }
+#'
+
 #' @export
 glance.brmsfit <- function(x, looic = FALSE, ...) {
     ## defined in rstanarm_tidiers.R
@@ -145,8 +147,27 @@ glance.brmsfit <- function(x, looic = FALSE, ...) {
 }
 
 #' @rdname brms_tidiers
+#' @examples
+#' head(augment(fit))
 #' @export
-augment.brmsfit <- function() {}
-
+augment.brmsfit <- function(x, data=stats::model.frame(x), newdata=NULL,
+                            se.fit = TRUE, ...) {
+    ## can't use augment.columns because residuals.brmsfit returns
+    ## a 4-column matrix (because summary=TRUE by default, no way
+    ## to suppress this within augment_columns)
+    ## ... add resids.arg to augment_columns?
+    args <- list(x,se.fit=se.fit)
+    if (!missing(newdata)) args$newdata <- newdata
+    ## FIXME: influence measures??
+    ## allow optional arguments to augment, e.g. pred.type,
+    ## residual.type, re.form ...
+    pred <- do.call(stats::predict,args)
+    ret <- data.frame(.fitted=pred[,"Estimate"])
+    if (se.fit) ret[[".se.fit"]] <- pred[,"Est.Error"]
+    if (is.null(newdata)) {
+        ret[[".resid"]] <- residuals(x)[,"Estimate"]
+    }
+    return(ret)
+}
 
     

@@ -13,7 +13,8 @@
 
 \method{glance}{brmsfit}(x, looic = FALSE, ...)
 
-\method{augment}{brmsfit}()
+\method{augment}{brmsfit}(x, data = stats::model.frame(x), newdata = NULL,
+  se.fit = TRUE, ...)
 }
 \arguments{
 \item{x}{Fitted model object from the \pkg{brms} package. See 
@@ -97,14 +98,15 @@ are used for compatibility with other (frequentist) mixed model types.
    tidy(fit, effects = "ran_vals")
    tidy(fit, effects = "ran_pars", robust = TRUE)
 
-  # glance method
+}
+ 
+# glance method
    glance(fit)
   \dontrun{
      glance(fit, looic = TRUE, cores = 1)
   }
 
-}
- 
+head(augment(fit))
 }
 \seealso{
 \code{\link[brms]{brms}}, \code{\link[brms]{brmsfit-class}}

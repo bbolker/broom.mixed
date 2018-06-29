@@ -88,7 +88,7 @@ fix_ran_vals <- function(g) {
 #' @param conf.level confidence level for CI
 #' @param conf.method method for computing confidence intervals (see \code{lme4::confint.merMod})
 #' @param scales scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects; inverse-link transformations (exponentiation or logistic) are not yet implemented, but may be in the future.
-#' @param exponentiate  whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression)
+#' @param exponentiate  whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale
 #' @param ran_prefix a length-2 character vector specifying the strings to use as prefixes for self- (variance/standard deviation) and cross- (covariance/correlation) random effects terms
 #' @param profile pre-computed profile object, for speed when using \code{conf.method="profile"}
 #' 

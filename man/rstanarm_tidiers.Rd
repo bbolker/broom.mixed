@@ -6,8 +6,8 @@
 \alias{glance.stanreg}
 \title{Tidying methods for an rstanarm model}
 \usage{
-\method{tidy}{stanreg}(x, parameters = "non-varying", intervals = FALSE,
-  prob = 0.9, ...)
+\method{tidy}{stanreg}(x, effects = "fixed", conf.int = FALSE, prob = 0.9,
+  ...)
 
 \method{glance}{stanreg}(x, looic = FALSE, ...)
 }
@@ -15,11 +15,11 @@
 \item{x}{Fitted model object from the \pkg{rstanarm} package. See 
 \code{\link[rstanarm]{stanreg-objects}}.}
 
-\item{parameters}{One or more of \code{"non-varying"}, \code{"varying"}, 
-\code{"hierarchical"}, \code{"auxiliary"} (can be abbreviated). See the
-Value section for details.}
+\item{effects}{One of \code{"all"}, \code{"fixed"}, 
+\code{"ran_vals"}, or \code{"ran_pars"} (can be abbreviated). 
+See the Value section for details.}
 
-\item{intervals}{If \code{TRUE} columns for the lower and upper bounds of the
+\item{conf.int}{If \code{TRUE} columns for the lower (\code{conf.low}) and upper (\code{conf.high}) bounds of the
 \code{100*prob}\% posterior uncertainty intervals are included. See 
 \code{\link[rstanarm]{posterior_interval.stanreg}} for details.}
 
@@ -36,7 +36,7 @@ models fit to very large datasets this can be a slow computation.}
 All tidying methods return a \code{data.frame} without rownames.
 The structure depends on the method chosen.
 
-When \code{parameters="non-varying"} (the default), \code{tidy.stanreg} returns
+When \code{effects="fixed"} (the default), \code{tidy.stanreg} returns
 one row for each coefficient, with three columns:
 \item{term}{The name of the corresponding term in the model.}
 \item{estimate}{A point estimate of the coefficient (posterior median).}
@@ -45,24 +45,20 @@ one row for each coefficient, with three columns:
 \code{\link[rstanarm]{print.stanreg}} for more details.}
 
 For models with group-specific parameters (e.g., models fit with 
-\code{\link[rstanarm]{stan_glmer}}), setting \code{parameters="varying"} 
+\code{\link[rstanarm]{stan_glmer}}), setting \code{effects="ran_vals"} 
 selects the group-level parameters instead of the non-varying regression 
 coefficients. Addtional columns are added indicating the \code{level} and 
-\code{group}. Specifying \code{parameters="hierarchical"} selects the 
+\code{group}. Specifying \code{effects="ran_pars"} selects the 
 standard deviations and (for certain models) correlations of the group-level 
 parameters.
 
-Setting \code{parameters="auxiliary"} will select parameters other than those
+Setting \code{effects="auxiliary"} will select parameters other than those
 included by the other options. The particular parameters depend on which 
 \pkg{rstanarm} modeling function was used to fit the model. For example, for 
 models fit using \code{\link[rstanarm]{stan_glm}} the overdispersion 
-parameter is included if \code{parameters="aux"}, for 
+parameter is included if \code{effects="aux"}, for 
 \code{\link[rstanarm]{stan_lm}} the auxiliary parameters include the residual
 SD, R^2, and log(fit_ratio), etc.
-
-If \code{intervals=TRUE}, columns for the \code{lower} and \code{upper} 
-values of the posterior intervals computed with 
-\code{\link[rstanarm]{posterior_interval.stanreg}} are also included.
 
 \code{glance} returns one row with the columns
   \item{algorithm}{The algorithm used to fit the model.}
@@ -97,21 +93,19 @@ fit <- readRDS(system.file("extdata","rstanarm_example.rds",package="broom.mixed
 
 if (require("broom")) {
   # non-varying ("population") parameters
-  tidy(fit, intervals = TRUE, prob = 0.5)
+  tidy(fit, conf.int = TRUE, prob = 0.5)
 
   # hierarchical sd & correlation parameters
-  tidy(fit, parameters = "hierarchical")
+  tidy(fit, effects = "ran_pars")
 
   # group-specific deviations from "population" parameters
-  tidy(fit, parameters = "varying")
+  tidy(fit, effects = "ran_vals")
 
   # glance method
    glance(fit)
   \dontrun{
      glance(fit, looic = TRUE, cores = 1)
   }
-  ## note that this glance() call will produce a warning recommending
-  ## that you specify \\code{k_threshold=0.7}
 } ## if broom available
 
 

@@ -26,39 +26,34 @@
 #'
 #' if (require("broom")) {
 #'   # non-varying ("population") parameters
-#'   tidy(fit, intervals = TRUE, prob = 0.5)
+#'   tidy(fit, conf.int = TRUE, prob = 0.5)
 #' 
 #'   # hierarchical sd & correlation parameters
-#'   tidy(fit, parameters = "hierarchical")
+#'   tidy(fit, effects = "ran_pars")
 #' 
 #'   # group-specific deviations from "population" parameters
-#'   tidy(fit, parameters = "varying")
+#'   tidy(fit, effects = "ran_vals")
 #' 
 #'   # glance method
 #'    glance(fit)
 #'   \dontrun{
 #'      glance(fit, looic = TRUE, cores = 1)
 #'   }
-#'   ## note that this glance() call will produce a warning recommending
-#'   ## that you specify \code{k_threshold=0.7}
 #' } ## if broom available
 #' 
 #' 
 #'  
 NULL
 
-
 #' @rdname rstanarm_tidiers
-#' @param parameters One or more of \code{"non-varying"}, \code{"varying"}, 
-#'   \code{"hierarchical"}, \code{"auxiliary"} (can be abbreviated). See the
-#'   Value section for details.
+#' @inheritParams brms_tidiers
 #' @param prob See \code{\link[rstanarm]{posterior_interval.stanreg}}.
-#' @param intervals If \code{TRUE} columns for the lower and upper bounds of the
+#' @param conf.int If \code{TRUE} columns for the lower (\code{conf.low}) and upper (\code{conf.high}) bounds of the
 #'   \code{100*prob}\% posterior uncertainty intervals are included. See 
 #'   \code{\link[rstanarm]{posterior_interval.stanreg}} for details.
 #' 
 #' @return 
-#' When \code{parameters="non-varying"} (the default), \code{tidy.stanreg} returns
+#' When \code{effects="fixed"} (the default), \code{tidy.stanreg} returns
 #' one row for each coefficient, with three columns:
 #' \item{term}{The name of the corresponding term in the model.}
 #' \item{estimate}{A point estimate of the coefficient (posterior median).}
@@ -67,44 +62,40 @@ NULL
 #' \code{\link[rstanarm]{print.stanreg}} for more details.}
 #' 
 #' For models with group-specific parameters (e.g., models fit with 
-#' \code{\link[rstanarm]{stan_glmer}}), setting \code{parameters="varying"} 
+#' \code{\link[rstanarm]{stan_glmer}}), setting \code{effects="ran_vals"} 
 #' selects the group-level parameters instead of the non-varying regression 
 #' coefficients. Addtional columns are added indicating the \code{level} and 
-#' \code{group}. Specifying \code{parameters="hierarchical"} selects the 
+#' \code{group}. Specifying \code{effects="ran_pars"} selects the 
 #' standard deviations and (for certain models) correlations of the group-level 
 #' parameters.
 #' 
-#' Setting \code{parameters="auxiliary"} will select parameters other than those
+#' Setting \code{effects="auxiliary"} will select parameters other than those
 #' included by the other options. The particular parameters depend on which 
 #' \pkg{rstanarm} modeling function was used to fit the model. For example, for 
 #' models fit using \code{\link[rstanarm]{stan_glm}} the overdispersion 
-#' parameter is included if \code{parameters="aux"}, for 
+#' parameter is included if \code{effects="aux"}, for 
 #' \code{\link[rstanarm]{stan_lm}} the auxiliary parameters include the residual
 #' SD, R^2, and log(fit_ratio), etc.
 #' 
-#' If \code{intervals=TRUE}, columns for the \code{lower} and \code{upper} 
-#' values of the posterior intervals computed with 
-#' \code{\link[rstanarm]{posterior_interval.stanreg}} are also included.
-#' 
 #' @export
 tidy.stanreg <- function(x, 
-                         parameters = "non-varying", 
-                         intervals = FALSE, 
+                         effects = "fixed", 
+                         conf.int = FALSE, 
                          prob = 0.9,
                          ...) {
     
-    parameters <-
-        match.arg(parameters, several.ok = TRUE,
-                  choices = c("non-varying", "varying", 
-                              "hierarchical", "auxiliary"))
-    if (any(parameters %in% c("varying", "hierarchical"))) {
+    effects <-
+        match.arg(effects, several.ok = TRUE,
+                  choices = c("fixed", "ran_vals", 
+                              "ran_pars", "auxiliary"))
+    if (any(effects %in% c("ran_vals", "ran_pars"))) {
       if (!inherits(x, "lmerMod"))
-        stop("Model does not have 'varying' or 'hierarchical' parameters.")
+        stop("Model does not have varying ('ran_vals') or hierarchical ('ran_pars') effects.")
     }
     
     nn <- c("estimate", "std.error")
     ret_list <- list()
-    if ("non-varying" %in% parameters) {
+    if ("fixed" %in% effects) {
         nv_pars <- names(rstanarm::fixef(x))
         ret <- cbind(rstanarm::fixef(x), 
                      rstanarm::se(x)[nv_pars])
@@ -117,7 +108,7 @@ tidy.stanreg <- function(x,
             nv_pars <- c(nv_pars, names(cp))
         }
         
-        if (intervals) {
+        if (conf.int) {
             cifix <- 
                 rstanarm::posterior_interval(
                   object = x, 
@@ -125,26 +116,26 @@ tidy.stanreg <- function(x,
                   prob = prob
                 )
             ret <- data.frame(ret, cifix)
-            nn <- c(nn, "lower", "upper")
+            nn <- c(nn, "conf.low", "conf.high")
         }
-        ret_list$non_varying <- fix_data_frame(ret, newnames = nn)
+        ret_list$non_ran_vals <- fix_data_frame(ret, newnames = nn)
     }
-    if ("auxiliary" %in% parameters) {
+    if ("auxiliary" %in% effects) {
         nn <- c("estimate", "std.error")
         parnames <- rownames(x$stan_summary)
         auxpars <- c("sigma", "shape", "overdispersion", "R2", "log-fit_ratio", 
                      grep("mean_PPD", parnames, value = TRUE))
         auxpars <- auxpars[which(auxpars %in% parnames)]
         ret <- summary(x, pars = auxpars)[, c("50%", "sd"), drop = FALSE]
-        if (intervals) {
+        if (conf.int) {
             ints <- rstanarm::posterior_interval(x, pars = auxpars, prob = prob)
             ret <- data.frame(ret, ints)
-            nn <- c(nn,"lower","upper")
+            nn <- c(nn,"conf.low","conf.high")
         }
         ret_list$auxiliary <-
             fix_data_frame(ret, newnames = nn)
     }
-    if ("hierarchical" %in% parameters) {
+    if ("ran_pars" %in% effects) {
         ret <- as.data.frame(rstanarm::VarCorr(x))
         ret[] <- lapply(ret, function(x) if (is.factor(x))
             as.character(x) else x)
@@ -166,16 +157,16 @@ tidy.stanreg <- function(x,
                                                 newnames = c("group", "estimate"))
     }
     
-    if ("varying" %in% parameters) {
+    if ("ran_vals" %in% effects) {
         nn <- c("estimate", "std.error")
-        s <- summary(x, pars = "varying")
+        s <- summary(x, pars = "varying") ## goes through to rstanarm
         ret <- cbind(s[, "50%"], rstanarm::se(x)[rownames(s)])
         
-        if (intervals) {
+        if (conf.int) {
             ciran <- rstanarm::posterior_interval(x, regex_pars = "^b\\[",
                                                   prob = prob)
             ret <- data.frame(ret,ciran)
-            nn <- c(nn,"lower","upper")
+            nn <- c(nn,"conf.low","conf.high")
         }
         
         double_splitter <- function(x, split1, sel1, split2, sel2) {
@@ -190,7 +181,7 @@ tidy.stanreg <- function(x,
         grp <- double_splitter(nms, " ", 2, ":", 1)
         trm <- double_splitter(nms, " ", 1, "[", 2)
         vv <- data.frame(lev, grp, trm, vv)
-        ret_list$varying <- fix_data_frame(vv, newnames = nn)
+        ret_list$ran_vals <- fix_data_frame(vv, newnames = nn)
     }
     
     return(rbind.fill(ret_list))
@@ -199,9 +190,6 @@ tidy.stanreg <- function(x,
 
 #' @rdname rstanarm_tidiers
 #' 
-#' @param looic Should the LOO Information Criterion (and related info) be
-#'   included? See \code{\link[rstanarm]{loo.stanreg}} for details. Note: for
-#'   models fit to very large datasets this can be a slow computation.
 #' @param ... For \code{glance}, if \code{looic=TRUE}, optional arguments to 
 #'   \code{\link[rstanarm]{loo.stanreg}}.
 #' @return \code{glance} returns one row with the columns
@@ -226,17 +214,20 @@ glance.stanreg <- function(x, looic = FALSE, ...) {
 }
 
 
-glance_stan <- function(x, looic = FALSE, ...) {
+glance_stan <- function(x, looic = FALSE, ..., type) {
     sigma <- if (getRversion() >= "3.3.0") {
-        get("sigma", asNamespace("stats"))
-    } else {
-        get("sigma", asNamespace("rstanarm"))
-    }
+                 get("sigma", asNamespace("stats"))
+             } else {
+                 ## FIXME: could fail if old R & called from brms
+                 ## & rstanarm not installed ...
+                 get("sigma", asNamespace("rstanarm"))
+             }
     if (type=="stanreg") {
         algo <- x$algorithm
         sim <- x$stanfit@sim
     } else {
-        algo <- x$fit@stan_args[["method"]]
+        ## method is recorded for every chain; pick the first
+        algo <- x$fit@stan_args[[1]][["method"]]
         sim <- x$fit@sim
     }
         
@@ -250,17 +241,21 @@ glance_stan <- function(x, looic = FALSE, ...) {
         ret <- data.frame(ret, pss = pss)
     }
     
-    ret <- data.frame(ret, nobs = stats::nobs(x), sigma = sigma(x))
+    ret <- data.frame(ret, nobs = stats::nobs(x))
+    if (length(sx <- sigma(x))>0) {
+        ret <- data.frame(ret, sigma = sx)
+    }
     if (looic) {
         if (algo == "sampling") {
             if (type=="stanreg") {
                 loo1 <- rstanarm::loo(x, ...)
             } else {
                 loo1 <- brms::loo(x,...)
-                loo1_est <- loo1[["estimates"]]
-                ret <- data.frame(ret,
-                                  looic=loo1_est[rownames(ret),"Estimate"])
             }
+            loo1_est <- loo1[["estimates"]]
+            ret <- data.frame(ret,
+                              rbind(loo1_est[c("looic","elpd_loo","p_loo"),
+                                             "Estimate"]))
         } else {
             message("looic only available for models fit using MCMC")  
         }

@@ -8,9 +8,9 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item Sorted out some of the confusion over random effect naming:
-      "ran_modes" extracts conditional modes (deviations from
-      population-level estimates), while "ran_coefs" extracts
-      group-level estimates
+      "ran_vals" extracts conditional modes/BLUPs/varying parameters
+      (deviations from population-level estimates),
+      while "ran_coefs" extracts group-level estimates
     }
   }
   \subsection{NEW FEATURES}{
@@ -39,7 +39,7 @@
 	\code{effects = "ran_coefs"} for the group-level
 	estimates (previously these effects were 
 	extracted with \code{tidy(model, "random")}) or
-	\code{effects = "ran_modes"} for the conditional modes
+	\code{effects = "ran_vals"} for the conditional modes
 	(deviations of the group-level parameters from the
 	population-level estimates)
 	\item \code{effects} can take a vector of values (those listed

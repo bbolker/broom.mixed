@@ -127,3 +127,13 @@ if (require(lme4, quietly = TRUE)) {
     })
 
 }
+
+if (require(lmerTest, quietly = TRUE)) {
+    context("lmerTest")
+    test_that("lmerTest results include p-values", {
+        lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+        expect("p.value" %in% names(tidy(lmm1,effect="fixed")))
+    })
+    detach("package:lmerTest")
+}
+    

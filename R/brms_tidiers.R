@@ -147,12 +147,15 @@ glance.brmsfit <- function(x, looic = FALSE, ...) {
 }
 
 #' @rdname brms_tidiers
+#' @param data data frame
+#' @param newdata new data frame
+#' @param se.fit return standard errors of fit?
 #' @examples
 #' head(augment(fit))
 #' @export
 augment.brmsfit <- function(x, data=stats::model.frame(x), newdata=NULL,
                             se.fit = TRUE, ...) {
-    ## can't use augment.columns because residuals.brmsfit returns
+    ## can't use augment_columns because residuals.brmsfit returns
     ## a 4-column matrix (because summary=TRUE by default, no way
     ## to suppress this within augment_columns)
     ## ... add resids.arg to augment_columns?
@@ -165,7 +168,7 @@ augment.brmsfit <- function(x, data=stats::model.frame(x), newdata=NULL,
     ret <- data.frame(.fitted=pred[,"Estimate"])
     if (se.fit) ret[[".se.fit"]] <- pred[,"Est.Error"]
     if (is.null(newdata)) {
-        ret[[".resid"]] <- residuals(x)[,"Estimate"]
+        ret[[".resid"]] <- stats::residuals(x)[,"Estimate"]
     }
     return(ret)
 }

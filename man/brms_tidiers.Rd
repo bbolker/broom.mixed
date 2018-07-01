@@ -46,6 +46,12 @@ Only used if \code{conf.int = TRUE}.}
 \item{looic}{Should the LOO Information Criterion (and related info) be
 included? See \code{\link[rstanarm]{loo.stanreg}} for details. Note: for
 models fit to very large datasets this can be a slow computation.}
+
+\item{data}{data frame}
+
+\item{newdata}{new data frame}
+
+\item{se.fit}{return standard errors of fit?}
 }
 \value{
 All tidying methods return a \code{data.frame} without rownames.

@@ -12,3 +12,6 @@ for i in $FILES; do
 done
 cd ../broom.mixed
 cat authors.tmp | sort | uniq
+
+
+# you may find usethis::use_tidy_thanks() useful here

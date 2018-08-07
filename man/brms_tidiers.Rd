@@ -8,13 +8,13 @@
 \title{Tidying methods for a brms model}
 \usage{
 \method{tidy}{brmsfit}(x, parameters = NA, effects = c("all", "fixed",
-  "ran_vals", "ran_pars"), robust = FALSE, conf.int = TRUE, prob = 0.9,
-  ...)
+  "ran_vals", "ran_pars"), robust = FALSE, conf.int = TRUE,
+  prob = 0.9, ...)
 
 \method{glance}{brmsfit}(x, looic = FALSE, ...)
 
-\method{augment}{brmsfit}(x, data = stats::model.frame(x), newdata = NULL,
-  se.fit = TRUE, ...)
+\method{augment}{brmsfit}(x, data = stats::model.frame(x),
+  newdata = NULL, se.fit = TRUE, ...)
 }
 \arguments{
 \item{x}{Fitted model object from the \pkg{brms} package. See 

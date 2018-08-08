@@ -1,6 +1,15 @@
 ## most of these are unexported (small) functions from broom;
 ## could be removed if these were exported
 
+## https://github.com/klutometis/roxygen/issues/409
+#' @importFrom broom tidy glance augment
+#' @export
+broom::tidy
+#' @export
+broom::glance
+#' @export
+broom::augment
+#' 
 #' strip rownames from an object
 #' 
 #' @param x a data frame

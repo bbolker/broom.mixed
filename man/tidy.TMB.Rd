@@ -5,7 +5,8 @@
 \title{Tidying methods for TMB models}
 \usage{
 \method{tidy}{TMB}(x, effect = c("fixed", "random"), conf.int = FALSE,
-  conf.level = 0.95, conf.method = c("wald", "uniroot", "profile"))
+  conf.level = 0.95, conf.method = c("wald", "uniroot", "profile"),
+  ...)
 }
 \arguments{
 \item{x}{An object of class \code{TMB} (you may need to use
@@ -18,6 +19,8 @@
 \item{conf.level}{confidence level for CI}
 
 \item{conf.method}{method for computing confidence intervals}
+
+\item{...}{extra arguments (not used)}
 }
 \description{
 Tidying methods for TMB models

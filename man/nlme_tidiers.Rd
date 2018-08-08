@@ -13,7 +13,7 @@
 
 \method{augment}{lme}(x, data = x$data, newdata, ...)
 
-\method{glance}{lme}(x)
+\method{glance}{lme}(x, ...)
 
 \method{tidy}{gls}(x, conf.int = FALSE, conf.level = 0.95, ...)
 }
@@ -88,7 +88,7 @@ warning is raised and the incomplete rows are dropped.
 }
 \examples{
 
-if (require("broom") && require("nlme") & require("lme4")) {
+if (require("nlme") & require("lme4")) {
     # example regressions are from lme4 documentation
     lmm1 <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
     tidy(lmm1)

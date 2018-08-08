@@ -12,7 +12,7 @@
 #' @name glmmTMB_tidiers
 #'
 #' @examples
-#' if (require("broom") && require("glmmTMB") && require("lme4")) {
+#' if (require("glmmTMB") && require("lme4")) {
 #'     
 #'     # example regressions are from lme4 documentation
 #'     ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)

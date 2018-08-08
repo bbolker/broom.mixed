@@ -77,26 +77,24 @@ schools_dat <- list(J = 8,
      }
 }
 rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
-if (require(broom)) {
-   tidy(rstan_example)
-   tidy(rstan_example, conf.int = TRUE, pars = "theta")
+tidy(rstan_example)
+tidy(rstan_example, conf.int = TRUE, pars = "theta")
   
-   td_mean <- tidy(rstan_example, conf.int = TRUE)
-   td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
+td_mean <- tidy(rstan_example, conf.int = TRUE)
+td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
 
-   if (require(dplyr) && require(ggplot2)) {
-      tds <- rbind(mutate(td_mean, method = "mean"),
-               mutate(td_median, method = "median")) \%>\%
-         mutate(type=ifelse(grepl("^theta",term),"theta",
-              ifelse(grepl("^eta",term),"eta",
-                    "other")))
+if (require(dplyr) && require(ggplot2)) {
+    tds <- rbind(mutate(td_mean, method = "mean"),
+             mutate(td_median, method = "median")) \%>\%
+       mutate(type=ifelse(grepl("^theta",term),"theta",
+            ifelse(grepl("^eta",term),"eta",
+                  "other")))
   
-       ggplot(tds, aes(estimate, term)) +
-        geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),height=0) +
-        geom_point(aes(color = method))+
-        facet_wrap(~type,scale="free",ncol=1)
-   } ## require(dplyr,ggplot2)
-} ## if require(broom)
+     ggplot(tds, aes(estimate, term)) +
+      geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),height=0) +
+      geom_point(aes(color = method))+
+      facet_wrap(~type,scale="free",ncol=1)
+} ## require(dplyr,ggplot2)
 
 if (requireNamespace("MCMCglmm", quietly = TRUE)) {
     data(PlodiaPO,package="MCMCglmm")  

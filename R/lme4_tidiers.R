@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' 
-#' if (require("broom") && require("lme4")) {
+#' if (require("lme4")) {
 #'     # example regressions are from lme4 documentation
 #'     lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
 #'     tidy(lmm1)

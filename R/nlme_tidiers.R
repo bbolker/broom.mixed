@@ -267,7 +267,7 @@ augment.lme <- function(x, data = x$data, newdata, ...) {
 #' page. }
 #'
 #' @export
-glance.lme <- function(x) {
+glance.lme <- function(x,...) {
     finish_glance(x=x)
 }
 
@@ -290,7 +290,7 @@ tidy.gls <- function(x,
 }
 
 #' @export
-glance.gls <- function(x) {
+glance.gls <- function(x,...) {
     ss <- summary(x)
     with(ss,
          tibble::tibble(sigma,

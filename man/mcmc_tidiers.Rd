@@ -9,10 +9,10 @@
 \alias{tidy.MCMCglmm}
 \title{Tidying methods for MCMC (Stan, JAGS, etc.) fits}
 \usage{
-tidyMCMC(x, pars, estimate.method = c("mean", "median"), conf.int = FALSE,
-  conf.level = 0.95, conf.method = c("quantile", "HPDinterval"),
-  drop.pars = c("lp__", "deviance"), rhat = FALSE, ess = FALSE,
-  index = FALSE, ...)
+tidyMCMC(x, pars, estimate.method = c("mean", "median"),
+  conf.int = FALSE, conf.level = 0.95, conf.method = c("quantile",
+  "HPDinterval"), drop.pars = c("lp__", "deviance"), rhat = FALSE,
+  ess = FALSE, index = FALSE, ...)
 
 \method{tidy}{rjags}(x, estimate.method = "mean", conf.int = FALSE,
   conf.level = 0.95, conf.method = "quantile", ...)

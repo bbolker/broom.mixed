@@ -54,6 +54,6 @@ URL: http://github.com/bbolker/broom.mixed
 BugReports: http://github.com/bbolker/broom.mixed/issues
 VignetteBuilder: knitr
 License: GPL-3
-RoxygenNote: 6.0.1.9000
+RoxygenNote: 6.1.0
 Encoding: UTF-8
 Additional_repositories: https://inla.r-inla-download.org/R/stable, http://bbolker.github.io/drat

@@ -18,7 +18,7 @@
 tidy.TMB <- function(x,effect=c("fixed","random"),
                      conf.int=FALSE,
                      conf.level = 0.95,
-                     conf.method=c("wald","uniroot","profile")) {
+                     conf.method=c("wald","uniroot","profile"), ...) {
     ## R CMD check/global variables
     Estimate <- estimate <- std.error <- NULL
     sdr <- sdreport(x)

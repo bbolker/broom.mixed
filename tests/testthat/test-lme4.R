@@ -16,6 +16,7 @@ if (require(lme4, quietly = TRUE)) {
     
     test_that("tidy works on lme4 fits", {
         td <- tidy(fit)
+        ## FIXME: fails if lmerTest has been loaded previously ...
         expect_equal(dim(td),c(12,6))
         expect_equal(names(td),
              c("effect", "group", "term", "estimate",
@@ -98,7 +99,7 @@ if (require(lme4, quietly = TRUE)) {
         fitNAs <- lmer(y ~ tx*x + (x | subj), data = dNAs, na.action = "na.exclude")
         
         #expect_error(suppressWarnings(augment(fitNAs)))
-        au <- broom::augment(fitNAs, dNAs)
+        au <- suppressWarnings(broom::augment(fitNAs, dNAs))
         
         # with na.exclude, should have NAs in the output where there were NAs in input
         expect_equal(nrow(au), nrow(dNAs))
@@ -131,8 +132,8 @@ if (require(lme4, quietly = TRUE)) {
 if (require(lmerTest, quietly = TRUE)) {
     context("lmerTest")
     test_that("lmerTest results include p-values", {
-        lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
-        expect("p.value" %in% names(tidy(lmm1,effect="fixed")))
+        lmm1X <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+        expect("p.value" %in% names(tidy(lmm1X,effect="fixed")))
     })
     detach("package:lmerTest")
 }

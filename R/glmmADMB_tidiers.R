@@ -12,7 +12,7 @@
 #'
 #' @examples
 #' 
-#' if (require("broom") && require("glmmADMB") && require("lme4")) {
+#' if (require("glmmADMB") && require("lme4")) {
 #'     # example regressions are from lme4 documentation
 #'     ## lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
 #'     ##           family="gaussian")
@@ -242,6 +242,9 @@ augment.glmmadmb <- function(x, data = stats::model.frame(x), newdata, ...) {
     if (missing(newdata)) {
         newdata <- NULL
     }
+    ## hack: glmmADMB residuals may be a 1-column matrix, which
+    ##  breaks check_tibble() (!)
+    x$residuals <- c(x$residuals)
     ret <- augment_columns(x, data, newdata, se.fit = NULL)
     
     # add predictions with no random effects (population means)

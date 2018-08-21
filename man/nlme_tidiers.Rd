@@ -67,10 +67,10 @@ with columns (each prepended by a .) added. Included are the columns
   \item{AIC}{the Akaike Information Criterion}
   \item{BIC}{the Bayesian Information Criterion}
   \item{deviance}{returned as NA. To quote Brian Ripley on R-help
-\url{https://stat.ethz.ch/pipermail/r-help/2006-May/104744.html}
- McCullagh & Nelder (1989) would be the authorative [sic] reference, but the 1982
+\url{https://stat.ethz.ch/pipermail/r-help/2006-May/104744.html},
+ "McCullagh & Nelder (1989) would be the authorative [sic] reference, but the 1982
 first edition manages to use 'deviance' in three separate senses on one
-page. }
+page." }
 }
 \description{
 These methods tidy the coefficients of mixed effects models
@@ -88,9 +88,12 @@ warning is raised and the incomplete rows are dropped.
 }
 \examples{
 
-if (require("nlme") & require("lme4")) {
+if (require("nlme") && require("lme4")) {
     # example regressions are from lme4 documentation
-    lmm1 <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
+    \dontrun{
+        lmm1 <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
+    }
+    load(system.file("extdata","nlme_example.rda", package="broom.mixed"))
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, conf.int = TRUE)

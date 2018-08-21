@@ -92,16 +92,15 @@ tidyMCMC <- function(x,
 
     m <- if (robust) colMeans(ss) else apply(ss, 2, median)
 
-    ## Extract indexes and remove [] if requested
-
     stdfun <- if (robust) stats::mad else stats::sd
     ret <- dplyr::data_frame(term = names(m),
                              estimate = m,
                              std.error = apply(ss, 2, stdfun))
+
+    ## Extract indices and remove [] if requested
     if (index){
-        ret <- bind_cols(term0 = sub("\\[\\d+\\]", "", names(m)),
-                         index = as.integer(stringr::str_match(names(m), "\\[(\\d+)\\]")[,2]),
-                         ret)
+        ret$index <- as.integer(stringr::str_match(names(m), "\\[(\\d+)\\]")[,2])
+        ret$term <- sub("\\[\\d+\\]", "", names(m))
     }
     
     if (conf.int) {
@@ -123,7 +122,7 @@ tidyMCMC <- function(x,
         if (rhat) ret$rhat <- summ[, "Rhat"]
         if (ess) ret$ess <- as.integer(round(summ[, "n_eff"]))
     }
-    return(fix_data_frame(ret))
+    return(fix_data_frame(ret) %>% reorder_cols())
 }
 
 

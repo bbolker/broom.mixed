@@ -17,7 +17,7 @@ if (suppressPackageStartupMessages(require(rstan, quietly = TRUE)))  {
     check_tidy(td, 18, 3, c("term", "estimate", "std.error"))
     
     td <- tidy(rstan_example, index = TRUE)
-    check_tidy(td, 18, 5, c("term", "term0", "index", "estimate", "std.error"))
+    check_tidy(td, 18, 4, c("term", "index", "estimate", "std.error"))
 
     td <- tidy(rstan_example, drop.pars = NULL)
     expect_equal(td[19,][["term"]], "lp__")

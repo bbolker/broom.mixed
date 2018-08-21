@@ -203,10 +203,11 @@ trans_brms_params <- function(tidy_obj) {
 }
 
 ## enforce consistent column order for *existing* columns
+## should contain all possible columns
 reorder_cols <- function(x) {
-    all_cols <- c("effect","group","level","term","estimate",
+    all_cols <- c("effect","group","level","term","index","estimate",
                   "std.error","statistic",
                   "df","p.value",
-                  "conf.low","conf.high")
+                  "conf.low","conf.high","rhat","ess")
     return(select(x,intersect(all_cols,names(x))))
 }

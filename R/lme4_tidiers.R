@@ -362,7 +362,9 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
 #' @importFrom broom glance
 #' @export
 glance.merMod <- function(x, ...) {
-    return(finish_glance(x=x))
+    ff <- finish_glance(x=x)
+    if (isREML(x)) ff <- rename(ff,REMLcrit=deviance)
+    return(ff)
 }
 
 ##' Augmentation for random effects (for caterpillar plots etc.)

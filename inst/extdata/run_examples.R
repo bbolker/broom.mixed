@@ -4,7 +4,7 @@ if (sub(".*/","",getwd())!="broom.mixed") {
 }
 
 ## FIXME: should disaggregate/implement a Makefile!
-run_brms <- TRUE ## slow, only do if necessary
+run_brms <- FALSE ## slow, only do if necessary
 
 
 save_file <- function(..., pkg, type="rda") {
@@ -27,13 +27,26 @@ run_pkg <- function(pkg,e) {
   }
 }
 
+run_pkg("nlme",
+{
+    data(sleepstudy,package="lme4")
+    lmm0 <- lme(Reaction ~ Days, random = ~ 1| Subject, sleepstudy)
+    lmm0ML <- lme(Reaction ~ Days, random = ~ 1| Subject, sleepstudy,
+                  method="ML")
+    lmm1 <- lme(Reaction ~ Days, random = ~ Days | Subject, sleepstudy)
+    ## doesn't work yet
+    lmm2 <- lme(Reaction ~ Days, random = list(Subject=pdDiag(~Days)), sleepstudy)
+    save_file(lmm0, lmm0ML, lmm1, lmm2, pkg="nlme", type = "rda")
+})
+
 run_pkg("lme4",
 {
     lmm0 <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy)
+    lmm0ML <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy,REML=FALSE)
     lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
     lmm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days | Subject), sleepstudy)
     lmm1_prof <- profile(lmm1)
-    save_file(lmm1_prof, lmm0, lmm1, lmm2, pkg="lme4", type = "rda")
+    save_file(lmm1_prof, lmm0, lmm0ML, lmm1, lmm2, pkg="lme4", type = "rda")
 })
 
 

@@ -41,6 +41,13 @@ if (require(lme4, quietly = TRUE)) {
       expect_equal(names(td_ran), c("effect","group", "term", "estimate"))
     })
 
+    test_that("glance includes deviance iff method='ML'", {
+        expect(!("deviance" %in% names(glance(lmm0))))
+        expect("REMLcrit" %in% names(glance(lmm0)))
+        expect("deviance" %in% names(glance(lmm0ML)))
+    })
+
+
     test_that("tidy works on non-linear fits",{
       startvec <- c(Asym = 200, xmid = 725, scal = 350)
       # use nAGQ = 0 to avoid warnings

@@ -40,7 +40,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
                      "std.error", "df", "statistic", "p.value"))
     })
 
-    test_that("augment works on lme4 fits with or without data", {
+    test_that("augment works on lme fits with or without data", {
         au1 <- augment(fit)
         au2 <- augment(fit, d)
         expect_equal(au1,au2)
@@ -66,6 +66,13 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
         # with na.exclude, should have NAs in the output where there were NAs in input
         expect_equal(nrow(au), nrow(dNAs))
         expect_equal(complete.cases(au), complete.cases(dNAs))
+    })
+
+    load(system.file("extdata","nlme_example.rda", package="broom.mixed"))
+    
+    test_that("glance includes deviance iff method='ML'", {
+        expect(!("deviance" %in% names(glance(lmm0))))
+        expect("deviance" %in% names(glance(lmm0ML)))
     })
 
     ## FIXME: weak tests - only shows that no error occurs and
@@ -110,3 +117,4 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     expect_error(augment(fit), "explicit")
 
 }
+

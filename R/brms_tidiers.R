@@ -122,7 +122,15 @@ tidy.brmsfit <- function(x, parameters = NA,
         grpfun <- function(x) if (x[[1]]=="sigma") "Residual" else x[[2]]
         if ("ran_pars" %in% effects) {
             rterms <- grep(mkRE(prefs$ran_pars),terms,value=TRUE)
-            ss <- strsplit(rterms,"_+")
+            ss <- strsplit(rterms,"__")
+            pp <- "^(cor|sd)(?=(_))"
+            nodash <- function(x) gsub("^_","",x)
+            ss2 <- lapply(ss,
+                         function(x) {
+                if (!is.na(pref <- stringr::str_extract(x[1],pp)))
+                    return(c(pref,nodash(stringr::str_remove(x[1],pp)),x[-1]))
+                return(x)
+            })
             sep <- getOption("broom.mixed.sep1")
             termfun <- function(x) {
                 if (x[[1]]=="sigma") {
@@ -134,8 +142,8 @@ tidy.brmsfit <- function(x, parameters = NA,
                 }
             }
             res_list$ran_pars <-
-                data_frame(group=sapply(ss,grpfun),
-                           term=sapply(ss,termfun))
+                data_frame(group=sapply(ss2,grpfun),
+                           term=sapply(ss2,termfun))
         }
         if ("ran_vals" %in% effects) {
             rterms <- grep(mkRE(prefs$ran_vals),terms,value=TRUE)

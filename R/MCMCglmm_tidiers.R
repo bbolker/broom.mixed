@@ -370,7 +370,7 @@ tidy.MCMCglmm <- function(x,effects=c("fixed","ran_pars"),
                       sep=getOption("broom.mixed.sep1"))
         retList$ran_pars <- retList$ran_pars[ok,]
         retList$ran_pars$term <- term
-        retList$ran_pars$group <- retList$group
+        retList$ran_pars$group <-group
     }
     ret <- (retList
         %>% bind_rows(.id="effect")

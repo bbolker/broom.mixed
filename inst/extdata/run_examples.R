@@ -1,6 +1,13 @@
 ## run in pkg root
+if (sub(".*/","",getwd())!="broom.mixed") {
+    stop("should run from package root directory")
+}
 
-save_file <- function(...,pkg,type="rda") {
+## FIXME: should disaggregate/implement a Makefile!
+run_brms <- TRUE ## slow
+
+
+save_file <- function(..., pkg, type="rda") {
   f <- file.path("inst","extdata",sprintf("%s_example.%s",pkg,type))
   if (type=="rda") {
     save(...,file=f)
@@ -31,7 +38,8 @@ run_pkg("lme4",
 
 
 run_pkg("rstan",
-        {
+{
+          rstan_options(auto_write=TRUE)
           model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
           schools_dat <- list(J = 8, 
                               y = c(28,  8, -3,  7, -1,  1, 18, 12),
@@ -60,17 +68,36 @@ run_pkg("glmmADMB",
           save_file(lmm1,pkg="glmmADMB",type="rda")
         })
 
+run_pkg("MCMCglmm",
+{
+    data("sleepstudy",package="lme4")
+    mm0 <- MCMCglmm(Reaction ~ Days, random = ~ Subject, data=sleepstudy)
+    mm1 <- MCMCglmm(Reaction ~ Days, random = ~us(Days):Subject, data=sleepstudy)
+    mm2 <- MCMCglmm(Reaction ~ Days, random = ~idh(Days):Subject, data=sleepstudy)
+    save_file(mm0, mm1, mm2, pkg="MCMCglmm", type = "rda")
+})
+
+## slowest stuff last
+
 run_pkg("rstanarm",
         {
           fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
                             iter = 300, chains = 2)
-          save_file(fit,pkg="rstanarm",type="rds")
+          save_file(fit, pkg="rstanarm", type="rds")
         })
 
 
-run_pkg("brms",
+if (run_brms) {
+    run_pkg("brms",
         {
             fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
-                       iter = 500, chains = 2, save_dso=FALSE)
-            save_file(fit,pkg="brmsfit",type="rds")
+                       iter = 500, chains = 2,
+                       ## ugh: compiled object gets stored as part of fitted
+                       ##  object - not cached. So it just blows up the
+                       ##  size of the fitted object, doesn't speed things
+                       ##  up when re-running this code ...
+                       save_dso= FALSE)
+            save_file(fit, pkg="brmsfit", type="rds")
         })
+}
+

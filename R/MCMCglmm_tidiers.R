@@ -1,3 +1,6 @@
+
+## n.b. this stuff is not used ATM; see tidy.MCMCglmm at the *end* of this file
+## (move to MCMC_misc?)
 ## author: Josh Wiley
 ## originally from https://github.com/JWiley/postMCMCglmm
 
@@ -18,9 +21,10 @@
 #' @examples
 #' \dontrun{
 #'   # a simple MCMCglmm model
-#'   data(PlodiaPO)
-#'   m <- MCMCglmm(PO ~ 1, random = ~ FSfamily, data = PlodiaPO, verbose=FALSE)
-#'
+#'   if (require(MCMCglmm)) {
+#'      data(PlodiaPO)
+#'      m <- MCMCglmm(PO ~ 1, random = ~ FSfamily, data = PlodiaPO, verbose=FALSE)
+#'   }
 #'   # extract the parameter names
 #'   paramNamesMCMCglmm(m)
 #' }
@@ -300,4 +304,32 @@ stdranef <- function(object, which, type = c("lp", "response"), ...) {
   class(finalres) <- "postMCMCglmmRE"
 
   return(finalres)
+}
+
+##' @rdname mcmc_tidiers
+##' @importFrom plyr ldply
+##' @examples
+##' if (require("MCMCglmm")) {
+##'    load(system.file("extdata","MCMCglmm_example.rda",
+##'                                      package="broom.mixed"))
+##' tidy(mm0)
+##' tidy(mm1)
+##' tidy(mm2)
+##' }
+##' @export
+tidy.MCMCglmm <- function(x,effects=c("fixed","ran_pars"),
+                          scales,...) {
+    if (!missing(scales)) stop("tidy.MCMCglmm doesn't yet implement scales")
+    ## FIXME: allow scales= parameter to get varcov on sd/corr scale?
+    clist <- c(fixed="Sol",ran_pars="VCV",ran_vals="Liab")
+    comp <- clist[effects]
+    ## FIXME: override MCMCglmm internal component names
+    ## FIXME:: have to work harder to retrieve group/term information
+    ##  about random parameters
+    ## individual components are mcmc objects: call tidy on them
+    ret <- (purrr::map(x[comp],tidy)
+        %>% setNames(effects)
+        %>% bind_rows(.id="effect")
+    )
+    return(ret)
 }

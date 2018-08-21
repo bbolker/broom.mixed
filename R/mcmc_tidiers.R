@@ -4,6 +4,7 @@
 #' @param pars (character) specification of which parameters to include
 #' @param estimate.method method for computing point estimate ("mean" or "median")
 #' @param effects which effects (fixed, random, etc.) to return
+#' @param robust use mean and standard deviation (if FALSE) or median and mean absolute deviation (if TRUE) to compute point estimates and uncertainty?
 #' @param scales scales on which to report results
 #' @param conf.int (logical) include confidence interval?
 #' @param conf.level probability level for CI
@@ -18,6 +19,7 @@
 #' 
 #' @name mcmc_tidiers
 #' @importFrom broom tidy
+#' @importFrom dplyr bind_rows bind_cols
 #' 
 #' @examples
 #' 
@@ -65,7 +67,7 @@
 #' @export
 tidyMCMC <- function(x,
                      pars,
-                     estimate.method = c("mean","median"),
+                     robust = FALSE,
                      conf.int = FALSE,
                      conf.level = 0.95,
                      conf.method = c("quantile","HPDinterval"),
@@ -75,9 +77,7 @@ tidyMCMC <- function(x,
                      index = FALSE,
                      ...) {
     
-    estimate.method <- match.arg(estimate.method)
     conf.method <- match.arg(conf.method)
-    
 
     stan <- inherits(x, "stanfit")
     ss <- if (stan) as.matrix(x, pars = pars) else as.matrix(x)
@@ -88,23 +88,22 @@ tidyMCMC <- function(x,
         }
         ss <- ss[, pars]
     }
-    
-    m <- switch(estimate.method,
-                mean = colMeans(ss),
-                median = apply(ss, 2, median))
 
-    # Extract indexes and remove [] if requested
+
+    m <- if (robust) colMeans(ss) else apply(ss, 2, median)
+
+    ## Extract indexes and remove [] if requested
+
+    stdfun <- if (robust) stats::mad else stats::sd
+    ret <- dplyr::data_frame(term = names(m),
+                             estimate = m,
+                             std.error = apply(ss, 2, stdfun))
     if (index){
-      ret <- data.frame(term0 = sub("\\[\\d+\\]", "", names(m)),
-                        index = as.integer(stringr::str_match(names(m), "\\[(\\d+)\\]")[,2]),
-                        estimate = m,
-                        std.error = apply(ss, 2, stats::sd))
-      
-    } else {
-      ret <- data.frame(estimate = m,
-                        std.error = apply(ss, 2, stats::sd))
+        ret <- bind_cols(term0 = sub("\\[\\d+\\]", "", names(m)),
+                         index = as.integer(stringr::str_match(names(m), "\\[(\\d+)\\]")[,2]),
+                         ret)
     }
-
+    
     if (conf.int) {
         levs <- c((1 - conf.level) / 2, (1 + conf.level) / 2)
 
@@ -113,7 +112,7 @@ tidyMCMC <- function(x,
                      HPDinterval(as.mcmc(ss), prob = conf.level))
 
         colnames(ci) <- c("conf.low", "conf.high")
-        ret <- data.frame(ret, ci)
+        ret <- bind_cols(ret, ci)
     }
     
     if (rhat || ess) {
@@ -148,19 +147,3 @@ tidy.stanfit <- tidyMCMC
 ##' @rdname mcmc_tidiers
 ##' @export
 tidy.mcmc <- tidyMCMC
-
-##' @rdname mcmc_tidiers
-##' @importFrom plyr ldply
-##' @export
-tidy.MCMCglmm <- function(x,effects="fixed",scales,...) {
-    if (!missing(scales)) stop("tidy.MCMCglmm doesn't yet implement scales")
-    ## FIXME: allow scales= parameter to get varcov on sd/corr scale?
-    clist <- c(fixed="Sol",ran_pars="VCV",ran_vals="Liab")
-    comp <- clist[effects]
-    ## override MCMCglmm internal component names
-    ## FIXME:: have to work harder to retrieve group/term information
-    ##  about random parameters
-    ## individual components are mcmc objects: call tidy on them
-    return(plyr::ldply(setNames(x[comp],effects),
-                 tidy,...,.id="effect"))
-}

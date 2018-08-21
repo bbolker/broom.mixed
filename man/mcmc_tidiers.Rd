@@ -37,7 +37,8 @@ tidyMCMC(x, pars, robust = FALSE, conf.int = FALSE,
 
 \item{scales}{scales on which to report results}
 
-\item{...}{unused}
+\item{...}{mostly unused; for \code{tidy.MCMCglmm}, these represent options
+passed through to \code{tidy.mcmc} (e.g. \code{robust}, \code{conf.int}, \code{conf.method}, ...)}
 
 \item{pars}{(character) specification of which parameters to include}
 
@@ -70,6 +71,7 @@ if (require("MCMCglmm")) {
 tidy(mm0)
 tidy(mm1)
 tidy(mm2)
+tail(tidy(mm0,effects="ran_vals"))
 }
 
 # Using example from "RStan Getting Started"

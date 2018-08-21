@@ -15,7 +15,8 @@
 #' @param rhat,ess (logical) include Rhat and/or effective sample size estimates?
 #' @param index Add index column, remove index from term. For example, 
 #' \code{term a[13]} becomes \code{term a} and \code{index 13}.
-#' @param ... unused
+#' @param ... mostly unused; for \code{tidy.MCMCglmm}, these represent options
+#' passed through to \code{tidy.mcmc} (e.g. \code{robust}, \code{conf.int}, \code{conf.method}, ...)
 #' 
 #' @name mcmc_tidiers
 #' @importFrom broom tidy

@@ -22,7 +22,7 @@
 #'   # a simple MCMCglmm model
 #'   if (require(MCMCglmm)) {
 #'      data(PlodiaPO)
-#'      m <- MCMCglmm(PO ~ 1, random = ~ FSfamily, data = PlodiaPO, verbose=FALSE)
+#'      m <- MCMCglmm(PO ~ 1, random = ~ FSfamily, data = PlodiaPO, verbose=FALSE, pr=TRUE)
 #'   }
 #'   # extract the parameter names
 #'   paramNamesMCMCglmm(m)
@@ -313,13 +313,14 @@ stdranef <- function(object, which, type = c("lp", "response"), ...) {
 ##' tidy(mm0)
 ##' tidy(mm1)
 ##' tidy(mm2)
+##' tail(tidy(mm0,effects="ran_vals"))
 ##' }
 ##' @export
 tidy.MCMCglmm <- function(x,effects=c("fixed","ran_pars"),
                           scales = NULL, ## c("sdcor","vcov",NA),
                           ...) {
     ## FIXME: allow scales= parameter to get varcov on sd/corr scale?
-    clist <- c(fixed="Sol",ran_pars="VCV",ran_vals="Liab")
+    clist <- c(fixed="Sol",ran_pars="VCV",ran_vals="Sol")
     comp <- clist[effects]
     if (!is.null(scales)) {
         if (length(scales) != length(effects)) {
@@ -332,8 +333,25 @@ tidy.MCMCglmm <- function(x,effects=c("fixed","ran_pars"),
     ## FIXME:: have to work harder to retrieve group/term information
     ##  about random parameters
     ## individual components are mcmc objects: call tidy on them
-    retList <- (purrr::map(x[comp],tidy)
+    retList <- (purrr::map(x[comp],tidy,...)
         %>% setNames(effects))
+    fnames <- paramNamesMCMCglmm(x)$fixed
+
+    if ("fixed" %in% effects) {
+        retList$fixed <- filter(retList$fixed, term %in% fnames)
+    }
+    if ("ran_vals" %in% effects) {
+        retList$ran_vals <- filter(retList$ran_vals, !(term %in% fnames))
+        if (nrow(retList$ran_vals)==0) {
+            stop("for tidying random effects values, must run MCMglmm with pr=TRUE")
+        }
+        ss <- strsplit(retList$ran_vals$term,"\\.")
+        retList$ran_vals$level <- sapply(ss,utils::tail,1)
+        retList$ran_vals$group <- sapply(ss,function(x) x[length(x)-1])
+        retList$ran_vals$term <- sapply(ss,
+                function(x) if (length(x)==3) x[1] else "(Intercept)")
+
+    }
 
     if ("ran_pars" %in% effects) {
         ss <- strsplit(retList$ran_pars$term,"(:|\\.)")

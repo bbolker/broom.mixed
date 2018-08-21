@@ -84,7 +84,8 @@ run_pkg("glmmADMB",
 run_pkg("MCMCglmm",
 {
     data("sleepstudy",package="lme4")
-    mm0 <- MCMCglmm(Reaction ~ Days, random = ~ Subject, data=sleepstudy)
+    mm0 <- MCMCglmm(Reaction ~ Days, random = ~ Subject, data=sleepstudy,
+                    pr=TRUE)
     mm1 <- MCMCglmm(Reaction ~ Days, random = ~us(1+Days):Subject,
                     ## parameter-expanded priors
                     ## V is 2x2 identity wlog
@@ -92,8 +93,8 @@ run_pkg("MCMCglmm",
                     prior=list(G=list(list(nu=2,V=diag(2),
                                            alpha.mu=rep(0,2),
                                            alpha.V=diag(rep(4,2))))),
-                    data=sleepstudy)
-    mm2 <- MCMCglmm(Reaction ~ Days, random = ~idh(1+Days):Subject, data=sleepstudy)
+                    data=sleepstudy, pr=TRUE)
+    mm2 <- MCMCglmm(Reaction ~ Days, random = ~idh(1+Days):Subject, data=sleepstudy, pr=TRUE)
     save_file(mm0, mm1, mm2, pkg="MCMCglmm", type = "rda")
 })
 

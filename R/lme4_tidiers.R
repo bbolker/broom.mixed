@@ -362,8 +362,9 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
 #' @importFrom broom glance
 #' @export
 glance.merMod <- function(x, ...) {
+    deviance <- NULL  ## false-positive code checks
     ff <- finish_glance(x=x)
-    if (isREML(x)) ff <- rename(ff,REMLcrit=deviance)
+    if (lme4::isREML(x)) ff <- rename(ff,REMLcrit=deviance)
     return(ff)
 }
 

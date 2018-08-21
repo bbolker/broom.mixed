@@ -6,3 +6,5 @@ misc/*
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^.*.Rout
+## hidden files
+(^|/)\.+.*

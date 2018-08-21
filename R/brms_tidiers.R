@@ -34,18 +34,20 @@ NULL
 #'   returned, as given by a character vector or regular expressions.
 #'   If \code{NA} (the default) summarized parameters are specified
 #'   by the \code{effects} argument.
-#' @param effects One of \code{"all"}, \code{"fixed"}, 
-#'   \code{"ran_vals"}, or \code{"ran_pars"} (can be abbreviated). 
+#' @param effects A character vector including one or more of \code{"fixed"}, 
+#'   \code{"ran_vals"}, or \code{"ran_pars"}.
 #'   See the Value section for details.
 #' @param robust Whether to use median and median absolute deviation of
 #' the posterior distribution, rather
 #'   than mean and standard deviation, to derive point estimates and uncertainty
 #' @param conf.int If \code{TRUE} columns for the lower (\code{conf.low})
 #' and upper bounds (\code{conf.high}) of posterior uncertainty intervals are included.
-#' @param prob Defines the range of the posterior uncertainty conf.int,
-#'  such that \code{100 * prob}\% of the parameter's posterior distribution 
-#'  lies within the corresponding interval. 
+#' @param conf.level Defines the range of the posterior uncertainty conf.int,
+#'  such that \code{100 * conf.level}\% of the parameter's posterior distributio
+#'  lies within the corresponding interval.
 #'  Only used if \code{conf.int = TRUE}.
+#' @param conf.method method for computing confidence intervals
+#' ("quantile" or "HPDinterval")
 #' @param looic Should the LOO Information Criterion (and related info) be
 #'   included? See \code{\link[rstanarm]{loo.stanreg}} for details. Note: for
 #'   models fit to very large datasets this can be a slow computation.
@@ -83,52 +85,98 @@ NULL
 #' are used for compatibility with other (frequentist) mixed model types.
 #' @export
 tidy.brmsfit <- function(x, parameters = NA, 
-                         effects = c("all", "fixed", "ran_vals", "ran_pars"), 
-                         robust = FALSE, conf.int = TRUE, prob = 0.9, ...) {
-    use_effects <- anyNA(parameters) 
+                         effects = c("fixed", "ran_pars"),
+                         robust = FALSE, conf.int = TRUE,
+                         conf.level = 0.95,
+                         conf.method = c("quantile", "HPDinterval"),
+                         ...) {
+    use_effects <- anyNA(parameters)
+    conf.method <- match.arg(conf.method)
+    mkRE <- function(x) {
+        sprintf("^(%s)",paste(unlist(x),collapse="|"))
+    }
     if (use_effects) {
-        effects <- match.arg(effects)
-        if (effects == "all") {
-           parameters <- NA 
-        } else if (effects == "fixed") {
-           parameters <- "^b_"
-        } else if (effects == "ran_vals") {
-           parameters <- "^r_"
-        } else if (effects == "ran_pars") {
-           parameters <- c("^sd_", "^cor_")
-        }
+        prefs_LA <- list(fixed="b_",ran_vals="r_",
+                      ## don't want to remove these pieces, so use lookahead
+                      ran_pars=sprintf("(?=(%s))",c("sd_","cor_","sigma")))
+        prefs <- list(fixed="b_",ran_vals="r_",
+                      ## no lookahead (doesn't work with grep[l])
+                      ran_pars=c("sd_","cor_","sigma"))
+        pref_RE <- mkRE(prefs[effects])
+        parameters <- pref_RE
     }
     samples <- brms::posterior_samples(x, parameters)
     if (is.null(samples)) {
         stop("No parameter name matches the specified pattern.",
              call. = FALSE)
     }
-    out <- data.frame(term = names(samples), stringsAsFactors = FALSE)
+    terms <- names(samples)
     if (use_effects) {
-        if (effects == "fixed") {
-            out$term <- gsub("^b_", "", out$term)
-        } else if (effects == "ran_vals") {
-            out$term <- gsub("^r_", "", out$term)
-            out$group <- gsub("\\[.*", "", out$term)
-            out$level <- gsub(".*\\[|,.*", "", out$term)
-            out$term <- gsub(".*,|\\]", "", out$term)
+        res_list <- list()
+        fixed.only <- identical(effects,"fixed")
+        if ("fixed" %in% effects) {
+            ## empty tibble: NA columns will be filled in as appropriate
+            nfixed <- sum(grepl(prefs[["fixed"]],terms))
+            res_list$fixed <- as_tibble(matrix(nrow=nfixed,ncol=0))
         }
-        # no renaming if effects %in% c("all", "ran_pars")
-    }
-    if (robust) {
-        out$estimate <- apply(samples, 2, stats::median)
-        out$std.error <- apply(samples, 2, stats::mad)
+        grpfun <- function(x) if (x[[1]]=="sigma") "Residual" else x[[2]]
+        if ("ran_pars" %in% effects) {
+            rterms <- grep(mkRE(prefs$ran_pars),terms,value=TRUE)
+            ss <- strsplit(rterms,"_+")
+            sep <- getOption("broom.mixed.sep1")
+            termfun <- function(x) {
+                if (x[[1]]=="sigma") {
+                    paste("sd","Observation",sep=sep)
+                } else {
+                    paste(x[[1]],
+                          paste(x[3:length(x)],collapse="."),
+                          sep=sep)
+                }
+            }
+            res_list$ran_pars <-
+                data_frame(group=sapply(ss,grpfun),
+                           term=sapply(ss,termfun))
+        }
+        if ("ran_vals" %in% effects) {
+            rterms <- grep(mkRE(prefs$ran_vals),terms,value=TRUE)
+            ss <- strsplit(rterms,"(_|\\[|\\]|,)")
+            termfun <- function(x) x[[4]]
+            grpfun <- function(x) x[[2]]
+            levelfun <- function(x) x[[3]]
+            res_list$ran_vals <-
+                data_frame(group=sapply(ss,grpfun),
+                           term=sapply(ss,termfun),
+                           level=sapply(ss,levelfun))
+        }
+        out <- dplyr::bind_rows(res_list,.id="effect")
+        v <- if (fixed.only) seq(nrow(out)) else is.na(out$term)
+        newterms <- stringr::str_remove(terms[v],mkRE(prefs[c("fixed")]))
+        if (fixed.only) {
+            out$term <- newterms
+        } else {
+            out$term[v] <- newterms
+        }
+            
+        ## prefixes already removed for ran_vals; don't remove for ran_pars
     } else {
-        out$estimate <- apply(samples, 2, base::mean)
-        out$std.error <- apply(samples, 2, stats::sd)
+        ## if !use_effects
+        out <- data_frame(term=names(samples))
     }
+    pointfun <- if (robust) stats::median else base::mean
+    stdfun <- if (robust) stats::mad else stats::sd
+    out$estimate <- apply(samples, 2, pointfun)
+    out$std.error <- apply(samples, 2, stdfun)
     if (conf.int) {
-        stopifnot(length(prob) == 1L)
-        probs <- c((1 - prob) / 2, 1 - (1 - prob) / 2)
-        out[, c("conf.low", "conf.high")] <- 
-            t(apply(samples, 2, stats::quantile, probs = probs))
+        stopifnot(length(conf.level) == 1L)
+        probs <- c((1 - conf.level) / 2, 1 - (1 - conf.level) / 2)
+        if (conf.method=="HPDinterval") {
+            stop("HPDinterval not implemented yet")
+        } else {
+            out[, c("conf.low", "conf.high")] <- 
+                t(apply(samples, 2, stats::quantile, probs = probs))
+        }
     }
-    out
+    return(out)
 }
 
 #' @rdname brms_tidiers

@@ -181,10 +181,10 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
         ran_effs <- sprintf("ran_%s",c("pars","modes","coefs"))
 
 
-        if (any(purrr::map_lgl(ran_effs, ~. %in% effects))) {
+        ## if (any(purrr::map_lgl(ran_effs, ~. %in% effects))) {
             ## add group="fixed" to tidy table for fixed effects
-            ret <- mutate(ret,group="fixed")
-        }
+        ## ret <- mutate(ret,group="fixed")
+        ## }
 
         if (exponentiate) {
             vv <- intersect(c("estimate","conf.low","conf.high"),names(ret))
@@ -226,20 +226,12 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
                                  vcov=c("var","cov"),
                                  sdcor=c("sd","cor"))
         }
-        ## naming function
-        pfun <- function(x) {
-            v <- na.omit(unlist(x))
-            if (length(v)==0) v <- "Observation"
-            p <- paste(v,collapse=".")
-            if (!identical(ran_prefix,NA)) {
-                p <- paste(ran_prefix[length(v)],p,sep="_")
-            }
-            return(p)
-        }
 
         ## don't try to assign as rowname (non-unique anyway),
         ## make it directly into a term column
-        ret[["term"]] <- apply(ret[c("var1","var2")],1,pfun)
+        ret[["term"]] <- apply(ret[c("var1","var2")],1,
+                               ran_pars_name,
+                               ran_prefix=ran_prefix)
 
         ## keep only desired term, rename
         ret <- setNames(ret[c("grp","term",rscale)],
@@ -247,7 +239,7 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
 
         if (conf.int) {
             ciran <- cifun(p,parm="theta_",method=conf.method,...)
-            ret <- data.frame(ret,ciran)
+            ret <- data.frame(ret,ciran,stringsAsFactors=FALSE)
         }
         ret_list$ran_pars <- ret
     }
@@ -255,10 +247,12 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
     if ("ran_vals" %in% effects) {
         ## fix each group to be a tidy data frame
 
-        ret <- ranef(x,condVar=TRUE)  %>%
-            as.data.frame() %>%
-            dplyr::rename(group=grpvar,level=grp,
-                          estimate=condval, std.error=condsd)
+        ret <- (ranef(x,condVar=TRUE)
+            %>% as.data.frame(stringsAsFactors=FALSE)
+            %>% dplyr::rename(group=grpvar,level=grp,
+                              estimate=condval, std.error=condsd)
+            %>% dplyr::mutate_if(is.factor, as.character)
+        )
 
         if (conf.int) {
             if (conf.method != "Wald")
@@ -288,8 +282,9 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
 
     ret <- (ret_list
         %>% dplyr::bind_rows(.id="effect")
-        %>% as_tibble())
-    
+        %>% as_tibble()
+        %>% reorder_cols()
+    )
     return(ret)
 }
 
@@ -341,7 +336,8 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
                   "wtres", "gam", "eta")
     cols <- lapply(respCols, function(cc) x@resp[[cc]])
     names(cols) <- paste0(".", respCols)
-    cols <- as.data.frame(compact(cols))  # remove missing fields
+    ## remove missing fields
+    cols <- as.data.frame(compact(cols),stringsAsFactors=FALSE)  
     
     cols <- insert_NAs(cols, ret)
     if (length(cols) > 0) {

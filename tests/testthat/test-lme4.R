@@ -24,8 +24,8 @@ if (require(lme4, quietly = TRUE)) {
         expect_equal(td$term,
                      c("(Intercept)", "tx2", "tx3", "tx4", "x",
                        "tx2:x", "tx3:x", "tx4:x",
-                       "sd_(Intercept)", "sd_x",
-                       "cor_(Intercept).x", "sd_Observation"))
+                       "sd__(Intercept)", "sd__x",
+                       "cor__(Intercept).x", "sd__Observation"))
     })
     
     test_that("tidy/glance works on glmer fits",{
@@ -76,7 +76,7 @@ if (require(lme4, quietly = TRUE)) {
                         family=poisson, seed=101))[[1]]
        gfit <- glmer(y~(1|f)+(1|g),data=dd,family=poisson)
        tnames <- as.character(tidy(gfit,effects="ran_pars")$term)
-       expect_equal(tnames,rep("sd_(Intercept)",2))
+       expect_equal(tnames,rep("sd__(Intercept)",2))
    })
               
     test_that("augment works on lme4 fits with or without data", {

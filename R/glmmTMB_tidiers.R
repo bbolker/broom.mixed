@@ -169,21 +169,14 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
                                  vcov=c("var","cov"),
                                  sdcor=c("sd","cor"))
         }
-        pfun <- function(x) {
-            v <- na.omit(unlist(x))
-            if (length(v)==0) v <- "Observation"
-            p <- paste(v,collapse=".")
-            if (!identical(ran_prefix,NA)) {
-                p <- paste(ran_prefix[length(v)],p,sep="_")
-            }
-            return(p)
-        }
-
-        ## DRY! try to refactor glmmTMB/lme4 tidiers
+        
+        ## DRY! refactor glmmTMB/lme4 tidiers
         
         ## don't try to assign as rowname (non-unique anyway),
         ## make it directly into a term column
-        ret[["term"]] <- apply(ret[c("var1","var2")],1,pfun)
+        ret[["term"]] <- apply(ret[c("var1","var2")],1,
+                               ran_pars_name,
+                               ran_prefix=ran_prefix)
 
         ## keep only desired term, rename
         ## FIXME: should use select + tidyeval + rename ... ?

@@ -152,3 +152,61 @@ trans_coef <- function (ret, x, conf.int = FALSE, conf.level = 0.95, exponentiat
         %>% mutate_at(intersect(c("term","conf.low","conf.high")),trans))
     return(ret)
 }
+
+
+## naming function
+ran_pars_name <- function(x,ran_prefix) {
+    v <- na.omit(unlist(x))
+    if (length(v)==0) v <- "Observation"
+    p <- paste(v,collapse=".")
+    if (!identical(ran_prefix,NA)) {
+        p <- paste(ran_prefix[length(v)],p,
+                   sep=getOption("broom.mixed.sep1"))
+    }
+    return(p)
+}
+
+
+## FIXME: 1. sds_..., sigma not properly translated
+##        2. names of 
+## translate brms-style "terms" into standard broom.mixed
+## term -> effect, group, term
+trans_brms_params <- function(tidy_obj) {
+    tt <- tidy_obj[["term"]]
+    effcodes <- c("b","sd","cor","s","sigma","sds","r","lp__")
+    neweffcodes <- c("fixed","ran_pars","ran_pars",
+                     "ran_vals","ran_pars","???","ran_vals","lp__")
+    effc2 <- effcodes
+    effc2[4] <- "s(?!(igma))" ## negative lookahead ...
+    effc2 <- paste0("^(",paste(effc2,collapse="|"),")")
+    effects <- stringr::str_extract(tt,effc2)
+    tt2 <- stringr::str_remove(tt,paste0(effc2,"_?"))
+    ## keep r/s distinction a little longer
+    ## https://stackoverflow.com/questions/42457189/greedy-regex-for-one-part-non-greedy-for-other?rq=1
+    ## (.*?) go until FIRST occurence of next pattern
+    ## (?= ...  ) lookahead -- don't include this stuff in the extracted string
+    group <- stringr::str_extract(tt2,"(.*?)(?=(__|\\[))")
+    grpvals <- effects %in% c("sd","cor","r")
+    ## remove group__ for sd/cor
+    tt2[grpvals] <- stringr::str_remove(tt2[grpvals],"(.*?)__")
+    tt2[grpvals] <- stringr::str_remove(tt2[grpvals],"(.*?)(?=(\\[))")
+    effects <- as.character(factor(effects,levels=effcodes,
+                                   labels=neweffcodes))
+    ## replace 'term' (in place) with 'effect', 'group', 'term'
+    term_col <- which(names(tidy_obj)=="term")
+    prev_cols <- if (term_col>1) seq(term_col-1) else numeric(0)
+    ## restore sd/cor to beginning of 
+    res <- bind_cols(tidy_obj[prev_cols],effect=effects,
+                     group=group,term=tt2,
+                     tidy_obj[(term_col+1):ncol(tidy_obj)])
+    return(res)
+}
+
+## enforce consistent column order for *existing* columns
+reorder_cols <- function(x) {
+    all_cols <- c("effect","group","level","term","estimate",
+                  "std.error","statistic",
+                  "df","p.value",
+                  "conf.low","conf.high")
+    return(select(x,intersect(all_cols,names(x))))
+}

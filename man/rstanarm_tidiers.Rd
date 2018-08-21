@@ -15,8 +15,8 @@
 \item{x}{Fitted model object from the \pkg{rstanarm} package. See 
 \code{\link[rstanarm]{stanreg-objects}}.}
 
-\item{effects}{One of \code{"all"}, \code{"fixed"}, 
-\code{"ran_vals"}, or \code{"ran_pars"} (can be abbreviated). 
+\item{effects}{A character vector including one or more of \code{"fixed"}, 
+\code{"ran_vals"}, or \code{"ran_pars"}.
 See the Value section for details.}
 
 \item{conf.int}{If \code{TRUE} columns for the lower (\code{conf.low}) and upper (\code{conf.high}) bounds of the

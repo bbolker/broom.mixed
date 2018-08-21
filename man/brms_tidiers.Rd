@@ -7,9 +7,9 @@
 \alias{augment.brmsfit}
 \title{Tidying methods for a brms model}
 \usage{
-\method{tidy}{brmsfit}(x, parameters = NA, effects = c("all", "fixed",
-  "ran_vals", "ran_pars"), robust = FALSE, conf.int = TRUE,
-  prob = 0.9, ...)
+\method{tidy}{brmsfit}(x, parameters = NA, effects = c("fixed",
+  "ran_pars"), robust = FALSE, conf.int = TRUE, conf.level = 0.95,
+  conf.method = c("quantile", "HPDinterval"), ...)
 
 \method{glance}{brmsfit}(x, looic = FALSE, ...)
 
@@ -25,8 +25,8 @@ returned, as given by a character vector or regular expressions.
 If \code{NA} (the default) summarized parameters are specified
 by the \code{effects} argument.}
 
-\item{effects}{One of \code{"all"}, \code{"fixed"}, 
-\code{"ran_vals"}, or \code{"ran_pars"} (can be abbreviated). 
+\item{effects}{A character vector including one or more of \code{"fixed"}, 
+\code{"ran_vals"}, or \code{"ran_pars"}.
 See the Value section for details.}
 
 \item{robust}{Whether to use median and median absolute deviation of
@@ -36,10 +36,13 @@ the posterior distribution, rather
 \item{conf.int}{If \code{TRUE} columns for the lower (\code{conf.low})
 and upper bounds (\code{conf.high}) of posterior uncertainty intervals are included.}
 
-\item{prob}{Defines the range of the posterior uncertainty conf.int,
-such that \code{100 * prob}\% of the parameter's posterior distribution 
-lies within the corresponding interval. 
+\item{conf.level}{Defines the range of the posterior uncertainty conf.int,
+such that \code{100 * conf.level}\% of the parameter's posterior distributio
+lies within the corresponding interval.
 Only used if \code{conf.int = TRUE}.}
+
+\item{conf.method}{method for computing confidence intervals
+("quantile" or "HPDinterval")}
 
 \item{...}{Extra arguments, not used}
 

@@ -109,9 +109,10 @@ tidyMCMC <- function(x,
 
         ci <- switch(conf.method,
                      quantile = t(apply(ss, 2, stats::quantile, levs)),
-                     HPDinterval(as.mcmc(ss), prob = conf.level))
+                     HPDinterval(as.mcmc(ss), prob = conf.level)) %>%
+            as.data.frame()
 
-        colnames(ci) <- c("conf.low", "conf.high")
+        names(ci) <- c("conf.low", "conf.high")
         ret <- bind_cols(ret, ci)
     }
     

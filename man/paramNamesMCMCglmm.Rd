@@ -23,9 +23,10 @@ parameter names from an \code{MCMCglmm} object.
 \examples{
 \dontrun{
   # a simple MCMCglmm model
-  data(PlodiaPO)
-  m <- MCMCglmm(PO ~ 1, random = ~ FSfamily, data = PlodiaPO, verbose=FALSE)
-
+  if (require(MCMCglmm)) {
+     data(PlodiaPO)
+     m <- MCMCglmm(PO ~ 1, random = ~ FSfamily, data = PlodiaPO, verbose=FALSE)
+  }
   # extract the parameter names
   paramNamesMCMCglmm(m)
 }

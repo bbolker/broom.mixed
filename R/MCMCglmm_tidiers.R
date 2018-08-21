@@ -1,4 +1,3 @@
-
 ## n.b. this stuff is not used ATM; see tidy.MCMCglmm at the *end* of this file
 ## (move to MCMC_misc?)
 ## author: Josh Wiley
@@ -203,7 +202,7 @@ ranef.MCMCglmm <- function(object, use = c("all", "mean"), ...) {
 #' @param object An \code{MCMCglmm} model object to extract the effects from
 #' @param which A list of random effects to extract or their numeric positions
 #'   If there are two numbers in a list, effects are simulataneous.
-#' @param type A chacter string indicating whether to calculate the standard
+#' @param type A character string indicating whether to calculate the standard
 #'   deviation on the linear predictor metric, \sQuote{lp} or
 #'   response, \sQuote{response}.
 #' @param \dots Not currently used.
@@ -307,7 +306,6 @@ stdranef <- function(object, which, type = c("lp", "response"), ...) {
 }
 
 ##' @rdname mcmc_tidiers
-##' @importFrom plyr ldply
 ##' @examples
 ##' if (require("MCMCglmm")) {
 ##'    load(system.file("extdata","MCMCglmm_example.rda",
@@ -318,18 +316,65 @@ stdranef <- function(object, which, type = c("lp", "response"), ...) {
 ##' }
 ##' @export
 tidy.MCMCglmm <- function(x,effects=c("fixed","ran_pars"),
-                          scales,...) {
-    if (!missing(scales)) stop("tidy.MCMCglmm doesn't yet implement scales")
+                          scales = NULL, ## c("sdcor","vcov",NA),
+                          ...) {
     ## FIXME: allow scales= parameter to get varcov on sd/corr scale?
     clist <- c(fixed="Sol",ran_pars="VCV",ran_vals="Liab")
     comp <- clist[effects]
+    if (!is.null(scales)) {
+        if (length(scales) != length(effects)) {
+            stop("if scales are specified, values (or NA) must be provided ",
+                 "for each effect")
+        }
+    }
+
     ## FIXME: override MCMCglmm internal component names
     ## FIXME:: have to work harder to retrieve group/term information
     ##  about random parameters
     ## individual components are mcmc objects: call tidy on them
-    ret <- (purrr::map(x[comp],tidy)
-        %>% setNames(effects)
+    retList <- (purrr::map(x[comp],tidy)
+        %>% setNames(effects))
+
+    if ("ran_pars" %in% effects) {
+        ss <- strsplit(retList$ran_pars$term,"(:|\\.)")
+        if (any(sapply(ss,length)>4)) {
+            warning("surprising term names: models with variable names containing colons or dots may work unreliably")
+        }
+        ss2 <- lapply(ss,
+                      function(x) {
+            if (x[1]=="units") return(c(rep("Observation",2),"Residual"))
+            if (length(x)==1) return(c(rep("(Intercept)",2),x[1]))
+            ## reconstruct variance term if necessary
+            if (length(x)==2) return(c(rep(x[1],2),x[2]))
+            return(c(sort(x[1:2]),x[3]))
+        })
+        ok <- !duplicated(ss2)
+        ss2 <- ss2[ok]
+        if (is.null(scales)) {
+            rscale <- "vcov"
+        } else rscale <- scales[effects=="ran_pars"]
+        if (!rscale %in% c("sdcor","vcov"))
+            stop(sprintf("unrecognized ran_pars scale %s",sQuote(rscale)))
+        if (rscale != "vcov") {
+            stop("only vcov scale implemented")
+            ## ugh: to implement sdcor we have to go back to the samples
+            ## and convert them ...
+        }
+        pref <- sapply(ss2,function(x) ifelse(x[1]==x[2],"var","cov"))
+        group <- sapply(ss2,function(x) x[[3]])
+        term <- paste(pref,
+                      sapply(ss2, function(x) {
+                          ifelse(x[1]==x[2],x[1],
+                                 paste(x[1:2],collapse="."))
+                      }),
+                      sep=getOption("broom.mixed.sep1"))
+        retList$ran_pars <- retList$ran_pars[ok,]
+        retList$ran_pars$term <- term
+        retList$ran_pars$group <- retList$group
+    }
+    ret <- (retList
         %>% bind_rows(.id="effect")
+        %>% reorder_cols()
     )
     return(ret)
 }

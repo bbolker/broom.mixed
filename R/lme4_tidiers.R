@@ -276,10 +276,9 @@ tidy.merMod <- function(x, effects = c("ran_pars","fixed"),
             ret <- ret %>% mutate(conf.low=NA,conf.high=NA)
         }
 
-
         ret_list$ran_coefs <- ret
     }
-
+    
     ret <- (ret_list
         %>% dplyr::bind_rows(.id="effect")
         %>% as_tibble()

@@ -12,7 +12,7 @@ stdranef(object, which, type = c("lp", "response"), ...)
 \item{which}{A list of random effects to extract or their numeric positions
 If there are two numbers in a list, effects are simulataneous.}
 
-\item{type}{A chacter string indicating whether to calculate the standard
+\item{type}{A character string indicating whether to calculate the standard
 deviation on the linear predictor metric, \sQuote{lp} or
 response, \sQuote{response}.}
 

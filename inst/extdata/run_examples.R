@@ -4,7 +4,7 @@ if (sub(".*/","",getwd())!="broom.mixed") {
 }
 
 ## FIXME: should disaggregate/implement a Makefile!
-run_brms <- TRUE ## slow
+run_brms <- TRUE ## slow, only do if necessary
 
 
 save_file <- function(..., pkg, type="rda") {
@@ -72,8 +72,15 @@ run_pkg("MCMCglmm",
 {
     data("sleepstudy",package="lme4")
     mm0 <- MCMCglmm(Reaction ~ Days, random = ~ Subject, data=sleepstudy)
-    mm1 <- MCMCglmm(Reaction ~ Days, random = ~us(Days):Subject, data=sleepstudy)
-    mm2 <- MCMCglmm(Reaction ~ Days, random = ~idh(Days):Subject, data=sleepstudy)
+    mm1 <- MCMCglmm(Reaction ~ Days, random = ~us(1+Days):Subject,
+                    ## parameter-expanded priors
+                    ## V is 2x2 identity wlog
+                    ## t(2) with standard dev of 2
+                    prior=list(G=list(list(nu=2,V=diag(2),
+                                           alpha.mu=rep(0,2),
+                                           alpha.V=diag(rep(4,2))))),
+                    data=sleepstudy)
+    mm2 <- MCMCglmm(Reaction ~ Days, random = ~idh(1+Days):Subject, data=sleepstudy)
     save_file(mm0, mm1, mm2, pkg="MCMCglmm", type = "rda")
 })
 

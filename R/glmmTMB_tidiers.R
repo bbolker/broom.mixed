@@ -6,7 +6,7 @@
 #' @param x An object of class \code{merMod}, such as those from \code{lmer},
 #' \code{glmer}, or \code{nlmer}
 #' 
-#' @return All tidying methods return a \code{data.frame} without rownames.
+#' @return All tidying methods return a \code{tibble}.
 #' The structure depends on the method chosen.
 #' 
 #' @name glmmTMB_tidiers
@@ -83,6 +83,9 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
                          conf.method = "Wald",
                         ...) {
 
+    ## FIXME:  cleanup
+    ##   - avoid (as.)data.frame
+
     ## R CMD check false positives
     term <- estimate <- .id <- level <- std.error <- . <- NULL
 
@@ -103,20 +106,18 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
     }
     if (length(miss <- setdiff(effects,effect_names))>0)
         stop("unknown effect type ",miss)
-    base_nn <- c("estimate", "std.error", "statistic", "p.value")
     ret <- list()
     ret_list <- list()
     if ("fixed" %in% effects) {
         # return tidied fixed effects rather than random
         ret <- lapply(ss,
                       function(x) {
-            x %>% as.data.frame %>%
+            x %>% as.data.frame(stringsAsFactors=FALSE) %>%
                 setNames(c("estimate", "std.error", "statistic", "p.value")) %>%
                 tibble::rownames_to_column("term")
         })
         # p-values may or may not be included
         # HACK: use the columns from the conditional component, preserving previous behaviour
-        nn <- base_nn[1:ncol(ret$cond)]
         if (conf.int) {
             for (comp in component) {
                 cifix <- confint(x,method=tolower(conf.method),
@@ -126,22 +127,18 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
                                  ## include random-effect parameters
                                  ## as well, don't want those right now ...
                                  parm=seq(nrow(ret[[comp]])),...) %>%
-                    as.data.frame %>%
+                    as.data.frame(stringsAsFactors=FALSE) %>%
                     setNames(c("conf.low","conf.high"))
                 ret[[comp]] <- bind_cols(ret[[comp]],
                                          cifix)
             }
-            nn <- c(nn,"conf.low","conf.high")
         }
-        if ("ran_pars" %in% effects || "ran_vals" %in% effects) {
-            ret <- purrr::map(ret, ~ mutate(.,group="fixed"))
-            nn <- c(nn,"group")
-        }
-        ret_list$fixed <- plyr::ldply(ret, .fun = reorder_frame,
-                                      .id = "component")
+        ret_list$fixed <- bind_rows(ret, .id="component")
     }
     if ("ran_pars" %in% effects &&
         !all(sapply(VarCorr(x),is.null))) {
+        ## FIXME: do something sensible about standard errors, confint
+        
         if (is.null(scales)) {
             rscale <- "sdcor"
         } else rscale <- scales[effects=="ran_pars"]
@@ -160,7 +157,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
         }
     
         ret <- (
-            purrr::map(vv, as.data.frame)
+            purrr::map(vv, as.data.frame, stringsAsFactors=FALSE)
             %>% bind_rows(.id="component")
             %>% mutate_if(., is.factor, as.character)
         )
@@ -193,8 +190,6 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
                 %>% setNames(c("conf.low","conf.high"))
             )
             ret <- bind_cols(ret,ciran)
-            ##  FIXME: is nn mech used any more??
-            nn <- c(nn,"conf.low","conf.high")
         }
         ret_list$ran_pars <- ret
     }
@@ -202,11 +197,11 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
     if ("ran_vals" %in% effects) {
         ## fix each group to be a tidy data frame
 
-        nn <- c("estimate", "std.error")
         re <- ranef(x,condVar=TRUE)
         getSE <- function(x) {
             v <- attr(x,"postVar")
-            setNames(as.data.frame(sqrt(t(apply(v,3,diag)))),
+            setNames(as.data.frame(sqrt(t(apply(v,3,diag))),
+                                   stringsAsFactors=FALSE),
                      colnames(x))
         }
         fix <- function(g,re,.id) {
@@ -221,7 +216,8 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
              newg.se$type <- "std.error"
 
              data.frame(rbind(newg,newg.se),.id=.id,
-                        check.names=FALSE)
+                        check.names=FALSE,
+                        stringsAsFactors=FALSE)
                         ## prevent coercion of variable names
         }
 
@@ -247,9 +243,12 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
         ret <- dplyr::rename(ret,grp=.id)
         ret_list$ran_vals <- ret
     }
-    ## use ldply to get 'effect' added as a column
-    return(plyr::ldply(ret_list,identity,.id="effect"))
-
+    ret <- (ret_list
+        %>% dplyr::bind_rows(.id="effect")
+        %>% as_tibble()
+        %>% reorder_cols()
+    )
+    return(ret)
 }
 
 #' @rdname glmmTMB_tidiers

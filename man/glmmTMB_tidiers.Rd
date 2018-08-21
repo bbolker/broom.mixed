@@ -42,7 +42,7 @@ attempt to be reconstructed}
 \item{newdata}{new data to be used for prediction; optional}
 }
 \value{
-All tidying methods return a \code{data.frame} without rownames.
+All tidying methods return a \code{tibble}.
 The structure depends on the method chosen.
 
 \code{tidy} returns one row for each estimated effect, either

@@ -47,7 +47,7 @@ NULL
 
 #' @rdname rstanarm_tidiers
 #' @inheritParams brms_tidiers
-#' @param prob See \code{\link[rstanarm]{posterior_interval.stanreg}}.
+#' @param conf.level See \code{\link[rstanarm]{posterior_interval.stanreg}}.
 #' @param conf.int If \code{TRUE} columns for the lower (\code{conf.low}) and upper (\code{conf.high}) bounds of the
 #'   \code{100*prob}\% posterior uncertainty intervals are included. See 
 #'   \code{\link[rstanarm]{posterior_interval.stanreg}} for details.
@@ -80,8 +80,8 @@ NULL
 #' @export
 tidy.stanreg <- function(x, 
                          effects = "fixed", 
-                         conf.int = FALSE, 
-                         prob = 0.9,
+                         conf.int = FALSE,
+                         conf.level = 0.9,
                          ...) {
     
     effects <-
@@ -113,7 +113,7 @@ tidy.stanreg <- function(x,
                 rstanarm::posterior_interval(
                   object = x, 
                   pars = nv_pars, 
-                  prob = prob
+                  prob = conf.level
                 )
             ret <- data.frame(ret, cifix)
             nn <- c(nn, "conf.low", "conf.high")
@@ -128,7 +128,7 @@ tidy.stanreg <- function(x,
         auxpars <- auxpars[which(auxpars %in% parnames)]
         ret <- summary(x, pars = auxpars)[, c("50%", "sd"), drop = FALSE]
         if (conf.int) {
-            ints <- rstanarm::posterior_interval(x, pars = auxpars, prob = prob)
+            ints <- rstanarm::posterior_interval(x, pars = auxpars, prob = conf.level)
             ret <- data.frame(ret, ints)
             nn <- c(nn,"conf.low","conf.high")
         }
@@ -164,7 +164,7 @@ tidy.stanreg <- function(x,
         
         if (conf.int) {
             ciran <- rstanarm::posterior_interval(x, regex_pars = "^b\\[",
-                                                  prob = prob)
+                                                  prob = conf.level)
             ret <- data.frame(ret,ciran)
             nn <- c(nn,"conf.low","conf.high")
         }

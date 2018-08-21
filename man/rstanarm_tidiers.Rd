@@ -7,7 +7,7 @@
 \title{Tidying methods for an rstanarm model}
 \usage{
 \method{tidy}{stanreg}(x, effects = "fixed", conf.int = FALSE,
-  prob = 0.9, ...)
+  conf.level = 0.9, ...)
 
 \method{glance}{stanreg}(x, looic = FALSE, ...)
 }
@@ -23,7 +23,7 @@ See the Value section for details.}
 \code{100*prob}\% posterior uncertainty intervals are included. See 
 \code{\link[rstanarm]{posterior_interval.stanreg}} for details.}
 
-\item{prob}{See \code{\link[rstanarm]{posterior_interval.stanreg}}.}
+\item{conf.level}{See \code{\link[rstanarm]{posterior_interval.stanreg}}.}
 
 \item{...}{For \code{glance}, if \code{looic=TRUE}, optional arguments to 
 \code{\link[rstanarm]{loo.stanreg}}.}

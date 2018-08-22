@@ -205,7 +205,9 @@ trans_brms_params <- function(tidy_obj) {
 ## enforce consistent column order for *existing* columns
 ## should contain all possible columns
 reorder_cols <- function(x) {
-    all_cols <- c("effect","group","level","term","index","estimate",
+    all_cols <- c("effect",
+                  "component", ## glmmTMB
+                  "group","level","term","index","estimate",
                   "std.error","statistic",
                   "df","p.value",
                   "conf.low","conf.high","rhat","ess")

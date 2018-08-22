@@ -31,7 +31,7 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly=TRUE))) {
     
     test_that("glance works on rstanarm fits", {
         g1 <- glance(fit)
-        g2 <- glance(fit, looic = TRUE, cores = 1)
+        g2 <- glance(fit, looic = TRUE, cores = 1, k_threshold=0.7)
         expect_equal(colnames(g1), c("algorithm", "pss", "nobs", "sigma"))
         expect_equal(colnames(g2), c(colnames(g1), "looic", "elpd_loo", "p_loo"))
     })

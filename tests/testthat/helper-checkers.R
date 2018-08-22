@@ -1,6 +1,6 @@
 #' test the basics of tidy/augment/glance output: is a data frame, no row names
 check_tidiness <- function(o) {
-    testthat::expect_is(o, "data.frame")
+    testthat::expect_is(o, "tbl_df")
     expect_equal(rownames(o), as.character(seq_len(nrow(o))))
 }
 

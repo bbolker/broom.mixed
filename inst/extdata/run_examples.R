@@ -5,7 +5,7 @@ if (sub(".*/","",getwd())!="broom.mixed") {
 
 ## FIXME: should disaggregate/implement a Makefile!
 run_brms <- FALSE ## slow, only do if necessary
-
+run_stan <- FALSE
 
 save_file <- function(..., pkg, type="rda") {
   f <- file.path("inst","extdata",sprintf("%s_example.%s",pkg,type))
@@ -50,7 +50,7 @@ run_pkg("lme4",
 })
 
 
-run_pkg("rstan",
+if (run_stan) run_pkg("rstan",
 {
           rstan_options(auto_write=TRUE)
           model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
@@ -70,7 +70,13 @@ run_pkg("glmmTMB",
           lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
           glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
                            data = cbpp, family = binomial, weights=size)
-          save_file(lmm1,glmm1,pkg="glmmTMB",type="rda")
+
+          data(Salamanders,package="glmmTMB")
+          zipm3 <- glmmTMB(count~spp * mined + (1|site),
+                           zi=~spp * mined, Salamanders, family="poisson")
+          
+          save_file(lmm1,glmm1,zipm3, pkg="glmmTMB",type="rda")
+
         })
 
 run_pkg("glmmADMB",

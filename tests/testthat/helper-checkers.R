@@ -1,7 +1,7 @@
 #' test the basics of tidy/augment/glance output: is a data frame, no row names
 check_tidiness <- function(o) {
   testthat::expect_is(o, "tbl_df")
-  expect_equal(rownames(o), as.character(seq_len(nrow(o))))
+  testthat::expect_equal(rownames(o), as.character(seq_len(nrow(o))))
 }
 
 
@@ -10,13 +10,13 @@ check_tidy <- function(o, exp.row = NULL, exp.col = NULL, exp.names = NULL) {
   check_tidiness(o)
 
   if (!is.null(exp.row)) {
-    expect_equal(nrow(o), exp.row)
+    testthat::expect_equal(nrow(o), exp.row)
   }
   if (!is.null(exp.col)) {
-    expect_equal(ncol(o), exp.col)
+    testthat::expect_equal(ncol(o), exp.col)
   }
   if (!is.null(exp.names)) {
-    expect_true(all(exp.names %in% colnames(o)))
+    testthat::expect_true(all(exp.names %in% colnames(o)))
   }
 }
 
@@ -28,15 +28,15 @@ check_augment <- function(au, original = NULL, exp.names = NULL,
 
   if (!is.null(original)) {
     # check that all rows in original appear in output
-    expect_equal(nrow(au), nrow(original))
+    testthat::expect_equal(nrow(au), nrow(original))
     # check that columns are the same
     for (column in same) {
-      expect_equal(au[[column]], original[[column]])
+      testthat::expect_equal(au[[column]], original[[column]])
     }
   }
 
   if (!is.null(exp.names)) {
-    expect_true(all(exp.names %in% colnames(au)))
+    testthat::expect_true(all(exp.names %in% colnames(au)))
   }
 }
 
@@ -88,7 +88,7 @@ check_augment_NAs <- function(func, .data, column, column2 = NULL, ...) {
 
     check_augment(au, dat[!NAs, ], same = c(column, column2))
     if (!is.null(au$.rownames)) {
-      expect_equal(rownames(dat)[!NAs], au$.rownames)
+      testthat::expect_equal(rownames(dat)[!NAs], au$.rownames)
     }
   }
 
@@ -97,7 +97,7 @@ check_augment_NAs <- function(func, .data, column, column2 = NULL, ...) {
     # check .fitted and .resid columns have NAs in the right place
     for (col in c(".fitted", ".resid")) {
       if (!is.null(au[[col]])) {
-        expect_equal(is.na(au[[col]]), is.na(dat[[column]]))
+        testthat::expect_equal(is.na(au[[col]]), is.na(dat[[column]]))
       }
     }
   }
@@ -132,7 +132,7 @@ check_augment_NAs <- function(func, .data, column, column2 = NULL, ...) {
       }
       m <- func(d, na.action = "na.exclude")
       # without the data argument, it works like na.exclude
-      expect_warning(au <- augment(m), "na.exclude")
+      testthat::expect_warning(au <- augment(m), "na.exclude")
       check_omit(au, d)
       # with the data argument, it keeps the NAs
       au_d <- augment(m, d)

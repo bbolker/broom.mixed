@@ -4,6 +4,25 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
+\section{CHANGES IN VERSION 0.2.0}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item more consistent term names in \code{brmsfit} tidiers
+      \item improved \code{tidy.MCMCglmm}
+    }
+  }
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item all methods return tibbles (\code{tbl_df}) rather than data
+      frames
+      \item the value of the \code{group} variable for fixed-effect
+      parameters has changed from \code{"fixed"} to \code{NA}
+      \item \code{brmsfit} and \code{rstanarm} tidiers are more
+      consistent with other tidiers (e.g. \code{conf.level} rather than
+      \code{prob})
+    }
+  }
+}
 \section{CHANGES IN VERSION 0.0.1}{
   \subsection{BUG FIXES}{
     \itemize{

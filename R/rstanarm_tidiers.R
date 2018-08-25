@@ -231,19 +231,19 @@ glance_stan <- function(x, looic = FALSE, ..., type) {
         sim <- x$fit@sim
     }
         
-    ret <- data.frame(algorithm = algo)
+    ret <- dplyr::data_frame(algorithm = algo)
 
     if (algo != "optimizing") {
         pss <- sim$n_save
         if (algo == "sampling") {
             pss <- sum(pss - sim$warmup2)
         }
-        ret <- data.frame(ret, pss = pss)
+        ret <- dplyr::mutate(ret, pss = pss)
     }
     
-    ret <- data.frame(ret, nobs = stats::nobs(x))
+    ret <- mutate(ret, nobs = stats::nobs(x))
     if (length(sx <- sigma(x))>0) {
-        ret <- data.frame(ret, sigma = sx)
+        ret <- dplyr::mutate(ret, sigma = sx)
     }
     if (looic) {
         if (algo == "sampling") {
@@ -260,5 +260,5 @@ glance_stan <- function(x, looic = FALSE, ..., type) {
             message("looic only available for models fit using MCMC")  
         }
     }
-    as_tibble(unrowname(ret))
+    dplyr::as_tibble(unrowname(ret))
 }

@@ -8,3 +8,4 @@ misc/*
 ^.*.Rout
 ## hidden files
 (^|/)\.+.*
+run_examples

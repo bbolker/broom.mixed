@@ -18,6 +18,18 @@ unrowname <- function(x) {
     return(x)
 }
 
+## first convert to data frame, then add rownames, then tibble
+tibblify <- function(x, var="term") {
+    if (is.null(var)) {
+        return(dplyr::as_tibble(unrowname(x)))
+    }
+    ret <- (x
+        %>% as.data.frame()
+        %>% tibble::rownames_to_column(var)
+        %>% dplyr::as_tibble())
+    return(ret)
+}
+
 #' Remove NULL items in a vector or list
 #' 
 #' @param x a vector or list
@@ -76,7 +88,7 @@ reorder_frame <- function(x,first_cols=c("effect","group","term","estimate")) {
 
 ## FIXME: store functions to run as a list of expressions,
 ##  allow user-specified 'skip' argument?
-finish_glance <- function(ret=data.frame(),x) {
+finish_glance <- function(ret=dplyr::data_frame(),x) {
 
     stopifnot(length(ret)==0 || nrow(ret)==1)
     
@@ -88,7 +100,7 @@ finish_glance <- function(ret=data.frame(),x) {
         return(tt)
     }
     
-    newvals <- data.frame(sigma=tfun(sigma(x)),
+    newvals <- dplyr::data_frame(sigma=tfun(sigma(x)),
                           logLik=tfun(as.numeric(stats::logLik(x))),
                           AIC=tfun(stats::AIC(x)),
                           BIC=tfun(stats::BIC(x)),
@@ -98,9 +110,9 @@ finish_glance <- function(ret=data.frame(),x) {
     newvals <- newvals[!vapply(newvals,is.na,logical(1))]
 
     if (length(ret)==0) {
-        return(unrowname(newvals))
+        return(newvals)
     } else {
-        return(unrowname(data.frame(ret,newvals)))
+        return(dplyr::bind_cols(ret,newvals))
     }
 }
 
@@ -213,3 +225,16 @@ reorder_cols <- function(x) {
                   "conf.low","conf.high","rhat","ess")
     return(select(x,intersect(all_cols,names(x))))
 }
+
+rename_cols <- function(x,
+                        from=c("Estimate","Std. Error","(z|Z|t) value","Pr\\(>"),
+                        to=c("estimate","std.error","statistic","p.value")) {
+    if (!is.data.frame(x)) x <- dplyr::as_tibble(x)
+    for (i in seq_along(from)) {
+        if (length(m <- grep(from[i],names(x)))>0) {
+            names(x)[m] <- to[i]
+        }
+    }
+    return(x)
+}
+        

@@ -99,7 +99,7 @@ are used for compatibility with other (frequentist) mixed model types.
  ## library(brms)
  ## fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
  ##           iter = 500, chains = 2)
- fit <- readRDS(system.file("extdata","brmsfit_example.rds",package="broom.mixed"))
+ fit <- readRDS(system.file("extdata","brms_example.rds",package="broom.mixed"))
  if (require("broom")) {
    tidy(fit)
    tidy(fit, parameters = "^sd_", conf.int = FALSE)

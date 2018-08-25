@@ -98,7 +98,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
         # return tidied fixed effects
         ret <- summary(x)[["tTable"]] %>% data.frame(check.names=FALSE) %>%
                         rename_regex_match() %>%
-                            tibble::rownames_to_column("term")
+            tibblify("term")
         if (conf.int) {
              cifix <- intervals(x,which="fixed")[["fixed"]] %>%
                 data.frame() %>%
@@ -201,7 +201,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
 
         ret_list$ran_vals <-
             ranef(x) %>%
-            tibble::rownames_to_column("level") %>%
+            tibblify("level") %>%
             tidyr::gather(key=term,value=estimate,-level)
         ## FIXME: group?
     }
@@ -249,8 +249,8 @@ augment.lme <- function(x, data = x$data, newdata, ...) {
     if (length(predictions) == nrow(ret)) {
         ret$.fixed <- predictions
     }
-    
-    unrowname(ret)
+
+    return(tibblify(ret,var=NULL))
 }
 
 

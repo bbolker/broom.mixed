@@ -17,7 +17,7 @@
 #'  ## library(brms)
 #'  ## fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
 #'  ##           iter = 500, chains = 2)
-#'  fit <- readRDS(system.file("extdata","brmsfit_example.rds",package="broom.mixed"))
+#'  fit <- readRDS(system.file("extdata","brms_example.rds",package="broom.mixed"))
 #'  if (require("broom")) {
 #'    tidy(fit)
 #'    tidy(fit, parameters = "^sd_", conf.int = FALSE)
@@ -221,7 +221,7 @@ augment.brmsfit <- function(x, data=stats::model.frame(x), newdata=NULL,
     ## allow optional arguments to augment, e.g. pred.type,
     ## residual.type, re.form ...
     pred <- do.call(stats::predict,args)
-    ret <- data.frame(.fitted=pred[,"Estimate"])
+    ret <- dplyr::data_frame(.fitted=pred[,"Estimate"])
     if (se.fit) ret[[".se.fit"]] <- pred[,"Est.Error"]
     if (is.null(newdata)) {
         ret[[".resid"]] <- stats::residuals(x)[,"Estimate"]

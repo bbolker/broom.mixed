@@ -17,14 +17,16 @@ save_file <- function(..., pkg, type="rda") {
   invisible(NULL)
 }
 
+pkg <- NULL
 run_pkg <- function(pkg,e) {
-  if (require(pkg,character.only=TRUE)) {
-    eval(e)
-    return(TRUE)
-  } else {
-    cat(sprintf("%s examples not run\n",pkg))
-    return(FALSE)
-  }
+    pkg <<- pkg
+    if (require(pkg,character.only=TRUE)) {
+        eval(e)
+        return(TRUE)
+    } else {
+        cat(sprintf("%s examples not run\n",pkg))
+        return(FALSE)
+    }
 }
 
 run_pkg("nlme",
@@ -36,7 +38,7 @@ run_pkg("nlme",
     lmm1 <- lme(Reaction ~ Days, random = ~ Days | Subject, sleepstudy)
     ## doesn't work yet
     lmm2 <- lme(Reaction ~ Days, random = list(Subject=pdDiag(~Days)), sleepstudy)
-    save_file(lmm0, lmm0ML, lmm1, lmm2, pkg="nlme", type = "rda")
+    save_file(lmm0, lmm0ML, lmm1, lmm2, pkg=pkg, type = "rda")
 })
 
 run_pkg("lme4",
@@ -46,7 +48,7 @@ run_pkg("lme4",
     lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
     lmm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days | Subject), sleepstudy)
     lmm1_prof <- profile(lmm1)
-    save_file(lmm1_prof, lmm0, lmm0ML, lmm1, lmm2, pkg="lme4", type = "rda")
+    save_file(lmm1_prof, lmm0, lmm0ML, lmm1, lmm2, pkg=pkg, type = "rda")
 })
 
 
@@ -60,7 +62,7 @@ if (run_stan) run_pkg("rstan",
           set.seed(2015)
           rstan_example <- stan(file = model_file, data = schools_dat, 
                                 iter = 1000, chains = 2, save_dso = FALSE)
-          save_file(rstan_example,pkg="rstan",type="rds")
+          save_file(rstan_example,pkg=pkg,type="rds")
         })
 
 run_pkg("glmmTMB",
@@ -75,7 +77,7 @@ run_pkg("glmmTMB",
           zipm3 <- glmmTMB(count~spp * mined + (1|site),
                            zi=~spp * mined, Salamanders, family="poisson")
           
-          save_file(lmm1,glmm1,zipm3, pkg="glmmTMB",type="rda")
+          save_file(lmm1,glmm1,zipm3, pkg=pkg,type="rda")
 
         })
 
@@ -84,7 +86,7 @@ run_pkg("glmmADMB",
           data(sleepstudy,package="lme4")
           lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
                            family="gaussian")
-          save_file(lmm1,pkg="glmmADMB",type="rda")
+          save_file(lmm1,pkg=pkg,type="rda")
         })
 
 run_pkg("MCMCglmm",
@@ -101,7 +103,7 @@ run_pkg("MCMCglmm",
                                            alpha.V=diag(rep(4,2))))),
                     data=sleepstudy, pr=TRUE)
     mm2 <- MCMCglmm(Reaction ~ Days, random = ~idh(1+Days):Subject, data=sleepstudy, pr=TRUE)
-    save_file(mm0, mm1, mm2, pkg="MCMCglmm", type = "rda")
+    save_file(mm0, mm1, mm2, pkg=pkg, type = "rda")
 })
 
 ## slowest stuff last
@@ -110,7 +112,7 @@ run_pkg("rstanarm",
         {
           fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
                             iter = 300, chains = 2)
-          save_file(fit, pkg="rstanarm", type="rds")
+          save_file(fit, pkg=pkg, type="rds")
         })
 
 
@@ -124,7 +126,7 @@ if (run_brms) {
                        ##  size of the fitted object, doesn't speed things
                        ##  up when re-running this code ...
                        save_dso= FALSE)
-            save_file(fit, pkg="brmsfit", type="rds")
+            save_file(fit, pkg=pkg, type="rds")
         })
 }
 

@@ -5,10 +5,11 @@
 #' @param x An object of class \code{glmmadmb}
 #' \code{glmer}, or \code{nlmer}
 #' 
-#' @return All tidying methods return a \code{data.frame} without rownames.
+#' @return All tidying methods return a \code{tbl_df} without rownames.
 #' The structure depends on the method chosen.
 #' 
 #' @name glmmadmb_tidiers
+#' @alias glmmADMB_tidiers
 #'
 #' @examples
 #' 
@@ -48,7 +49,7 @@ NULL
 #' @return \code{tidy} returns one row for each estimated effect, either
 #' with groups depending on the \code{effects} parameter.
 #' It contains the columns
-#'   \item{group}{the group within which the random effect is being estimated: \code{"fixed"} for fixed effects}
+#'   \item{group}{the group within which the random effect is being estimated: \code{NA} for fixed effects}
 #'   \item{level}{level within group (\code{NA} except for modes)}
 #'   \item{term}{term being estimated}
 #'   \item{estimate}{estimated coefficient}
@@ -62,7 +63,7 @@ NULL
 #' @importFrom nlme VarCorr ranef
 #' 
 #' @export
-tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
+tidy.glmmadmb <- function(x, effects = c("fixed","ran_pars"),
                          component="cond",
                          scales = NULL, ## c("sdcor",NA),
                          ran_prefix=NULL,
@@ -71,6 +72,7 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
                          conf.method = "Wald",
                         ...) {
 
+    ## FIXME: refactor/clean up!
     ## R CMD check false positives
     term <- estimate <- .id <- level <- std.error <- NULL
 
@@ -87,26 +89,23 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
     }
     if (length(miss <- setdiff(effects,effect_names))>0)
         stop("unknown effect type ",miss)
-    base_nn <- c("estimate", "std.error", "statistic", "p.value")
     ret_list <- list()
     if ("fixed" %in% effects) {
         # return tidied fixed effects rather than random
-        ret <- stats::coef(summary(x))
-
-        # p-values may or may not be included
-        nn <- base_nn[1:ncol(ret)]
-
+        ret <- (stats::coef(summary(x))
+            %>% as.data.frame()
+            %>% rownames_to_column(var="term")
+            %>% rename_cols()
+        )
+        
         if (conf.int) {
-            cifix <- confint(x)
-            ret <- data.frame(ret,cifix)
-            nn <- c(nn,"conf.low","conf.high")
+            cifix <- (confint(x)
+                %>% dplyr::as_tibble()
+                %>% setNames(c("conf.low","conf.high"))
+            )
+            ret <- dplyr::bind_cols(ret,cifix)
         }
-        if ("ran_pars" %in% effects || "ran_vals" %in% effects) {
-            ret <- data.frame(ret,group="fixed")
-            nn <- c(nn,"group")
-        }
-        ret_list$fixed <-
-            fix_data_frame(ret, newnames = nn)
+        ret_list$fixed <- ret
     }
     if ("ran_pars" %in% effects) {
         if (is.null(scales)) {
@@ -127,9 +126,9 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
         attr(vv,"useSc") <- useSc
         class(vv) <- "VarCorr.merMod"
         ## hack ...
-        ret <- as.data.frame(vv)
-        ret[] <- lapply(ret, function(x) if (is.factor(x))
-                                 as.character(x) else x)
+        vv2 <- (dplyr::as_tibble(as.data.frame(vv))
+            %>% mutate_if(is.factor,as.character)
+        )
         if (is.null(ran_prefix)) {
             ran_prefix <- switch(rscale,
                                  vcov=c("var","cov"),
@@ -144,25 +143,21 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
             }
             return(p)
         }
+        term <-  paste(apply(vv2[c("var1","var2")],1,pfun),
+                       vv2[["grp"]],sep=".")
 
-        rownames(ret) <- paste(apply(ret[c("var1","var2")],1,pfun),
-                                ret[,"grp"],sep=".")
-
-        ## FIXME: this is ugly, but maybe necessary?
-        ## set 'term' column explicitly, disable fix_data_frame
-        ##  rownames -> term conversion
-        ## rownames(ret) <- seq(nrow(ret))
+        estimate <- vv2[[rscale]]
+        ret <- data_frame(group=vv2$grp,term,estimate)
+        
 
         if (conf.int) {
             warning("confint not implemented for glmmADMB ran_pars")
             ## ciran <- confint(x,parm="theta_",method=conf.method,...)
-            ret <- data.frame(ret,conf.low=NA,conf.high=NA)
+            ret <- mutate(ret,conf.low=NA,conf.high=NA)
             ## nn <- c(nn,"conf.low","conf.high")
         }
         
-        ## replicate lme4:::tnames, more or less
-        ret_list$ran_pars <- fix_data_frame(ret[c("grp",rscale)],
-                                            newnames=c("group","estimate"))
+        ret_list$ran_pars <- ret
     }
     if ("ran_vals" %in% effects) {
         ## fix each group to be a tidy data frame
@@ -190,7 +185,7 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
                         ## prevent coercion of variable names
         }
 
-        mm <- do.call(rbind,Map(fix,coef(x),re,names(re)))
+        mm <- bind_rows(Map(fix,coef(x),re,names(re)))
 
         ## block false-positive warnings due to NSE
         type <- spread <- est <- NULL
@@ -212,7 +207,11 @@ tidy.glmmadmb <- function(x, effects = c("ran_pars","fixed"),
         ret <- dplyr::rename(ret,grp=.id)
         ret_list$ran_vals <- ret
     }
-    return(rbind.fill(ret_list))
+    ret <- (bind_rows(ret_list,.id="effect")
+        %>% as_tibble()  ## FIXME: upstream?
+        %>% reorder_cols()
+    )
+    return(ret)
 }
 
 

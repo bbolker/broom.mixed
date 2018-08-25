@@ -7,7 +7,7 @@
 \alias{glance.glmmadmb}
 \title{Tidying methods for glmmADMB models}
 \usage{
-\method{tidy}{glmmadmb}(x, effects = c("ran_pars", "fixed"),
+\method{tidy}{glmmadmb}(x, effects = c("fixed", "ran_pars"),
   component = "cond", scales = NULL, ran_prefix = NULL,
   conf.int = FALSE, conf.level = 0.95, conf.method = "Wald", ...)
 
@@ -42,13 +42,13 @@ attempt to be reconstructed}
 \item{newdata}{new data to be used for prediction; optional}
 }
 \value{
-All tidying methods return a \code{data.frame} without rownames.
+All tidying methods return a \code{tbl_df} without rownames.
 The structure depends on the method chosen.
 
 \code{tidy} returns one row for each estimated effect, either
 with groups depending on the \code{effects} parameter.
 It contains the columns
-  \item{group}{the group within which the random effect is being estimated: \code{"fixed"} for fixed effects}
+  \item{group}{the group within which the random effect is being estimated: \code{NA} for fixed effects}
   \item{level}{level within group (\code{NA} except for modes)}
   \item{term}{term being estimated}
   \item{estimate}{estimated coefficient}

@@ -1,5 +1,5 @@
 ## run in pkg root
-if (sub(".*/","",getwd())!="broom.mixed") {
+if (sub(".*/","", getwd()) != "broom.mixed") {
     stop("should run from package root directory")
 }
 
@@ -8,30 +8,30 @@ run_brms <- FALSE ## slow, only do if necessary
 run_stan <- FALSE
 
 save_file <- function(..., pkg, type="rda") {
-  f <- file.path("inst","extdata",sprintf("%s_example.%s",pkg,type))
-  if (type=="rda") {
-    save(...,file=f)
+  f <- file.path("inst", "extdata", sprintf("%s_example.%s", pkg, type))
+  if (type == "rda") {
+    save(..., file=f)
   } else {
-    saveRDS(...,file=f)
+    saveRDS(..., file=f)
   }
   invisible(NULL)
 }
 
 pkg <- NULL
-run_pkg <- function(pkg,e) {
+run_pkg <- function(pkg, e) {
     pkg <<- pkg
-    if (require(pkg,character.only=TRUE)) {
+    if (require(pkg, character.only=TRUE)) {
         eval(e)
         return(TRUE)
     } else {
-        cat(sprintf("%s examples not run\n",pkg))
+        cat(sprintf("%s examples not run\n", pkg))
         return(FALSE)
     }
 }
 
 run_pkg("nlme",
 {
-    data(sleepstudy,package="lme4")
+    data(sleepstudy, package="lme4")
     lmm0 <- lme(Reaction ~ Days, random = ~ 1| Subject, sleepstudy)
     lmm0ML <- lme(Reaction ~ Days, random = ~ 1| Subject, sleepstudy,
                   method="ML")
@@ -44,7 +44,7 @@ run_pkg("nlme",
 run_pkg("lme4",
 {
     lmm0 <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy)
-    lmm0ML <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy,REML=FALSE)
+    lmm0ML <- lmer(Reaction ~ Days + (1 | Subject), sleepstudy, REML=FALSE)
     lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
     lmm2 <- lmer(Reaction ~ Days + (1|Subject) + (0+Days | Subject), sleepstudy)
     lmm1_prof <- profile(lmm1)

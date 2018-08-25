@@ -17,15 +17,15 @@
   newdata = NULL, se.fit = TRUE, ...)
 }
 \arguments{
-\item{x}{Fitted model object from the \pkg{brms} package. See 
+\item{x}{Fitted model object from the \pkg{brms} package. See
 \code{\link[brms]{brmsfit-class}}.}
 
-\item{parameters}{Names of parameters for which a summary should be 
+\item{parameters}{Names of parameters for which a summary should be
 returned, as given by a character vector or regular expressions.
 If \code{NA} (the default) summarized parameters are specified
 by the \code{effects} argument.}
 
-\item{effects}{A character vector including one or more of \code{"fixed"}, 
+\item{effects}{A character vector including one or more of \code{"fixed"},
 \code{"ran_vals"}, or \code{"ran_pars"}.
 See the Value section for details.}
 
@@ -80,11 +80,11 @@ In this case, two additional columns are added:
 Specifying \code{effects = "ran_pars"} selects the
 standard deviations and correlations of the group-level parameters.
 
-If \code{conf.int = TRUE}, columns for the \code{lower} and 
+If \code{conf.int = TRUE}, columns for the \code{lower} and
 \code{upper} bounds of the posterior conf.int computed.
 }
 \description{
-These methods tidy the estimates from 
+These methods tidy the estimates from
 \code{\link[brms:brmsfit-class]{brmsfit-objects}}
 (fitted model objects from the \pkg{brms} package) into a summary.
 }
@@ -97,7 +97,7 @@ are used for compatibility with other (frequentist) mixed model types.
 }
 \examples{
  ## library(brms)
- ## fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars, 
+ ## fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
  ##           iter = 500, chains = 2)
  fit <- readRDS(system.file("extdata","brms_example.rds",package="broom.mixed"))
  if (require("broom")) {
@@ -108,7 +108,7 @@ are used for compatibility with other (frequentist) mixed model types.
    tidy(fit, effects = "ran_pars", robust = TRUE)
 
 }
- 
+
 # glance method
    glance(fit)
   \dontrun{

@@ -100,14 +100,14 @@ if (require("glmmADMB") && require("lme4")) {
     ## tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
-    
+
     glmm1 <- glmmadmb(cbind(incidence, size - incidence) ~ period + (1 | herd),
                   data = cbpp, family = "binomial")
     tidy(glmm1)
     tidy(glmm1, effects = "fixed")
     head(augment(glmm1, cbpp))
     glance(glmm1)
-    
+
 }
 }
 \seealso{

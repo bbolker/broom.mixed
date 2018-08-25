@@ -89,7 +89,7 @@ on the logit scale
 }
 \examples{
 if (require("glmmTMB") && require("lme4")) {
-    
+
     # example regressions are from lme4 documentation
     ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
     load(system.file("extdata","glmmTMB_example.rda",package="broom.mixed"))
@@ -104,7 +104,7 @@ if (require("glmmTMB") && require("lme4")) {
     data("sleepstudy",package="lme4")
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
-    
+
     ## glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
     ##                  data = cbpp, family = binomial, weights=size)
     tidy(glmm1)

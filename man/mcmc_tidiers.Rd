@@ -56,7 +56,7 @@ as log-probability information)}
 
 \item{rhat, ess}{(logical) include Rhat and/or effective sample size estimates?}
 
-\item{index}{Add index column, remove index from term. For example, 
+\item{index}{Add index column, remove index from term. For example,
 \code{term a[13]} becomes \code{term a} and \code{index 13}.}
 
 \item{estimate.method}{method for computing point estimate ("mean" or "median")}
@@ -78,20 +78,20 @@ tail(tidy(mm0,effects="ran_vals"))
 # https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
 
 model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
-schools_dat <- list(J = 8, 
+schools_dat <- list(J = 8,
                     y = c(28,  8, -3,  7, -1,  1, 18, 12),
                     sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
 \dontrun{
   if (require(rstan)) {
       set.seed(2015)
-      rstan_example <- rstan::stan(file = model_file, data = schools_dat, 
+      rstan_example <- rstan::stan(file = model_file, data = schools_dat,
                          iter = 1000, chains = 2, save_dso = FALSE)
      }
 }
 rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
 tidy(rstan_example)
 tidy(rstan_example, conf.int = TRUE, pars = "theta")
-  
+
 td_mean <- tidy(rstan_example, conf.int = TRUE)
 td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
 
@@ -101,7 +101,7 @@ if (require(dplyr) && require(ggplot2)) {
        mutate(type=ifelse(grepl("^theta",term),"theta",
             ifelse(grepl("^eta",term),"eta",
                   "other")))
-  
+
      ggplot(tds, aes(estimate, term)) +
       geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),height=0) +
       geom_point(aes(color = method))+
@@ -109,7 +109,7 @@ if (require(dplyr) && require(ggplot2)) {
 } ## require(dplyr,ggplot2)
 
 if (requireNamespace("MCMCglmm", quietly = TRUE)) {
-    data(PlodiaPO,package="MCMCglmm")  
+    data(PlodiaPO,package="MCMCglmm")
     model1 <- MCMCglmm::MCMCglmm(PO~1, random=~FSfamily, data=PlodiaPO, verbose=FALSE)
     tidy(model1)
 }

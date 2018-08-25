@@ -1,19 +1,19 @@
 #' Tidying methods for glmmTMB models
-#' 
+#'
 #' These methods tidy the coefficients of mixed effects models, particularly
 #' responses of the \code{merMod} class
-#' 
+#'
 #' @param x An object of class \code{merMod}, such as those from \code{lmer},
 #' \code{glmer}, or \code{nlmer}
-#' 
+#'
 #' @return All tidying methods return a \code{tibble}.
 #' The structure depends on the method chosen.
-#' 
+#'
 #' @name glmmTMB_tidiers
 #'
 #' @examples
 #' if (require("glmmTMB") && require("lme4")) {
-#'     
+#'
 #'     # example regressions are from lme4 documentation
 #'     ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
 #'     load(system.file("extdata","glmmTMB_example.rda",package="broom.mixed"))
@@ -28,7 +28,7 @@
 #'     data("sleepstudy",package="lme4")
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)
-#'     
+#'
 #'     ## glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
 #'     ##                  data = cbpp, family = binomial, weights=size)
 #'     tidy(glmm1)
@@ -50,7 +50,7 @@ NULL
 #' @param scales scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"varcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects; inverse-link transformations (exponentiation
 #' or logistic) are not yet implemented, but may be in the future.
 #' @param ran_prefix a length-2 character vector specifying the strings to use as prefixes for self- (variance/standard deviation) and cross- (covariance/correlation) random effects terms
-#' 
+#'
 #' @return \code{tidy} returns one row for each estimated effect, either
 #' with groups depending on the \code{effects} parameter.
 #' It contains the columns
@@ -64,7 +64,7 @@ NULL
 #'
 #' @note zero-inflation parameters (including the intercept) are reported
 #' on the logit scale
-#' 
+#'
 #' @importFrom plyr ldply rbind.fill
 #' @import dplyr
 #' @importFrom tidyr gather spread
@@ -72,187 +72,221 @@ NULL
 #' @importFrom stats qnorm confint coef na.omit setNames
 ## FIXME: is it OK/sensible to import these from (priority='recommended')
 ## nlme rather than (priority=NA) lme4?
-#' 
+#'
 #' @export
-tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
-                         component = c("cond","zi"),
+tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
+                         component = c("cond", "zi"),
                          scales = NULL, ## c("sdcor",NA),
-                         ran_prefix=NULL,
+                         ran_prefix = NULL,
                          conf.int = FALSE,
                          conf.level = 0.95,
                          conf.method = "Wald",
-                        ...) {
+                         ...) {
 
-    ## FIXME:  cleanup
-    ##   - avoid (as.)data.frame
+  ## FIXME:  cleanup
+  ##   - avoid (as.)data.frame
 
-    ## R CMD check false positives
-    term <- estimate <- .id <- level <- std.error <- . <- NULL
+  ## R CMD check false positives
+  term <- estimate <- .id <- level <- std.error <- . <- NULL
 
-    ss <- stats::coef(summary(x))
-    ss <- ss[!sapply(ss,is.null)]
-    ## FIXME: warn if !missing(component) and component includes
-    ##  NULL terms
-    component <- intersect(component,names(ss))
-    if (length(component[!component %in% c("cond", "zi")]) > 0L) {
-        stop("only works for conditional and (partly for) zero-inflation components")
+  ss <- stats::coef(summary(x))
+  ss <- ss[!sapply(ss, is.null)]
+  ## FIXME: warn if !missing(component) and component includes
+  ##  NULL terms
+  component <- intersect(component, names(ss))
+  if (length(component[!component %in% c("cond", "zi")]) > 0L) {
+    stop("only works for conditional and (partly for) zero-inflation components")
+  }
+  effect_names <- c("ran_pars", "fixed", "ran_vals")
+  if (!is.null(scales)) {
+    if (length(scales) != length(effects)) {
+      stop(
+        "if scales are specified, values (or NA) must be provided ",
+        "for each effect"
+      )
     }
-    effect_names <- c("ran_pars", "fixed", "ran_vals")
-    if (!is.null(scales)) {
-        if (length(scales) != length(effects)) {
-            stop("if scales are specified, values (or NA) must be provided ",
-                 "for each effect")
-        }
-    }
-    if (length(miss <- setdiff(effects,effect_names))>0)
-        stop("unknown effect type ",miss)
-    ret <- list()
-    ret_list <- list()
-    if ("fixed" %in% effects) {
-        # return tidied fixed effects rather than random
-        ret <- lapply(ss,
-                      function(x) {
-            x %>% as.data.frame(stringsAsFactors=FALSE) %>%
-                setNames(c("estimate", "std.error", "statistic", "p.value")) %>%
-                tibble::rownames_to_column("term")
-        })
-        # p-values may or may not be included
-        # HACK: use the columns from the conditional component, preserving previous behaviour
-        if (conf.int) {
-            for (comp in component) {
-                cifix <- confint(x,method=tolower(conf.method),
-                                 component=comp,
-                                 estimate=FALSE,
-                                 ## conditional/zi components
-                                 ## include random-effect parameters
-                                 ## as well, don't want those right now ...
-                                 parm=seq(nrow(ret[[comp]])),...) %>%
-                    as.data.frame(stringsAsFactors=FALSE) %>%
-                    setNames(c("conf.low","conf.high"))
-                ret[[comp]] <- bind_cols(ret[[comp]],
-                                         cifix)
-            }
-        }
-        ret_list$fixed <- bind_rows(ret, .id="component")
-    }
-    if ("ran_pars" %in% effects &&
-        !all(sapply(VarCorr(x),is.null))) {
-        ## FIXME: do something sensible about standard errors, confint
-        
-        if (is.null(scales)) {
-            rscale <- "sdcor"
-        } else rscale <- scales[effects=="ran_pars"]
-        if (!rscale %in% c("sdcor","vcov"))
-            stop(sprintf("unrecognized ran_pars scale %s",sQuote(rscale)))
-        ## kluge for now ...
-        vv <- list()
-        if ("cond" %in% component){
-          vv$cond <- VarCorr(x)[["cond"]]
-          class(vv$cond) <- "VarCorr.merMod"
-        }
-        if ("zi" %in% component) {
-          if (!is.null(vv$zi <- VarCorr(x)[["zi"]])) {
-              class(vv$zi) <- "VarCorr.merMod"
-          }
-        }
-    
-        ret <- (
-            purrr::map(vv, as.data.frame, stringsAsFactors=FALSE)
-            %>% bind_rows(.id="component")
-            %>% mutate_if(., is.factor, as.character)
-        )
-        if (is.null(ran_prefix)) {
-            ran_prefix <- switch(rscale,
-                                 vcov=c("var","cov"),
-                                 sdcor=c("sd","cor"))
-        }
-        
-        ## DRY! refactor glmmTMB/lme4 tidiers
-        
-        ## don't try to assign as rowname (non-unique anyway),
-        ## make it directly into a term column
-        ret[["term"]] <- apply(ret[c("var1","var2")],1,
-                               ran_pars_name,
-                               ran_prefix=ran_prefix)
-
-        ## keep only desired term, rename
-        ## FIXME: should use select + tidyeval + rename ... ?
-        ret <- setNames(ret[c("component","grp","term",rscale)],
-                        c("component","group","term","estimate"))
-
-        ## rownames(ret) <- seq(nrow(ret))
-
-        if (conf.int) {
-            ciran <- (confint(x,parm="theta_",method=conf.method,
-                              estimate=FALSE,
-                              ...)
-                %>% as_tibble()
-                %>% setNames(c("conf.low","conf.high"))
-            )
-            ret <- bind_cols(ret,ciran)
-        }
-        ret_list$ran_pars <- ret
-    }
-    
-    if ("ran_vals" %in% effects) {
-        ## fix each group to be a tidy data frame
-
-        re <- ranef(x,condVar=TRUE)
-        getSE <- function(x) {
-            v <- attr(x,"postVar")
-            setNames(as.data.frame(sqrt(t(apply(v,3,diag))),
-                                   stringsAsFactors=FALSE),
-                     colnames(x))
-        }
-        fix <- function(g,re,.id) {
-             newg <- broom::fix_data_frame(g, newnames = colnames(g), newcol = "level")
-             # fix_data_frame doesn't create a new column if rownames are numeric,
-             # which doesn't suit our purposes
-             newg$level <- rownames(g)
-             newg$type <- "estimate"
-
-             newg.se <- getSE(re)
-             newg.se$level <- rownames(re)
-             newg.se$type <- "std.error"
-
-             data.frame(rbind(newg,newg.se),.id=.id,
-                        check.names=FALSE,
-                        stringsAsFactors=FALSE)
-                        ## prevent coercion of variable names
-        }
-
-        mm <- do.call(rbind,Map(fix,coef(x),re,names(re)))
-
-        ## block false-positive warnings due to NSE
-        type <- spread <- est <- NULL
-        mm %>% gather(term, estimate, -.id, -level, -type) %>%
-            spread(type,estimate) -> ret
-
-        ## FIXME: doesn't include uncertainty of population-level estimate
-
-        if (conf.int) {
-            if (conf.method != "Wald")
-                stop("only Wald CIs available for conditional modes")
-
-            mult <- qnorm((1+conf.level)/2)
-            ret <- transform(ret,
-                             conf.low=estimate-mult*std.error,
-                             conf.high=estimate+mult*std.error)
-        }
-
-        ret <- dplyr::rename(ret,grp=.id)
-        ret_list$ran_vals <- ret
-    }
-    ret <- (ret_list
-        %>% dplyr::bind_rows(.id="effect")
-        %>% as_tibble()
-        %>% reorder_cols()
+  }
+  if (length(miss <- setdiff(effects, effect_names)) > 0) {
+    stop("unknown effect type ", miss)
+  }
+  ret <- list()
+  ret_list <- list()
+  if ("fixed" %in% effects) {
+    # return tidied fixed effects rather than random
+    ret <- lapply(
+      ss,
+      function(x) {
+        x %>%
+          as.data.frame(stringsAsFactors = FALSE) %>%
+          setNames(c("estimate", "std.error", "statistic", "p.value")) %>%
+          tibble::rownames_to_column("term")
+      }
     )
-    return(ret)
+    # p-values may or may not be included
+    # HACK: use the columns from the conditional component, preserving previous behaviour
+    if (conf.int) {
+      for (comp in component) {
+        cifix <- confint(x,
+          method = tolower(conf.method),
+          component = comp,
+          estimate = FALSE,
+          ## conditional/zi components
+          ## include random-effect parameters
+          ## as well, don't want those right now ...
+          parm = seq(nrow(ret[[comp]])), ...
+        ) %>%
+          as.data.frame(stringsAsFactors = FALSE) %>%
+          setNames(c("conf.low", "conf.high"))
+        ret[[comp]] <- bind_cols(
+          ret[[comp]],
+          cifix
+        )
+      }
+    }
+    ret_list$fixed <- bind_rows(ret, .id = "component")
+  }
+  if ("ran_pars" %in% effects &&
+    !all(sapply(VarCorr(x), is.null))) {
+    ## FIXME: do something sensible about standard errors, confint
+
+    if (is.null(scales)) {
+      rscale <- "sdcor"
+    } else {
+      rscale <- scales[effects == "ran_pars"]
+    }
+    if (!rscale %in% c("sdcor", "vcov")) {
+      stop(sprintf("unrecognized ran_pars scale %s", sQuote(rscale)))
+    }
+    ## kluge for now ...
+    vv <- list()
+    if ("cond" %in% component) {
+      vv$cond <- VarCorr(x)[["cond"]]
+      class(vv$cond) <- "VarCorr.merMod"
+    }
+    if ("zi" %in% component) {
+      if (!is.null(vv$zi <- VarCorr(x)[["zi"]])) {
+        class(vv$zi) <- "VarCorr.merMod"
+      }
+    }
+
+    ret <- (
+      purrr::map(vv, as.data.frame, stringsAsFactors = FALSE)
+      %>%
+        bind_rows(.id = "component")
+        %>%
+        mutate_if(., is.factor, as.character)
+    )
+    if (is.null(ran_prefix)) {
+      ran_prefix <- switch(rscale,
+        vcov = c("var", "cov"),
+        sdcor = c("sd", "cor")
+      )
+    }
+
+    ## DRY! refactor glmmTMB/lme4 tidiers
+
+    ## don't try to assign as rowname (non-unique anyway),
+    ## make it directly into a term column
+    ret[["term"]] <- apply(ret[c("var1", "var2")], 1,
+      ran_pars_name,
+      ran_prefix = ran_prefix
+    )
+
+    ## keep only desired term, rename
+    ## FIXME: should use select + tidyeval + rename ... ?
+    ret <- setNames(
+      ret[c("component", "grp", "term", rscale)],
+      c("component", "group", "term", "estimate")
+    )
+
+    ## rownames(ret) <- seq(nrow(ret))
+
+    if (conf.int) {
+      ciran <- (confint(x,
+        parm = "theta_", method = conf.method,
+        estimate = FALSE,
+        ...
+      )
+      %>%
+        as_tibble()
+        %>%
+        setNames(c("conf.low", "conf.high"))
+      )
+      ret <- bind_cols(ret, ciran)
+    }
+    ret_list$ran_pars <- ret
+  }
+
+  if ("ran_vals" %in% effects) {
+    ## fix each group to be a tidy data frame
+
+    re <- ranef(x, condVar = TRUE)
+    getSE <- function(x) {
+      v <- attr(x, "postVar")
+      setNames(
+        as.data.frame(sqrt(t(apply(v, 3, diag))),
+          stringsAsFactors = FALSE
+        ),
+        colnames(x)
+      )
+    }
+    fix <- function(g, re, .id) {
+      newg <- broom::fix_data_frame(g, newnames = colnames(g), newcol = "level")
+      # fix_data_frame doesn't create a new column if rownames are numeric,
+      # which doesn't suit our purposes
+      newg$level <- rownames(g)
+      newg$type <- "estimate"
+
+      newg.se <- getSE(re)
+      newg.se$level <- rownames(re)
+      newg.se$type <- "std.error"
+
+      data.frame(rbind(newg, newg.se),
+        .id = .id,
+        check.names = FALSE,
+        stringsAsFactors = FALSE
+      )
+      ## prevent coercion of variable names
+    }
+
+    mm <- do.call(rbind, Map(fix, coef(x), re, names(re)))
+
+    ## block false-positive warnings due to NSE
+    type <- spread <- est <- NULL
+    mm %>%
+      gather(term, estimate, -.id, -level, -type) %>%
+      spread(type, estimate) -> ret
+
+    ## FIXME: doesn't include uncertainty of population-level estimate
+
+    if (conf.int) {
+      if (conf.method != "Wald") {
+        stop("only Wald CIs available for conditional modes")
+      }
+
+      mult <- qnorm((1 + conf.level) / 2)
+      ret <- transform(ret,
+        conf.low = estimate - mult * std.error,
+        conf.high = estimate + mult * std.error
+      )
+    }
+
+    ret <- dplyr::rename(ret, grp = .id)
+    ret_list$ran_vals <- ret
+  }
+  ret <- (ret_list
+  %>%
+    dplyr::bind_rows(.id = "effect")
+    %>%
+    as_tibble()
+    %>%
+    reorder_cols()
+  )
+  return(ret)
 }
 
 #' @rdname glmmTMB_tidiers
-#' 
+#'
 #' @template augment_NAs
 #'
 #' @param data original data this was fitted on; if not given this will
@@ -268,14 +302,13 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars","fixed"),
 #' @export
 augment.glmmTMB <- function(x, data = stats::model.frame(x), newdata,
                             ...) {
-    broom::augment_columns(x, data, newdata, ...)
-
+  broom::augment_columns(x, data, newdata, ...)
 }
 
 #' @rdname glmmTMB_tidiers
-#' 
+#'
 #' @param ... extra arguments (not used)
-#' 
+#'
 #' @return \code{glance} returns one row with the columns
 #'   \item{sigma}{the square root of the estimated residual variance}
 #'   \item{logLik}{the data's log-likelihood under the model}
@@ -286,5 +319,5 @@ augment.glmmTMB <- function(x, data = stats::model.frame(x), newdata,
 #' @rawNamespace if(getRversion()>='3.3.0') importFrom(stats, sigma) else importFrom(lme4,sigma)
 #' @export
 glance.glmmTMB <- function(x, ...) {
-    finish_glance(x=x)
+  finish_glance(x = x)
 }

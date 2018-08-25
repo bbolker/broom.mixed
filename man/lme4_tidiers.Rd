@@ -121,7 +121,7 @@ if (require("lme4")) {
     }
     head(augment(lmm1, sleepstudy))
     glance(lmm1)
-    
+
     glmm1 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
                   data = cbpp, family = binomial)
     tidy(glmm1)
@@ -129,7 +129,7 @@ if (require("lme4")) {
     tidy(glmm1, effects = "fixed")
     head(augment(glmm1, cbpp))
     glance(glmm1)
-    
+
     startvec <- c(Asym = 200, xmid = 725, scal = 350)
     nm1 <- nlmer(circumference ~ SSlogis(age, Asym, xmid, scal) ~ Asym|Tree,
                   Orange, start = startvec)
@@ -143,7 +143,7 @@ if (require("lmerTest")) {
    lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
    tidy(lmm1)
    glance(lmm1)
-   detach("package:lmerTest")  # clean up 
+   detach("package:lmerTest")  # clean up
 }
 }
 \seealso{

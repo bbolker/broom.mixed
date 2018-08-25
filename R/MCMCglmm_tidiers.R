@@ -37,7 +37,7 @@ paramNamesMCMCglmm <- function(object, ...) {
   }
 
   if ("(Intercept)" %in% colnames(object[["Sol"]])) {
-      fNames <- c("(Intercept)", fNames)
+    fNames <- c("(Intercept)", fNames)
   }
 
   list(fixed = fNames, random = rNames)
@@ -86,8 +86,7 @@ ranefLevels <- function(object, data, ...) {
 #' @seealso \code{\link{fixef.MCMCglmm}}, \code{\link{ranef.MCMCglmm}}
 #' @rdname extractEffects
 .extractEffects <- function(object, use = c("all", "mean"),
-  which = c("fixed", "random"), ...) {
-
+                            which = c("fixed", "random"), ...) {
   use <- match.arg(use)
   which <- match.arg(which)
 
@@ -99,9 +98,9 @@ ranefLevels <- function(object, data, ...) {
       # special characters (), that screw with the regular expressions
       # cannot use fixed matching because factor variables can
       # expand with arbitrarily named levels
-      #unlist(lapply(paramNamesMCMCglmm(object)$fixed, function(n) {
+      # unlist(lapply(paramNamesMCMCglmm(object)$fixed, function(n) {
       #  grep(paste0("^", n, ".*$"), colnames(b), value = TRUE)
-      #}))
+      # }))
       object$X@Dimnames[[2]]
     },
     random = {
@@ -111,11 +110,12 @@ ranefLevels <- function(object, data, ...) {
     }
   )
 
-  b <- b[, eff, drop=FALSE]
+  b <- b[, eff, drop = FALSE]
 
   switch(use,
     all = t(b),
-    mean = as.matrix(colMeans(b)))
+    mean = as.matrix(colMeans(b))
+  )
 }
 
 #' Extract fixed effects from an \code{MCMCglmm} object
@@ -293,7 +293,8 @@ stdranef <- function(object, which, type = c("lp", "response"), ...) {
         predict2.MCMCglmm(object, X = NULL, Z = tmp, use = "all", type = type)
       })
       lapply(yhat, function(m) sapply(m, function(n) apply(n, 1, sd)))
-    })
+    }
+  )
 
   names(res) <- which
 
@@ -316,83 +317,96 @@ stdranef <- function(object, which, type = c("lp", "response"), ...) {
 ##' tail(tidy(mm0,effects="ran_vals"))
 ##' }
 ##' @export
-tidy.MCMCglmm <- function(x,effects=c("fixed","ran_pars"),
+tidy.MCMCglmm <- function(x, effects = c("fixed", "ran_pars"),
                           scales = NULL, ## c("sdcor","vcov",NA),
                           ...) {
-    ## FIXME: allow scales= parameter to get varcov on sd/corr scale?
-    clist <- c(fixed="Sol",ran_pars="VCV",ran_vals="Sol")
-    comp <- clist[effects]
-    if (!is.null(scales)) {
-        if (length(scales) != length(effects)) {
-            stop("if scales are specified, values (or NA) must be provided ",
-                 "for each effect")
-        }
+  ## FIXME: allow scales= parameter to get varcov on sd/corr scale?
+  clist <- c(fixed = "Sol", ran_pars = "VCV", ran_vals = "Sol")
+  comp <- clist[effects]
+  if (!is.null(scales)) {
+    if (length(scales) != length(effects)) {
+      stop(
+        "if scales are specified, values (or NA) must be provided ",
+        "for each effect"
+      )
     }
+  }
 
-    ## FIXME: override MCMCglmm internal component names
-    ## FIXME:: have to work harder to retrieve group/term information
-    ##  about random parameters
-    ## individual components are mcmc objects: call tidy on them
-    retList <- (purrr::map(x[comp],tidy,...)
-        %>% setNames(effects))
-    fnames <- paramNamesMCMCglmm(x)$fixed
+  ## FIXME: override MCMCglmm internal component names
+  ## FIXME:: have to work harder to retrieve group/term information
+  ##  about random parameters
+  ## individual components are mcmc objects: call tidy on them
+  retList <- (purrr::map(x[comp], tidy, ...)
+  %>%
+    setNames(effects))
+  fnames <- paramNamesMCMCglmm(x)$fixed
 
-    if ("fixed" %in% effects) {
-        retList$fixed <- filter(retList$fixed, term %in% fnames)
+  if ("fixed" %in% effects) {
+    retList$fixed <- filter(retList$fixed, term %in% fnames)
+  }
+  if ("ran_vals" %in% effects) {
+    retList$ran_vals <- filter(retList$ran_vals, !(term %in% fnames))
+    if (nrow(retList$ran_vals) == 0) {
+      stop("for tidying random effects values, must run MCMglmm with pr=TRUE")
     }
-    if ("ran_vals" %in% effects) {
-        retList$ran_vals <- filter(retList$ran_vals, !(term %in% fnames))
-        if (nrow(retList$ran_vals)==0) {
-            stop("for tidying random effects values, must run MCMglmm with pr=TRUE")
-        }
-        ss <- strsplit(retList$ran_vals$term,"\\.")
-        retList$ran_vals$level <- sapply(ss,utils::tail,1)
-        retList$ran_vals$group <- sapply(ss,function(x) x[length(x)-1])
-        retList$ran_vals$term <- sapply(ss,
-                function(x) if (length(x)==3) x[1] else "(Intercept)")
-
-    }
-
-    if ("ran_pars" %in% effects) {
-        ss <- strsplit(retList$ran_pars$term,"(:|\\.)")
-        if (any(sapply(ss,length)>4)) {
-            warning("surprising term names: models with variable names containing colons or dots may work unreliably")
-        }
-        ss2 <- lapply(ss,
-                      function(x) {
-            if (x[1]=="units") return(c(rep("Observation",2),"Residual"))
-            if (length(x)==1) return(c(rep("(Intercept)",2),x[1]))
-            ## reconstruct variance term if necessary
-            if (length(x)==2) return(c(rep(x[1],2),x[2]))
-            return(c(sort(x[1:2]),x[3]))
-        })
-        ok <- !duplicated(ss2)
-        ss2 <- ss2[ok]
-        if (is.null(scales)) {
-            rscale <- "vcov"
-        } else rscale <- scales[effects=="ran_pars"]
-        if (!rscale %in% c("sdcor","vcov"))
-            stop(sprintf("unrecognized ran_pars scale %s",sQuote(rscale)))
-        if (rscale != "vcov") {
-            stop("only vcov scale implemented")
-            ## ugh: to implement sdcor we have to go back to the samples
-            ## and convert them ...
-        }
-        pref <- sapply(ss2,function(x) ifelse(x[1]==x[2],"var","cov"))
-        group <- sapply(ss2,function(x) x[[3]])
-        term <- paste(pref,
-                      sapply(ss2, function(x) {
-                          ifelse(x[1]==x[2],x[1],
-                                 paste(x[1:2],collapse="."))
-                      }),
-                      sep=getOption("broom.mixed.sep1"))
-        retList$ran_pars <- retList$ran_pars[ok,]
-        retList$ran_pars$term <- term
-        retList$ran_pars$group <-group
-    }
-    ret <- (retList
-        %>% bind_rows(.id="effect")
-        %>% reorder_cols()
+    ss <- strsplit(retList$ran_vals$term, "\\.")
+    retList$ran_vals$level <- sapply(ss, utils::tail, 1)
+    retList$ran_vals$group <- sapply(ss, function(x) x[length(x) - 1])
+    retList$ran_vals$term <- sapply(
+      ss,
+      function(x) if (length(x) == 3) x[1] else "(Intercept)"
     )
-    return(ret)
+  }
+
+  if ("ran_pars" %in% effects) {
+    ss <- strsplit(retList$ran_pars$term, "(:|\\.)")
+    if (any(sapply(ss, length) > 4)) {
+      warning("surprising term names: models with variable names containing colons or dots may work unreliably")
+    }
+    ss2 <- lapply(
+      ss,
+      function(x) {
+        if (x[1] == "units") return(c(rep("Observation", 2), "Residual"))
+        if (length(x) == 1) return(c(rep("(Intercept)", 2), x[1]))
+        ## reconstruct variance term if necessary
+        if (length(x) == 2) return(c(rep(x[1], 2), x[2]))
+        return(c(sort(x[1:2]), x[3]))
+      }
+    )
+    ok <- !duplicated(ss2)
+    ss2 <- ss2[ok]
+    if (is.null(scales)) {
+      rscale <- "vcov"
+    } else {
+      rscale <- scales[effects == "ran_pars"]
+    }
+    if (!rscale %in% c("sdcor", "vcov")) {
+      stop(sprintf("unrecognized ran_pars scale %s", sQuote(rscale)))
+    }
+    if (rscale != "vcov") {
+      stop("only vcov scale implemented")
+      ## ugh: to implement sdcor we have to go back to the samples
+      ## and convert them ...
+    }
+    pref <- sapply(ss2, function(x) ifelse(x[1] == x[2], "var", "cov"))
+    group <- sapply(ss2, function(x) x[[3]])
+    term <- paste(pref,
+      sapply(ss2, function(x) {
+        ifelse(x[1] == x[2], x[1],
+          paste(x[1:2], collapse = ".")
+        )
+      }),
+      sep = getOption("broom.mixed.sep1")
+    )
+    retList$ran_pars <- retList$ran_pars[ok, ]
+    retList$ran_pars$term <- term
+    retList$ran_pars$group <- group
+  }
+  ret <- (retList
+  %>%
+    bind_rows(.id = "effect")
+    %>%
+    reorder_cols()
+  )
+  return(ret)
 }

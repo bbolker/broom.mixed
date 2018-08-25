@@ -80,7 +80,7 @@
 #' @importFrom coda mcmc
 #' @importFrom nlme fixef ranef
 predict2.MCMCglmm <- function(object, X, Z, use = c("all", "mean"),
-  type = c("lp", "response"), ...) {
+                              type = c("lp", "response"), ...) {
   use <- match.arg(use)
   type <- match.arg(type)
 
@@ -101,12 +101,13 @@ predict2.MCMCglmm <- function(object, X, Z, use = c("all", "mean"),
   u <- ranef(object, use = use)
 
   if (!is.null(X)) Xb <- X %*% b
-  if (!is.null(Z)) Zu <-  Z %*% u
+  if (!is.null(Z)) Zu <- Z %*% u
 
   res <- t(as.matrix(Xb + Zu))
 
   dimnames(res) <- list(switch(use,
-    all = paste0("Rep.", 1:nrow(res)), mean = NULL), NULL)
+    all = paste0("Rep.", 1:nrow(res)), mean = NULL
+  ), NULL)
 
   if (type == "response") {
     if (all(object$family %in% c("ordinal"))) {
@@ -139,7 +140,7 @@ predict2.MCMCglmm <- function(object, X, Z, use = c("all", "mean"),
     } else if (all(object$family %in% c("categorical", "multinomial"))) {
 
       # stopifnot(length(unique(object$error.term)) == 1)
-      k <- ((16*sqrt(3))/(15*pi))^2  # this should be the scaling constant for logit
+      k <- ((16 * sqrt(3)) / (15 * pi))^2 # this should be the scaling constant for logit
       stddev <- sqrt(object$error.term + k) # check that this is right error
       q <- plogis(res)
       class(q) <- c("MCMCglmmPredictedProbs")

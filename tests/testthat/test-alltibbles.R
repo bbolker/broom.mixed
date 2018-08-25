@@ -17,31 +17,33 @@ ex <- list.files(system.file("extdata", package = "broom.mixed"),
 ## test tidy, augment, glance methods from lme4-tidiers.R
 
 for (e in ex) {
-  p <- stringr::str_extract(e, "^[^_]+")
-  f <- system.file("extdata", e, package = "broom.mixed")
-  ## cat(f,"\n")
-  fn <- stringr::str_extract(f, "[^/]+$")
-  cat(fn, "\n")
-  if (grepl("\\.rds", e)) {
-    x <- list()
-    x[[1]] <- readRDS(f)
-  } else {
-    ## rda file
-    L <- load(f)
-    x <- mget(setdiff(L, skip_list[[fn]]))
-  }
-  for (z in x) {
-    testf <- function(fn_str, obj) {
-      cc <- class(obj)[1]
-      if (sum(grepl(cc, methods(fn_str))) > 0) {
-        cat(sprintf("found method %s for %s\n", fn_str, cc))
-        return(expect_is(get(fn_str)(obj), "tbl_df"))
-      } else {
-        return(TRUE)
-      }
-    }
-    testf("glance", z)
-    testf("augment", z)
-    testf("tidy", z)
-  }
+    p <- stringr::str_extract(e, "^[^_]+")
+    if (require(p,character.only=TRUE)) {
+        f <- system.file("extdata", e, package = "broom.mixed")
+        ## cat(f,"\n")
+        fn <- stringr::str_extract(f, "[^/]+$")
+        cat(fn, "\n")
+        if (grepl("\\.rds", e)) {
+            x <- list()
+            x[[1]] <- readRDS(f)
+        } else {
+            ## rda file
+            L <- load(f)
+            x <- mget(setdiff(L, skip_list[[fn]]))
+        }
+        for (z in x) {
+            testf <- function(fn_str, obj) {
+                cc <- class(obj)[1]
+                if (sum(grepl(cc, methods(fn_str))) > 0) {
+                    cat(sprintf("found method %s for %s\n", fn_str, cc))
+                    return(expect_is(get(fn_str)(obj), "tbl_df"))
+                } else {
+                    return(TRUE)
+                }
+            }
+            testf("glance", z)
+            testf("augment", z)
+            testf("tidy", z)
+        } ## loop over objects
+    } ## if package available
 }

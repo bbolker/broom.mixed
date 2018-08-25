@@ -4,7 +4,8 @@ if (sub(".*/", "", getwd()) != "broom.mixed") {
 }
 
 ## FIXME: should disaggregate/implement a Makefile!
-run_brms <- FALSE ## slow, only do if necessary
+## slow stuff, disable for speed
+run_brms <- FALSE
 run_stan <- FALSE
 
 save_file <- function(..., pkg, type = "rda") {
@@ -121,7 +122,7 @@ run_pkg("MCMCglmm", {
 run_pkg("rstanarm", {
   fit <- stan_glmer(mpg ~ wt + (1 | cyl) + (1 + wt | gear),
     data = mtcars,
-    iter = 300, chains = 2
+    iter = 100, chains = 2
   )
   save_file(fit, pkg = pkg, type = "rds")
 })
@@ -131,7 +132,7 @@ if (run_brms) {
   run_pkg("brms", {
     fit <- brm(mpg ~ wt + (1 | cyl) + (1 + wt | gear),
       data = mtcars,
-      iter = 500, chains = 2,
+      iter = 100, chains = 2,
       ## ugh: compiled object gets stored as part of fitted
       ##  object - not cached. So it just blows up the
       ##  size of the fitted object, doesn't speed things

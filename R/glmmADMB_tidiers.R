@@ -9,7 +9,7 @@
 #' The structure depends on the method chosen.
 #'
 #' @name glmmadmb_tidiers
-#' @alias glmmADMB_tidiers
+#' @aliases glmmADMB_tidiers
 #'
 #' @examples
 #'

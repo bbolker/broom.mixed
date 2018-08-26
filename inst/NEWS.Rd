@@ -7,7 +7,7 @@
 \section{CHANGES IN VERSION 0.2.0}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item more consistent term names in \code{brmsfit} tidiers
+      \item more consistent term names in \code{brmsfit}, \code{rstanreg} tidiers
       \item improved \code{tidy.MCMCglmm}
     }
   }

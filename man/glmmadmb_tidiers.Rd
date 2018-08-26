@@ -2,6 +2,7 @@
 % Please edit documentation in R/glmmADMB_tidiers.R
 \name{glmmadmb_tidiers}
 \alias{glmmadmb_tidiers}
+\alias{glmmADMB_tidiers}
 \alias{tidy.glmmadmb}
 \alias{augment.glmmadmb}
 \alias{glance.glmmadmb}

@@ -3,32 +3,13 @@ if (sub(".*/", "", getwd()) != "broom.mixed") {
   stop("should run from package root directory")
 }
 
+source(system.file("extdata","example_helpers.R",package="broom.mixed"))
+
 ## FIXME: should disaggregate/implement a Makefile!
 ## slow stuff, disable for speed
-run_brms <- FALSE
-run_stan <- FALSE
+run_brms <- TRUE
+run_stan <- TRUE
 
-save_file <- function(..., pkg, type = "rda") {
-  f <- file.path("inst", "extdata", sprintf("%s_example.%s", pkg, type))
-  if (type == "rda") {
-    save(..., file = f)
-  } else {
-    saveRDS(..., file = f)
-  }
-  invisible(NULL)
-}
-
-pkg <- NULL
-run_pkg <- function(pkg, e) {
-  pkg <<- pkg
-  if (require(pkg, character.only = TRUE)) {
-    eval(e)
-    return(TRUE)
-  } else {
-    cat(sprintf("%s examples not run\n", pkg))
-    return(FALSE)
-  }
-}
 
 run_pkg("nlme", {
   data(sleepstudy, package = "lme4")
@@ -67,6 +48,7 @@ if (run_stan) {
       file = model_file, data = schools_dat,
       iter = 1000, chains = 2, save_dso = FALSE
     )
+    rstan_example <- hack_size(rstan_example)
     save_file(rstan_example, pkg = pkg, type = "rds")
   })
 }
@@ -124,7 +106,7 @@ run_pkg("rstanarm", {
     data = mtcars,
     iter = 100, chains = 2
   )
-  save_file(fit, pkg = pkg, type = "rds")
+  save_file(hack_size(fit), pkg = pkg, type = "rds")
 })
 
 
@@ -139,6 +121,6 @@ if (run_brms) {
       ##  up when re-running this code ...
       save_dso = FALSE
     )
-    save_file(fit, pkg = pkg, type = "rds")
+    save_file(hack_size(fit), pkg = pkg, type = "rds")
   })
 }

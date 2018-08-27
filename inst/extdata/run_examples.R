@@ -6,9 +6,10 @@ if (sub(".*/", "", getwd()) != "broom.mixed") {
 source(system.file("extdata","example_helpers.R",package="broom.mixed"))
 
 ## FIXME: should disaggregate/implement a Makefile!
+## environment variable, command-line arguments to R script?
 ## slow stuff, disable for speed
-run_brms <- TRUE
-run_stan <- TRUE
+run_brms <- FALSE
+run_stan <- FALSE
 
 
 run_pkg("nlme", {
@@ -80,8 +81,9 @@ run_pkg("glmmADMB", {
 run_pkg("MCMCglmm", {
   data("sleepstudy", package = "lme4")
   mm0 <- MCMCglmm(Reaction ~ Days,
-    random = ~Subject, data = sleepstudy,
-    pr = TRUE
+                  random = ~Subject, data = sleepstudy,
+                  nitt=4000,
+                  pr = TRUE
   )
   mm1 <- MCMCglmm(Reaction ~ Days,
     random = ~us(1 + Days):Subject,
@@ -92,7 +94,8 @@ run_pkg("MCMCglmm", {
       nu = 2, V = diag(2),
       alpha.mu = rep(0, 2),
       alpha.V = diag(rep(4, 2))
-    ))),
+      ))),
+    nitt=4000,
     data = sleepstudy, pr = TRUE
   )
   mm2 <- MCMCglmm(Reaction ~ Days, random = ~idh(1 + Days):Subject, data = sleepstudy, pr = TRUE)

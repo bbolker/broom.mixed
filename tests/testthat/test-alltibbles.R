@@ -1,3 +1,4 @@
+verbose <- FALSE
 stopifnot(
   require("testthat"), require("broom.mixed"), require("stringr"),
   require("lme4"), require("glmmTMB")
@@ -20,9 +21,8 @@ for (e in ex) {
     p <- stringr::str_extract(e, "^[^_]+")
     if (require(p,character.only=TRUE)) {
         f <- system.file("extdata", e, package = "broom.mixed")
-        ## cat(f,"\n")
         fn <- stringr::str_extract(f, "[^/]+$")
-        cat(fn, "\n")
+        if (verbose) cat(fn, "\n")
         if (grepl("\\.rds", e)) {
             x <- list()
             x[[1]] <- readRDS(f)
@@ -35,7 +35,7 @@ for (e in ex) {
             testf <- function(fn_str, obj) {
                 cc <- class(obj)[1]
                 if (sum(grepl(cc, methods(fn_str))) > 0) {
-                    cat(sprintf("found method %s for %s\n", fn_str, cc))
+                    if (verbose) cat(sprintf("found method %s for %s\n", fn_str, cc))
                     return(expect_is(get(fn_str)(obj), "tbl_df"))
                 } else {
                     return(TRUE)

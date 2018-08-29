@@ -141,7 +141,6 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
   if (length(miss <- setdiff(effects, effect_names)) > 0) {
     stop("unknown effect type ", miss)
   }
-  base_nn <- c("estimate", "std.error", "statistic", "p.value")
 
   ret_list <- list()
   if ("fixed" %in% effects) {
@@ -160,10 +159,6 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
       print(coef(ss))
     }
 
-
-    # p-values may or may not be included
-    nn <- base_nn[1:ncol(ret)]
-
     if (conf.int && conf.method == "profile" && !is.null(profile)) {
       p <- profile
     } else {
@@ -172,7 +167,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
 
     ## need to save rownames before dplyr (mutate(), bind_cols())
     ##   destroys them ...
-    ret <- ret %>% tibble::rownames_to_column("term")
+    ret <- tibblify(ret)
 
     if (conf.int) {
       if (is(x, "merMod") || is(x, "rlmerMod")) {
@@ -182,7 +177,6 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
         cifix <- cifun(p, ...)
       }
       ret <- dplyr::bind_cols(ret, cifix)
-      nn <- c(nn, "conf.low", "conf.high")
     }
     ran_effs <- sprintf("ran_%s", c("pars", "modes", "coefs"))
 

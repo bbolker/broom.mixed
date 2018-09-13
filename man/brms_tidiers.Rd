@@ -96,11 +96,14 @@ a Bayesian setting where "fixed" and "random" effects are not well-defined,
 are used for compatibility with other (frequentist) mixed model types.
 }
 \examples{
- ## library(brms)
- ## fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
- ##           iter = 500, chains = 2)
- fit <- readRDS(system.file("extdata","brms_example.rds",package="broom.mixed"))
- if (require("broom")) {
+ ## original model
+ \dontrun{
+    fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
+           iter = 500, chains = 2)
+ }
+ ## load stored object
+ fit <- readRDS(system.file("extdata", "brms_example.rds", package="broom.mixed"))
+ if (require("brms")) {
    tidy(fit)
    tidy(fit, parameters = "^sd_", conf.int = FALSE)
    tidy(fit, effects = "fixed")
@@ -110,11 +113,11 @@ are used for compatibility with other (frequentist) mixed model types.
 }
 
 # glance method
-   glance(fit)
-  \dontrun{
-     glance(fit, looic = TRUE, cores = 1)
-  }
-
+glance(fit)
+## this example will give a warning that it should be run with
+## reloo=TRUE; however, doing this will fail
+## because the \\code{fit} object has been stripped down to save space
+suppressWarnings(glance(fit, looic = TRUE, cores = 1))
 head(augment(fit))
 }
 \seealso{

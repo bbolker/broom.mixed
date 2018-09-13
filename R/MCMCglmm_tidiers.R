@@ -309,12 +309,21 @@ stdranef <- function(object, which, type = c("lp", "response"), ...) {
 ##' @rdname mcmc_tidiers
 ##' @examples
 ##' if (require("MCMCglmm")) {
+##'   ## original model
+##'   \dontrun{
+##'       mm0 <- MCMCglmm(Reaction ~ Days,
+##'                  random = ~Subject, data = sleepstudy,
+##'                  nitt=4000,
+##'                  pr = TRUE
+##'              )
+##'    }
+##'    ## load stored object
 ##'    load(system.file("extdata","MCMCglmm_example.rda",
 ##'                                      package="broom.mixed"))
-##' tidy(mm0)
-##' tidy(mm1)
-##' tidy(mm2)
-##' tail(tidy(mm0,effects="ran_vals"))
+##'    tidy(mm0)
+##'    tidy(mm1)
+##'    tidy(mm2)
+##'    tail(tidy(mm0,effects="ran_vals"))
 ##' }
 ##' @export
 tidy.MCMCglmm <- function(x, effects = c("fixed", "ran_pars"),

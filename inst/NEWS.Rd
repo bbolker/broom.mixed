@@ -4,12 +4,16 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
+\section{CHANGES IN VERSION 0.2.2}{
+  \itemize{
+    \item modify examples, for CRAN compliance
+  }
+}
 \section{CHANGES IN VERSION 0.2.1}{
   \itemize{
     \item reduced size of stored fits for examples, for CRAN compliance
   }
 }
-
 \section{CHANGES IN VERSION 0.2.0}{
   \subsection{NEW FEATURES}{
     \itemize{

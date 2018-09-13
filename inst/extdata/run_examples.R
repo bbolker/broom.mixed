@@ -101,11 +101,20 @@ run_pkg("MCMCglmm", {
   save_file(mm0, mm1, mm2, pkg = pkg, type = "rda")
 })
 
-run_pkg("TMB", {
-     runExample("simple",thisR=TRUE)
-     class(obj) <- "TMB"
-     save_file(obj, pkg=pkg, type="rds")
-})
+if (FALSE) {
+    ## skip for now.
+    ## FIXME:
+    ## (1) retrieving stored TMB objects doesn't seem to work
+    ##  > Error in .Call("getParameterOrder", data, parameters, new.env(), PACKAGE = DLL) : 
+    ## > "getParameterOrder" not available for .Call() for package "simple"
+    ## (2) if there's a stored object we expect to be able to augment/glance it
+    ##  (in test-alltibbles.R)
+    run_pkg("TMB", {
+        runExample("simple",thisR=TRUE)
+        class(obj) <- "TMB"
+        save_file(obj, pkg=pkg, type="rds")
+    })
+}
 
 ## slowest stuff last
 

@@ -7,14 +7,17 @@
 ##' @param conf.method method for computing confidence intervals
 ##' @importFrom TMB sdreport
 ##' @importFrom glmmTMB tmbroot
+## FIXME: retrieving stored objects doesn't work well ...
 ##' @examples
-##' \dontrun{
-##' runExample("simple",thisR=TRUE)
-##' class(obj) <- "TMB"
-##' tidy(obj,conf.int=TRUE,conf.method="wald")
-##' tidy(obj,conf.int=TRUE,conf.method="uniroot")
+##' if (require("TMB")) {
+##'     runExample("simple",thisR=TRUE)
+##'     class(obj) <- "TMB"
+##'     tidy(obj,conf.int=TRUE,conf.method="wald")
+##'     tidy(obj,conf.int=TRUE,conf.method="uniroot")
 ##' }
 ##' @export
+
+
 tidy.TMB <- function(x, effect = c("fixed", "random"),
                      conf.int = FALSE,
                      conf.level = 0.95,

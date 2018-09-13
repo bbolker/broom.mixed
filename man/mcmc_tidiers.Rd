@@ -66,12 +66,21 @@ Tidying methods for MCMC (Stan, JAGS, etc.) fits
 }
 \examples{
 if (require("MCMCglmm")) {
+  ## original model
+  \dontrun{
+      mm0 <- MCMCglmm(Reaction ~ Days,
+                 random = ~Subject, data = sleepstudy,
+                 nitt=4000,
+                 pr = TRUE
+             )
+   }
+   ## load stored object
    load(system.file("extdata","MCMCglmm_example.rda",
                                      package="broom.mixed"))
-tidy(mm0)
-tidy(mm1)
-tidy(mm2)
-tail(tidy(mm0,effects="ran_vals"))
+   tidy(mm0)
+   tidy(mm1)
+   tidy(mm2)
+   tail(tidy(mm0,effects="ran_vals"))
 }
 
 # Using example from "RStan Getting Started"
@@ -81,20 +90,20 @@ model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
 schools_dat <- list(J = 8,
                     y = c(28,  8, -3,  7, -1,  1, 18, 12),
                     sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
+## original model
 \dontrun{
-  if (require(rstan)) {
-      set.seed(2015)
-      rstan_example <- rstan::stan(file = model_file, data = schools_dat,
+    set.seed(2015)
+    rstan_example <- rstan::stan(file = model_file, data = schools_dat,
                          iter = 1000, chains = 2, save_dso = FALSE)
-     }
 }
-rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
-tidy(rstan_example)
-tidy(rstan_example, conf.int = TRUE, pars = "theta")
-
-td_mean <- tidy(rstan_example, conf.int = TRUE)
-td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
-
+if (require(rstan)) {
+   ## load stored object
+   rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
+   tidy(rstan_example)
+   tidy(rstan_example, conf.int = TRUE, pars = "theta")
+   td_mean <- tidy(rstan_example, conf.int = TRUE)
+   td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
+}
 if (require(dplyr) && require(ggplot2)) {
     tds <- rbind(mutate(td_mean, method = "mean"),
              mutate(td_median, method = "median")) \%>\%

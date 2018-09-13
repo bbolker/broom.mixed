@@ -1,7 +1,7 @@
 Package: broom.mixed
 Type: Package
 Title: Tidying Methods for Mixed Models
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(
     person("Ben", "Bolker", email = "bolker@mcmaster.ca", role = c("aut", "cre")),
     person("David", "Robinson", email = "admiral.david@gmail.com", role = "aut"),
@@ -17,9 +17,9 @@ Maintainer: Ben Bolker <bolker@mcmaster.ca>
 Description: Convert fitted objects from various R mixed-model packages
     into tidy data frames along the lines of the 'broom' package.
     The package provides three
-    S3 generics for each model: 'tidy', which summarizes a model's statistical findings such as
-    coefficients of a regression; 'augment', which adds columns to the original
-    data such as predictions, residuals and cluster assignments; and 'glance', which
+    S3 generics for each model: tidy(), which summarizes a model's statistical findings such as
+    coefficients of a regression; augment(), which adds columns to the original
+    data such as predictions, residuals and cluster assignments; and glance(), which
     provides a one-row summary of model-level statistics.
 Depends: R (>= 3.5.0)
 Imports:

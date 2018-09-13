@@ -91,9 +91,13 @@ warning is raised and the incomplete rows are dropped.
 \examples{
 
 if (require("glmmADMB") && require("lme4")) {
-    # example regressions are from lme4 documentation
-    ## lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
-    ##           family="gaussian")
+    ## original model
+    \dontrun{
+        data("sleepstudy", package="lme4")
+        lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
+                         family="gaussian")
+    }
+    ## load stored object
     load(system.file("extdata","glmmADMB_example.rda",package="broom.mixed"))
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, effects = "fixed", conf.int=TRUE)

@@ -13,23 +13,23 @@
 #'
 #' @examples
 #' if (require("glmmTMB") && require("lme4")) {
-#'
-#'     # example regressions are from lme4 documentation
-#'     ## lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+#'     data("sleepstudy",package="lme4")
+#'     ## original model:
+#'     \dontrun{
+#'         lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+#'     }
+#'     ## load stored object
 #'     load(system.file("extdata","glmmTMB_example.rda",package="broom.mixed"))
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)
-#'     \dontrun{
-#'        ## FIXME: fails on stored model fit?
-#'        tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="uniroot")
-#'     }
-#'     ## tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
-#'     data("sleepstudy",package="lme4")
+#'     tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="uniroot")
+#'     ## FIX: tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)
 #'
-#'     ## glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
+#'     ## original model:
+#'     ##  glmm1 <- glmmTMB(incidence/size ~ period + (1 | herd),
 #'     ##                  data = cbpp, family = binomial, weights=size)
 #'     tidy(glmm1)
 #'     tidy(glmm1, effects = "fixed")

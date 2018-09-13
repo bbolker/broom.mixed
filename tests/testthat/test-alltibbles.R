@@ -4,7 +4,7 @@ stopifnot(
   require("lme4"), require("glmmTMB")
 )
 
-## examples to SKIP
+## objects to SKIP (from RDA files)
 skip_list <- list(nlme_example.rda = c("lmm2"))
 
 ## need data available for augment() methods ...

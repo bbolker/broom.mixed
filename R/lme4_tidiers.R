@@ -14,10 +14,12 @@
 #' @examples
 #'
 #' if (require("lme4")) {
-#'     # example regressions are from lme4 documentation
-#'     ##  lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
-#'     load(system.file("extdata","lme4_example.rda",
-#'                                      package="broom.mixed"))
+#'     ## original model
+#'     \dontrun{
+#'         lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+#'     }
+#'     ## load stored object
+#'     load(system.file("extdata", "lme4_example.rda", package="broom.mixed"))
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)

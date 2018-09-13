@@ -31,20 +31,20 @@
 #' schools_dat <- list(J = 8,
 #'                     y = c(28,  8, -3,  7, -1,  1, 18, 12),
 #'                     sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
+#' ## original model
 #' \dontrun{
-#'   if (require(rstan)) {
-#'       set.seed(2015)
-#'       rstan_example <- rstan::stan(file = model_file, data = schools_dat,
+#'     set.seed(2015)
+#'     rstan_example <- rstan::stan(file = model_file, data = schools_dat,
 #'                          iter = 1000, chains = 2, save_dso = FALSE)
-#'      }
 #' }
-#' rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
-#' tidy(rstan_example)
-#' tidy(rstan_example, conf.int = TRUE, pars = "theta")
-#'
-#' td_mean <- tidy(rstan_example, conf.int = TRUE)
-#' td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
-#'
+#' if (require(rstan)) {
+#'    ## load stored object
+#'    rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
+#'    tidy(rstan_example)
+#'    tidy(rstan_example, conf.int = TRUE, pars = "theta")
+#'    td_mean <- tidy(rstan_example, conf.int = TRUE)
+#'    td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
+#' }
 #' if (require(dplyr) && require(ggplot2)) {
 #'     tds <- rbind(mutate(td_mean, method = "mean"),
 #'              mutate(td_median, method = "median")) %>%

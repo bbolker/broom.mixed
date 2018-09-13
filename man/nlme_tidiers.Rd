@@ -89,10 +89,12 @@ warning is raised and the incomplete rows are dropped.
 \examples{
 
 if (require("nlme") && require("lme4")) {
-    # example regressions are from lme4 documentation
+    data("sleepstudy", package="lme4")
+    ## original model
     \dontrun{
-        lmm1 <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
+         lmm1 <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
     }
+    ## load stored object
     load(system.file("extdata","nlme_example.rda", package="broom.mixed"))
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")

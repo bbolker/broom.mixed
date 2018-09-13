@@ -14,11 +14,14 @@
 #' @param x Fitted model object from the \pkg{brms} package. See
 #'   \code{\link[brms]{brmsfit-class}}.
 #' @examples
-#'  ## library(brms)
-#'  ## fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
-#'  ##           iter = 500, chains = 2)
-#'  fit <- readRDS(system.file("extdata","brms_example.rds",package="broom.mixed"))
-#'  if (require("broom")) {
+#'  ## original model
+#'  \dontrun{
+#'     fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
+#'            iter = 500, chains = 2)
+#'  }
+#'  ## load stored object
+#'  fit <- readRDS(system.file("extdata", "brms_example.rds", package="broom.mixed"))
+#'  if (require("brms")) {
 #'    tidy(fit)
 #'    tidy(fit, parameters = "^sd_", conf.int = FALSE)
 #'    tidy(fit, effects = "fixed")
@@ -203,11 +206,11 @@ tidy.brmsfit <- function(x, parameters = NA,
 #' @rdname brms_tidiers
 #' @examples
 #' # glance method
-#'    glance(fit)
-#'   \dontrun{
-#'      glance(fit, looic = TRUE, cores = 1)
-#'   }
-#'
+#' glance(fit)
+#' ## this example will give a warning that it should be run with
+#' ## reloo=TRUE; however, doing this will fail
+#' ## because the \code{fit} object has been stripped down to save space
+#' suppressWarnings(glance(fit, looic = TRUE, cores = 1))
 
 #' @export
 glance.brmsfit <- function(x, looic = FALSE, ...) {

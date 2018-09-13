@@ -17,14 +17,14 @@
 #'
 #' \dontrun{
 #' if (require("rstanarm")) {
+#'     ## original model
 #'     fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
 #'                       iter = 300, chains = 2)
 #'   }
 #' }
 #' ## load example data
-#' fit <- readRDS(system.file("extdata","rstanarm_example.rds",package="broom.mixed"))
+#' fit <- readRDS(system.file("extdata", "rstanarm_example.rds", package="broom.mixed"))
 #'
-#' if (require("broom")) {
 #'   # non-varying ("population") parameters
 #'   tidy(fit, conf.int = TRUE, prob = 0.5)
 #'
@@ -39,10 +39,6 @@
 #'   \dontrun{
 #'      glance(fit, looic = TRUE, cores = 1)
 #'   }
-#' } ## if broom available
-#'
-#'
-#'
 NULL
 
 #' @rdname rstanarm_tidiers

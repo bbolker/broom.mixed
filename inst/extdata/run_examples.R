@@ -11,7 +11,6 @@ source(system.file("extdata","example_helpers.R",package="broom.mixed"))
 run_brms <- FALSE
 run_stan <- FALSE
 
-
 run_pkg("nlme", {
   data(sleepstudy, package = "lme4")
   lmm0 <- lme(Reaction ~ Days, random = ~1 | Subject, sleepstudy)
@@ -102,6 +101,12 @@ run_pkg("MCMCglmm", {
   save_file(mm0, mm1, mm2, pkg = pkg, type = "rda")
 })
 
+run_pkg("TMB", {
+     runExample("simple",thisR=TRUE)
+     class(obj) <- "TMB"
+     save_file(obj, pkg=pkg, type="rds")
+})
+
 ## slowest stuff last
 
 run_pkg("rstanarm", {
@@ -127,3 +132,4 @@ if (run_brms) {
     save_file(hack_size(fit), pkg = pkg, type = "rds")
   })
 }
+

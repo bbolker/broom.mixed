@@ -347,8 +347,9 @@ tidy.MCMCglmm <- function(x, effects = c("fixed", "ran_pars"),
   ## individual components are mcmc objects: call tidy on them
   retList <- (purrr::map(x[comp], tidy, ...)
   %>%
-    setNames(effects))
-  fnames <- paramNamesMCMCglmm(x)$fixed
+      setNames(effects))
+  ## see .extractEffects
+  fnames <- x$X@Dimnames[[2]]
 
   if ("fixed" %in% effects) {
     retList$fixed <- filter(retList$fixed, term %in% fnames)

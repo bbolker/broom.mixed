@@ -19,9 +19,10 @@
 #'     fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
 #'            iter = 500, chains = 2)
 #'  }
-#'  ## load stored object
-#'  fit <- readRDS(system.file("extdata", "brms_example.rds", package="broom.mixed"))
 #'  if (require("brms")) {
+#'     ## load stored object
+#'     fit <- readRDS(system.file("extdata", "brms_example.rds", package="broom.mixed"))
+#'  
 #'    tidy(fit)
 #'    tidy(fit, parameters = "^sd_", conf.int = FALSE)
 #'    tidy(fit, effects = "fixed")

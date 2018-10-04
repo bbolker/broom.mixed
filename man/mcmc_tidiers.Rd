@@ -103,8 +103,8 @@ if (require(rstan)) {
    tidy(rstan_example, conf.int = TRUE, pars = "theta")
    td_mean <- tidy(rstan_example, conf.int = TRUE)
    td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
-}
-if (require(dplyr) && require(ggplot2)) {
+
+  if (require(dplyr) && require(ggplot2)) {
     tds <- rbind(mutate(td_mean, method = "mean"),
              mutate(td_median, method = "median")) \%>\%
        mutate(type=ifelse(grepl("^theta",term),"theta",
@@ -115,11 +115,7 @@ if (require(dplyr) && require(ggplot2)) {
       geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),height=0) +
       geom_point(aes(color = method))+
       facet_wrap(~type,scale="free",ncol=1)
-} ## require(dplyr,ggplot2)
+ } ## require(dplyr,ggplot2)
+} ## require(rstan)
 
-if (requireNamespace("MCMCglmm", quietly = TRUE)) {
-    data(PlodiaPO,package="MCMCglmm")
-    model1 <- MCMCglmm::MCMCglmm(PO~1, random=~FSfamily, data=PlodiaPO, verbose=FALSE)
-    tidy(model1)
-}
 }

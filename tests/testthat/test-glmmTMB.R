@@ -1,3 +1,4 @@
+context("glmmTMB models")
 stopifnot(require("testthat"), require("broom.mixed"))
 
 if (require(glmmTMB, quietly = TRUE)) {
@@ -5,8 +6,6 @@ if (require(glmmTMB, quietly = TRUE)) {
     package = "broom.mixed",
     mustWork = TRUE
   ))
-
-  context("glmmTMB models")
 
   test_that("components included for zi models", {
     td <- tidy(zipm3)
@@ -20,6 +19,7 @@ if (require(glmmTMB, quietly = TRUE)) {
   })
 
   test_that("tidy respects conf.level", {
+     print(packageVersion("glmmTMB"))
      tmpf <- function(cl=0.95) {
          return(tidy(zipm3,conf.int=TRUE,conf.level=cl)[1,][["conf.low"]])
      }

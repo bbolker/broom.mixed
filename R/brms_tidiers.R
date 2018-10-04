@@ -34,9 +34,12 @@
 #'    ## reloo=TRUE; however, doing this will fail
 #'    ## because the \code{fit} object has been stripped down to save space
 #'    suppressWarnings(glance(fit, looic = TRUE, cores = 1))
+#'    head(augment(fit))
 #' }
 #'
 NULL
+## examples for all methods (tidy/glance/augment) included in the same
+##  block so we can surround them with a single "if (require(brms))" block
 
 #' @rdname brms_tidiers
 #' @param parameters Names of parameters for which a summary should be
@@ -221,8 +224,6 @@ glance.brmsfit <- function(x, looic = FALSE, ...) {
 #' @param data data frame
 #' @param newdata new data frame
 #' @param se.fit return standard errors of fit?
-#' @examples
-#' head(augment(fit))
 #' @export
 augment.brmsfit <- function(x, data = stats::model.frame(x), newdata = NULL,
                             se.fit = TRUE, ...) {

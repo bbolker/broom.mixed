@@ -82,13 +82,12 @@ These methods tidy the estimates from \code{\link[rstanarm]{stanreg-objects}}
 }
 \examples{
 
-\dontrun{
 if (require("rstanarm")) {
-    ## original model
+\dontrun{
+#'     ## original model
     fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
                       iter = 300, chains = 2)
   }
-}
 ## load example data
 fit <- readRDS(system.file("extdata", "rstanarm_example.rds", package="broom.mixed"))
 
@@ -106,6 +105,7 @@ fit <- readRDS(system.file("extdata", "rstanarm_example.rds", package="broom.mix
   \dontrun{
      glance(fit, looic = TRUE, cores = 1)
   }
+} ## if require("rstanarm")
 }
 \seealso{
 \code{\link[rstanarm]{summary.stanreg}}

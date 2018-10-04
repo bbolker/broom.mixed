@@ -15,13 +15,12 @@
 #'   \code{\link[rstanarm]{stanreg-objects}}.
 #' @examples
 #'
-#' \dontrun{
 #' if (require("rstanarm")) {
-#'     ## original model
+#' \dontrun{
+#' #'     ## original model
 #'     fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
 #'                       iter = 300, chains = 2)
 #'   }
-#' }
 #' ## load example data
 #' fit <- readRDS(system.file("extdata", "rstanarm_example.rds", package="broom.mixed"))
 #'
@@ -39,6 +38,7 @@
 #'   \dontrun{
 #'      glance(fit, looic = TRUE, cores = 1)
 #'   }
+#' } ## if require("rstanarm")
 NULL
 
 #' @rdname rstanarm_tidiers

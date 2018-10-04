@@ -28,7 +28,12 @@
 #'    tidy(fit, effects = "fixed")
 #'    tidy(fit, effects = "ran_vals")
 #'    tidy(fit, effects = "ran_pars", robust = TRUE)
-#'
+#'    # glance method
+#'    glance(fit)
+#'    ## this example will give a warning that it should be run with
+#'    ## reloo=TRUE; however, doing this will fail
+#'    ## because the \code{fit} object has been stripped down to save space
+#'    suppressWarnings(glance(fit, looic = TRUE, cores = 1))
 #' }
 #'
 NULL
@@ -205,13 +210,6 @@ tidy.brmsfit <- function(x, parameters = NA,
 }
 
 #' @rdname brms_tidiers
-#' @examples
-#' # glance method
-#' glance(fit)
-#' ## this example will give a warning that it should be run with
-#' ## reloo=TRUE; however, doing this will fail
-#' ## because the \code{fit} object has been stripped down to save space
-#' suppressWarnings(glance(fit, looic = TRUE, cores = 1))
 
 #' @export
 glance.brmsfit <- function(x, looic = FALSE, ...) {

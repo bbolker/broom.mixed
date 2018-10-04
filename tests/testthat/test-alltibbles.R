@@ -1,3 +1,4 @@
+context("test all tidy methods return tibbles")
 verbose <- FALSE
 stopifnot(
   require("testthat"), require("broom.mixed"), require("stringr"),

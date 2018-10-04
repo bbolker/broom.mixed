@@ -204,14 +204,14 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
 
     if (conf.int) {
       ciran <- (confint(x,
-        parm = "theta_", method = conf.method,
+        parm = "theta_",
+        method = conf.method,
+        level = conf.level,                
         estimate = FALSE,
         ...
       )
-      %>%
-        as_tibble()
-        %>%
-        setNames(c("conf.low", "conf.high"))
+      %>% as_tibble()
+      %>% setNames(c("conf.low", "conf.high"))
       )
       ret <- bind_cols(ret, ciran)
     }

@@ -116,9 +116,9 @@ are used for compatibility with other (frequentist) mixed model types.
    ## reloo=TRUE; however, doing this will fail
    ## because the \\code{fit} object has been stripped down to save space
    suppressWarnings(glance(fit, looic = TRUE, cores = 1))
+   head(augment(fit))
 }
 
-head(augment(fit))
 }
 \seealso{
 \code{\link[brms]{brms}}, \code{\link[brms]{brmsfit-class}}

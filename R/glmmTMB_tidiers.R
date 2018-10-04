@@ -97,6 +97,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
   if (length(component[!component %in% c("cond", "zi")]) > 0L) {
     stop("only works for conditional and (partly for) zero-inflation components")
   }
+  ss <- ss[component]
   effect_names <- c("ran_pars", "fixed", "ran_vals")
   if (!is.null(scales)) {
     if (length(scales) != length(effects)) {

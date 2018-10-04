@@ -18,6 +18,25 @@ if (require(glmmTMB, quietly = TRUE)) {
     )
   })
 
+    test_that("tidy respects components argument", {
+        tdc <- tidy(zipm3, component="cond", effects="fixed")
+        check_tidy(
+            tdc, 14, 7,
+            c(
+                "effect", "component", "term",
+                "estimate", "std.error", "statistic", "p.value"
+            )
+        )
+        tdz <- tidy(zipm3, component="zi", effects="fixed")
+        check_tidy(
+            tdc, 14, 7,
+            c(
+                "effect", "component", "term",
+                "estimate", "std.error", "statistic", "p.value"
+            )
+        )
+  })
+
   test_that("tidy respects conf.level", {
      print(packageVersion("glmmTMB"))
      tmpf <- function(cl=0.95) {

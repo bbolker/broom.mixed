@@ -13,6 +13,8 @@ r_github_packages:
   - jimhester/covr
 
 env:
+  global:
+    - _R_CHECK_FORCE_SUGGESTS_: false
   matrix:
     - CXX_OLEVEL=2 CXX=clang++
 

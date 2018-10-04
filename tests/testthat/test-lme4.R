@@ -1,3 +1,4 @@
+
 stopifnot(require("testthat"), require("broom.mixed"))
 ## test tidy, augment, glance methods from lme4-tidiers.R
 
@@ -10,7 +11,7 @@ if (require(lme4, quietly = TRUE)) {
     mustWork = TRUE
   ))
 
-  context("lme4 models")
+context("lme4 models")
 
   d <- as.data.frame(ChickWeight)
   colnames(d) <- c("y", "x", "subj", "tx")
@@ -164,6 +165,14 @@ if (require(lme4, quietly = TRUE)) {
     expect_equal(td3$term, c("(Intercept)", "Days"))
   })
 }
+
+## test_that("tidy respects conf.level", {
+##     tmpf <- function(cl=0.95) {
+##         return(tidy(lmm0,conf.int=TRUE,conf.level=cl)[1,][["conf.low"]])
+##     }
+##     expect_equal(tmpf(),232.3019,tolerance=1e-4)
+##     expect_equal(tmpf(0.5),244.831,tolerance=1e-4)
+## })
 
 if (require(lmerTest, quietly = TRUE)) {
   context("lmerTest")

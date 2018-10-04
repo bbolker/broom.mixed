@@ -173,10 +173,11 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
 
     if (conf.int) {
       if (is(x, "merMod") || is(x, "rlmerMod")) {
-        cifix <- cifun(p, parm = "beta_", method = conf.method, ...)
+          cifix <- cifun(p, parm = "beta_", method = conf.method,
+                         level=conf.level, ...)
       } else {
         ## ?? for glmmTMB?  check ...
-        cifix <- cifun(p, ...)
+        cifix <- cifun(p, level = conf.level, ...)
       }
       ret <- dplyr::bind_cols(ret, cifix)
     }

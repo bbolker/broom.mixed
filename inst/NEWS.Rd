@@ -4,6 +4,13 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
+\section{CHANGES IN VERSION 0.2.2.9000}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item don't ignore conf.level in tidy.merMod (GH #30)
+    }
+  }
+}
 \section{CHANGES IN VERSION 0.2.2}{
   \itemize{
     \item modify examples, for CRAN compliance

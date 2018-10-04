@@ -128,6 +128,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
       for (comp in component) {
         cifix <- confint(x,
           method = tolower(conf.method),
+          level = conf.level,               
           component = comp,
           estimate = FALSE,
           ## conditional/zi components

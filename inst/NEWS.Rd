@@ -7,7 +7,7 @@
 \section{CHANGES IN VERSION 0.2.2.9000}{
   \subsection{BUG FIXES}{
     \itemize{
-      \item don't ignore conf.level in tidy.merMod (GH #30)
+      \item don't ignore conf.level in tidy.(merMod|glmmTMB) (GH #30, 31)
     }
   }
 }

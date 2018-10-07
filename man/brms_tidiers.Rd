@@ -98,13 +98,14 @@ are used for compatibility with other (frequentist) mixed model types.
 \examples{
  ## original model
  \dontrun{
-    fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
+    brms_crossedRE <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
            iter = 500, chains = 2)
  }
  if (require("brms")) {
-    ## load stored object
-    fit <- readRDS(system.file("extdata", "brms_example.rds", package="broom.mixed"))
- 
+   ## load stored object
+   load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
+
+   fit <- brms_crossedRE
    tidy(fit)
    tidy(fit, parameters = "^sd_", conf.int = FALSE)
    tidy(fit, effects = "fixed")

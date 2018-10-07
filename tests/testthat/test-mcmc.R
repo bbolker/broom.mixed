@@ -1,10 +1,7 @@
 ## test tidy and glance methods from mcmc_tidiers
 stopifnot(require("testthat"), require("broom.mixed"))
 
-context("mcmc tidiers")
-
-## HACK: need to find the right generic
-tidy <- broom.mixed:::tidy.mcmc
+context("stan tidiers")
 
 if (suppressPackageStartupMessages(require(rstan, quietly = TRUE))) {
   test_that("tidy returns indexes if requested on rstanarm fits", {
@@ -30,4 +27,18 @@ if (suppressPackageStartupMessages(require(rstan, quietly = TRUE))) {
     td <- tidy(rstan_example, ess = TRUE)
     check_tidy(td, 18, 4, c("term", "estimate", "std.error", "ess"))
   })
+}
+
+context("brms tidiers")
+
+if (suppressPackageStartupMessages(require("brms", quietly = TRUE))) {
+    load(system.file("extdata","brms_example.rda",
+                     package="broom.mixed",
+                     mustWork=TRUE))
+    ## n.b. different S3 methods found depending on environment
+    zz <- broom.mixed::tidy(brms_zip,effects="ran_vals")
+    test_that("correct levels for models with zi/ranef",{
+        expect_equal(zz[["level"]],
+                     rep(c(paste("R",1:12,sep="-"),paste("VF",1:11,sep="-")),2))
+    })
 }

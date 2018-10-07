@@ -16,13 +16,14 @@
 #' @examples
 #'  ## original model
 #'  \dontrun{
-#'     fit <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
+#'     brms_crossedRE <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
 #'            iter = 500, chains = 2)
 #'  }
 #'  if (require("brms")) {
-#'     ## load stored object
-#'     fit <- readRDS(system.file("extdata", "brms_example.rds", package="broom.mixed"))
-#'  
+#'    ## load stored object
+#'    load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
+#'
+#'    fit <- brms_crossedRE
 #'    tidy(fit)
 #'    tidy(fit, parameters = "^sd_", conf.int = FALSE)
 #'    tidy(fit, effects = "fixed")
@@ -170,10 +171,10 @@ tidy.brmsfit <- function(x, parameters = NA,
     }
     if ("ran_vals" %in% effects) {
       rterms <- grep(mkRE(prefs$ran_vals), terms, value = TRUE)
-      ss <- strsplit(rterms, "(_|\\[|\\]|,)")
-      termfun <- function(x) x[[4]]
+      ss <- strsplit(rterms, "(_+|\\[|\\]|,)")
+      termfun <- function(x) x[[length(x)]]
       grpfun <- function(x) x[[2]]
-      levelfun <- function(x) x[[3]]
+      levelfun <- function(x) x[[length(x)-1]]
       res_list$ran_vals <-
         data_frame(
           group = sapply(ss, grpfun),

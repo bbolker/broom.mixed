@@ -85,7 +85,6 @@ tidyMCMC <- function(x,
     ss <- ss[, pars]
   }
 
-
   m <- if (robust) colMeans(ss) else apply(ss, 2, median)
 
   stdfun <- if (robust) stats::mad else stats::sd

@@ -8,7 +8,7 @@ source(system.file("extdata","example_helpers.R",package="broom.mixed"))
 ## FIXME: should disaggregate/implement a Makefile!
 ## environment variable, command-line arguments to R script?
 ## slow stuff, disable for speed
-run_brms <- FALSE
+run_brms <- TRUE
 run_stan <- FALSE
 
 run_pkg("nlme", {
@@ -127,9 +127,13 @@ run_pkg("rstanarm", {
 })
 
 
+## we really do need small iter/number of chains to keep
+##  stored object size limited, *in addition to* hack_size()
+##  (which gets rid of large environments associated with Stan
+##   models)
 if (run_brms) {
   run_pkg("brms", {
-    fit <- brm(mpg ~ wt + (1 | cyl) + (1 + wt | gear),
+    brms_crossedRE <- brm(mpg ~ wt + (1 | cyl) + (1 + wt | gear),
       data = mtcars,
       iter = 100, chains = 2,
       ## ugh: compiled object gets stored as part of fitted
@@ -137,8 +141,22 @@ if (run_brms) {
       ##  size of the fitted object, doesn't speed things
       ##  up when re-running this code ...
       save_dso = FALSE
-    )
-    save_file(hack_size(fit), pkg = pkg, type = "rds")
+      )
+
+    brms_crossedRE <- hack_size(brms_crossedRE)
+    ## save_file(brms_crossedRE,  pkg = "brms", type = "rds")
+
+    
+    data(Salamanders, package="glmmTMB")
+    brms_zip <- brm(bf(count ~ spp * mined + (1 | site),
+                       zi = ~ mined + (1|site)),
+                    data= Salamanders,
+                    family = zero_inflated_poisson,
+                    iter=100, chains=2,
+                    save_dso=FALSE)
+
+    brms_zip <- hack_size(brms_zip)
+    save_file(brms_crossedRE, brms_zip, pkg = pkg, type = "rda")
   })
 }
 

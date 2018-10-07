@@ -189,18 +189,25 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
 
     ## don't try to assign as rowname (non-unique anyway),
     ## make it directly into a term column
-    ret[["term"]] <- apply(ret[c("var1", "var2")], 1,
-      ran_pars_name,
-      ran_prefix = ran_prefix
-    )
+    if (nrow(ret)>0) {
+        ret[["term"]] <- apply(ret[c("var1", "var2")], 1,
+                               ran_pars_name,
+                               ran_prefix = ran_prefix
+                               )
 
-    ## keep only desired term, rename
-    ## FIXME: should use select + tidyeval + rename ... ?
-    ret <- setNames(
-      ret[c("component", "grp", "term", rscale)],
-      c("component", "group", "term", "estimate")
-    )
-
+       ## keep only desired term, rename
+       ## FIXME: should use select + tidyeval + rename ... ?
+       ranpar_names <- c("component", "group", "term", "estimate")
+       ret <- setNames(
+          ret[c("component", "grp", "term", rscale)],
+          ranpar_names
+       )
+    } else {
+        ret <- dplyr::data_frame(component=character(0),
+                      group=character(0),
+                      term=character(0),
+                      estimate=numeric(0))
+    }
     ## rownames(ret) <- seq(nrow(ret))
 
     if (conf.int) {

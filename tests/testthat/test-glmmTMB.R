@@ -45,4 +45,9 @@ if (require(glmmTMB, quietly = TRUE)) {
      expect_equal(tmpf(),-2.088147,tolerance=1e-4)
      expect_equal(tmpf(0.5),-0.7871105,tolerance=1e-4)
   })
+
+  test_that("empty components are OK", {
+      expect_equal(dim(tidy(zipm3, effects = "ran_pars", component = "zi")),
+                   c(0,5))
+  })
 } ## if require(glmmTMB)

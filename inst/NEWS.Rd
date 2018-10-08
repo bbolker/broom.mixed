@@ -7,7 +7,14 @@
 \section{CHANGES IN VERSION 0.2.2.9000}{
   \subsection{BUG FIXES}{
     \itemize{
-      \item don't ignore conf.level in tidy.(merMod|glmmTMB) (GH #30, 31)
+      \item don't ignore conf.level in tidy.(merMod|glmmTMB) (GH #30,31: @strengejacke)
+      \item levels correct in tidy.brmsfit (GH #36: @strengejacke)
+      \item component argument works for random effects in glmmTMB (GH #33: @strengejacke)
+    }
+  }
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item tidy.brmsfit gets component column (GH #35: @strengejacke)
     }
   }
 }

@@ -232,11 +232,11 @@ trans_brms_params <- function(tidy_obj) {
 }
 
 ## enforce consistent column order for *existing* columns
-## should contain all possible columns
+## should contain all possible column names
 reorder_cols <- function(x) {
   all_cols <- c(
     "effect",
-    "component", ## glmmTMB
+    "component", ## glmmTMB, brms
     "group", "level", "term", "index", "estimate",
     "std.error", "statistic",
     "df", "p.value",

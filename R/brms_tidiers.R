@@ -137,7 +137,9 @@ tidy.brmsfit <- function(x, parameters = NA,
       nfixed <- sum(grepl(prefs[["fixed"]], terms))
       res_list$fixed <- as_tibble(matrix(nrow = nfixed, ncol = 0))
     }
-    grpfun <- function(x) if (x[[1]] == "sigma") "Residual" else x[[2]]
+    grpfun <- function(x) {
+        if (x[[1]] == "sigma") "Residual" else x[[2]]
+    }
     if ("ran_pars" %in% effects) {
       rterms <- grep(mkRE(prefs$ran_pars), terms, value = TRUE)
       ss <- strsplit(rterms, "__")
@@ -210,6 +212,14 @@ tidy.brmsfit <- function(x, parameters = NA,
         t(apply(samples, 2, stats::quantile, probs = probs))
     }
   }
+  ## figure out component
+  out$component <- dplyr::case_when(grepl("^zi",out$term) ~ "zi",
+                                    ## ??? is this possible in brms models
+                                    grepl("^disp",out$term) ~ "disp",
+                                    TRUE ~ "cond")
+
+  out <- reorder_cols(out)
+  
   return(out)
 }
 

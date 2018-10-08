@@ -1,13 +1,12 @@
 ## test tidy and glance methods from rstanarm_tidiers.R
 stopifnot(require("testthat"), require("broom.mixed"), require("broom"))
 
-context("rstanarm tidiers")
 if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
   fit <<- readRDS(system.file("extdata", "rstanarm_example.rds", package = "broom.mixed"))
   ## fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
   ## iter = 200, chains = 2)
 
-  context("rstanarm models")
+  context("rstanarm tidiers")
   test_that("tidy works on rstanarm fits", {
     td1 <- tidy(fit)
     td2 <- tidy(fit, effects = "ran_vals")

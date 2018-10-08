@@ -105,6 +105,7 @@ tidy.brmsfit <- function(x, parameters = NA,
                          ...) {
   use_effects <- anyNA(parameters)
   conf.method <- match.arg(conf.method)
+  is.multiresp <- length(x$formula$forms)>1
   mkRE <- function(x) {
     sprintf("^(%s)", paste(unlist(x), collapse = "|"))
   }
@@ -138,7 +139,7 @@ tidy.brmsfit <- function(x, parameters = NA,
       res_list$fixed <- as_tibble(matrix(nrow = nfixed, ncol = 0))
     }
     grpfun <- function(x) {
-        if (x[[1]] == "sigma") "Residual" else x[[2]]
+        if (grepl("sigma",x[[1]])) "Residual" else x[[2]]
     }
     if ("ran_pars" %in% effects) {
       rterms <- grep(mkRE(prefs$ran_pars), terms, value = TRUE)
@@ -156,8 +157,8 @@ tidy.brmsfit <- function(x, parameters = NA,
       )
       sep <- getOption("broom.mixed.sep1")
       termfun <- function(x) {
-        if (x[[1]] == "sigma") {
-          paste("sd", "Observation", sep = sep)
+        if (grepl("^sigma",x[[1]])) {
+            paste("sd", "Observation", sep = sep)
         } else {
           paste(x[[1]],
             paste(x[3:length(x)], collapse = "."),

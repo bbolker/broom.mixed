@@ -132,6 +132,8 @@ run_pkg("rstanarm", {
 ##  (which gets rid of large environments associated with Stan
 ##   models)
 if (run_brms) {
+  ## ggeffects::efc, "Sample dataset from the EUROFAMCARE project"
+  efc <- readRDS(system.file("extdata","efc.rds",package="broom.mixed"))
   run_pkg("brms", {
     brms_crossedRE <- brm(mpg ~ wt + (1 | cyl) + (1 + wt | gear),
       data = mtcars,
@@ -156,7 +158,16 @@ if (run_brms) {
                     save_dso=FALSE)
 
     brms_zip <- hack_size(brms_zip)
-    save_file(brms_crossedRE, brms_zip, pkg = pkg, type = "rda")
+
+    f1 <- bf(neg_c_7 ~ e42dep + c12hour + c172code)
+    f2 <- bf(c12hour ~ c172code)
+    brms_multi <- brm(f1 + f2 + set_rescor(FALSE), data = efc,
+             chains = 1, iter = 200,
+             save_dso=FALSE)
+
+    brms_multi <- hack_size(brms_multi)
+    
+    save_file(brms_crossedRE, brms_zip, brms_multi, pkg = pkg, type = "rda")
   })
 }
 

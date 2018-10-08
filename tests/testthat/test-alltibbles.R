@@ -6,11 +6,15 @@ stopifnot(
 )
 
 ## objects to SKIP (from RDA files)
-skip_list <- list(nlme_example.rda = c("lmm2"))
+skip_list <- list(nlme_example.rda = c("lmm2"),
+                  ## glance method not working for this case
+                  brms_example.rda = c("brms_multi")
+                  )
 
 ## need data available for augment() methods ...
 data("sleepstudy", package = "lme4")
 data("Salamanders", package = "glmmTMB")
+efc <- readRDS(system.file("extdata","efc.rds",package="broom.mixed"))
 ex <- list.files(system.file("extdata", package = "broom.mixed"),
   pattern = "\\.rd"
 )

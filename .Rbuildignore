@@ -9,3 +9,4 @@ misc/*
 ## hidden files
 (^|/)\.+.*
 run_examples
+revdep/

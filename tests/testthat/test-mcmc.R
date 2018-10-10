@@ -53,7 +53,10 @@ if (suppressPackageStartupMessages(require("brms", quietly = TRUE))) {
 
     test_that("multi-component brms models",
     {
-        ## not testing yet; should include response.level variable
+        check_tidy(zz3, 8, 9,
+                   c("response", "effect", "component", "group",
+                     "term", "estimate", "std.error",
+                     "conf.low", "conf.high"))
     })
     
 } ## if require("brms")

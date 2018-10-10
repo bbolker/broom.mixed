@@ -14,7 +14,8 @@
   }
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
-      \item tidy.brmsfit gets component column (GH #35: @strengejacke)
+      \item tidy.brmsfit gets component column (GH #35: @strengejacke),
+  response column for multi-response models (GH #34: @strengejacke)
     }
   }
 }

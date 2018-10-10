@@ -235,7 +235,7 @@ trans_brms_params <- function(tidy_obj) {
 ## should contain all possible column names
 reorder_cols <- function(x) {
   all_cols <- c(
-    "effect",
+    "response","effect",
     "component", ## glmmTMB, brms
     "group", "level", "term", "index", "estimate",
     "std.error", "statistic",

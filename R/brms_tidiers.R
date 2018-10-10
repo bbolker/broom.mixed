@@ -131,6 +131,11 @@ tidy.brmsfit <- function(x, parameters = NA,
   }
   terms <- names(samples)
   if (use_effects) {
+     if (is.multiresp) {
+        ## extract response component from terms
+        response <- gsub("^_","",stringr::str_extract(terms,"_[^_]+"))
+        terms <- sub("_[^_]+","",terms)
+    }
     res_list <- list()
     fixed.only <- identical(effects, "fixed")
     if ("fixed" %in% effects) {
@@ -193,7 +198,9 @@ tidy.brmsfit <- function(x, parameters = NA,
     } else {
       out$term[v] <- newterms
     }
-
+    if (is.multiresp) {
+        out$response <- response
+    }
     ## prefixes already removed for ran_vals; don't remove for ran_pars
   } else {
     ## if !use_effects

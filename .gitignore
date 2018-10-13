@@ -6,3 +6,4 @@
 *.Rout
 .RData
 run_examples
+revdep/

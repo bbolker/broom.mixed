@@ -210,13 +210,18 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
     }
     ## rownames(ret) <- seq(nrow(ret))
 
-    if (conf.int) {
-      ciran <- (confint(x,
-        parm = "theta_",
-        method = conf.method,
-        level = conf.level,                
-        estimate = FALSE,
-        ...
+      if (conf.int) {
+        thpar <- "theta_"
+        if (utils::packageVersion("glmmTMB")<="0.2.2.0") {
+             thpar <- which(names(x$obj$par)=="theta")
+        }
+        ciran <- (confint(x,
+                          ## for next glmmTMB (> 0.2.3) can be "theta_",
+                          parm = thpar,
+                          method = conf.method,
+                          level = conf.level,                
+                          estimate = FALSE,
+                          ...
       )
       %>% as_tibble()
       %>% setNames(c("conf.low", "conf.high"))

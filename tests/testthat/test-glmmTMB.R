@@ -37,17 +37,13 @@ if (require(glmmTMB, quietly = TRUE)) {
         )
   })
 
-  if (getRversion()>="3.6.0") {
-      ## don't know why this fails on r-release (3.5.x);
-      ## maybe getting glmmTMB from CRAN rather than GitHub??
-      test_that("tidy respects conf.level", {
-          tmpf <- function(cl=0.95) {
-              return(tidy(zipm3,conf.int=TRUE,conf.level=cl)[1,][["conf.low"]])
-          }
-          expect_equal(tmpf(),-2.088147,tolerance=1e-4)
-          expect_equal(tmpf(0.5),-0.7871105,tolerance=1e-4)
-      })
-  }
+  test_that("tidy respects conf.level", {
+      tmpf <- function(cl=0.95) {
+          return(tidy(zipm3,conf.int=TRUE,conf.level=cl)[1,][["conf.low"]])
+      }
+      expect_equal(tmpf(),-2.088147,tolerance=1e-4)
+      expect_equal(tmpf(0.5),-0.7871105,tolerance=1e-4)
+  })
 
   test_that("empty components are OK", {
       expect_equal(dim(tidy(zipm3, effects = "ran_pars", component = "zi")),

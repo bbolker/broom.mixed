@@ -1,0 +1,65 @@
+---
+title: "Introduction to `broom.mixed`"
+author: "Ben Bolker"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introduction to broom.mixed}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE, message=FALSE}
+library(knitr)
+```
+
+# Introduction
+
+**UNDER CONSTRUCTION**
+
+`broom.mixed` is a spinoff of the [broom package](https://cran.r-project.org/web/packages/broom/vignettes/broom.html). The goal of `broom` is to bring the modeling process into a "tidy"(TM) workflow, in particular by providing standardized verbs that provide information on
+
+- `tidy`: estimates, standard errors, confidence intervals, etc.
+- `augment`: residuals, fitted values, influence measures, etc.
+- `glance`: whole-model summaries: AIC, R-squared, etc.
+
+`broom.mixed` aims to provide these methods for as many packages and model types in the R ecosystem as possible. These methods have been separated from those in the main `broom` package because there are issues that need to be dealt with for these models (e.g. different types of parameters: fixed, random-effects parameters, conditional modes/BLUPs of random effects, etc.) that are not especially relevant to the broader universe of models that `broom` deals with.
+
+# Mixed-model-specific issues
+
+## Terminology
+
+- the upper-level parameters that describe the distribution of random variables (variance, covariance, precision, standard deviation, or correlation) are called *random-effect parameters* (`ran_pars` in the `effects` argument when tidying)
+- the values that describe the deviation of the observations in a group level from the population-level effect (which could be posterior means or medians, conditional modes, or BLUPs depending on the model) are called *random-effect values* (`ran_vals` in the `effects` argument when tidying)
+- the parameters that describe the population-level effects of (categorical and continuous) predictor variables are called *fixed effects* (`fixed` in the `effects` argument when tidying)
+- the categorical variable (factor) that identifies which group or cluster an observation belongs to is called a *grouping variable* (`group` column in `tidy()` output)
+- the particular level of a factor that specifies which level of the grouping variable an observation belongs to is called a *group level* (`level` column in `tidy()` output)
+- the categorical or continuous predictor variables that control the expected value (i.e., enter into the linear predictor for some part of the model) are called *terms* (`term` column in `tidy()` output); note that unlike in base `broom`, **the term column may have duplicated values**, because the same term may enter multiple model components (e.g. zero-inflated and conditional models; models for more than one response; fixed effects and random effects)
+
+## Time-consuming computations
+
+Some kinds of computations needed for mixed model summaries are computationally expensive, e.g. likelihood profiles or parametric bootstrapping. In this case 
+
+# Capabilities
+
+```{r results="asis",echo=FALSE}
+cc <- read.csv(system.file("capabilities.csv",package="broom.mixed"))
+if (require("pander")) {
+    pander::pander(cc)
+}
+```
+
+# Related packages
+
+There are many, many things one might want to do with a fitted model, and `broom.mixed` can only do a few of them.
+
+- `emmeans`
+- `multcomp`
+- `car`
+- `afex`
+- `sjStats`/`sjPlots`
+- `rockchalk`
+
+## huxtable + broom.mixed
+
+## dotwhisker + broom.mixed

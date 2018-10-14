@@ -3,8 +3,11 @@ Type: Package
 Title: Tidying Methods for Mixed Models
 Version: 0.2.2.9000
 Authors@R: c(
-    person("Ben", "Bolker", email = "bolker@mcmaster.ca", role = c("aut", "cre")),
-    person("David", "Robinson", email = "admiral.david@gmail.com", role = "aut"),
+    person("Ben", "Bolker", email = "bolker@mcmaster.ca",
+        role = c("aut", "cre"),
+        comment=c(ORCID="0000-0002-2127-0443")),
+    person("David", "Robinson", email = "admiral.david@gmail.com",
+    	role = "aut"),
     person("Dieter", "Menne", role = "ctb"),
     person("Jonah", "Gabry", role = "ctb"),
     person("Paul", "Buerkner", role = "ctb"),
@@ -49,10 +52,13 @@ Suggests:
     mgcv,
     gamlss,
     lmerTest,
-    glmmADMB
+    glmmADMB,
+    dotwhisker,
+    pander
 URL: http://github.com/bbolker/broom.mixed
 BugReports: http://github.com/bbolker/broom.mixed/issues
 License: GPL-3
 RoxygenNote: 6.1.0
 Encoding: UTF-8
 Additional_repositories: http://bbolker.github.io/drat
+VignetteBuilder: knitr

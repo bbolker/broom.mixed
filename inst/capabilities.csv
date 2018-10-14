@@ -1,0 +1,12 @@
+package,object,tidy,glance,augment,effects=fixed,effects=ran_vals,effects=ran_pars,effects=ran_coefs,profile_CI,boot_CI,zi
+lme4,glmer,
+lme4,lmer,
+nlme,lme,
+nlme,gls
+nlme,nlme
+glmmTMB,glmmTMB
+glmmADMB,glmmadmb
+brms,brmsfit
+rstanarm,stanreg
+MCMCglmm,MCMCglmm,
+TMB,TMB

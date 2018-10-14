@@ -106,21 +106,30 @@ tidy.brmsfit <- function(x, parameters = NA,
   use_effects <- anyNA(parameters)
   conf.method <- match.arg(conf.method)
   is.multiresp <- length(x$formula$forms)>1
-  mkRE <- function(x) {
-    sprintf("^(%s)", paste(unlist(x), collapse = "|"))
+  ## make regular expression from a list of prefixes
+  mkRE <- function(x,LB=FALSE) {
+      pref <- "(^|_)"
+      if (LB) pref <- sprintf("(?<=%s)",pref)
+      sprintf("%s(%s)", pref, paste(unlist(x), collapse = "|"))
   }
-  if (use_effects) {
-    prefs_LA <- list(
+  ## NOT USED:  could use this (or something like) to
+  ##  obviate need for gsub("_","",str_extract(...)) pattern ...  
+  prefs_LB <- list(
       fixed = "b_", ran_vals = "r_",
-      ## don't want to remove these pieces, so use lookahead
-      ran_pars = sprintf("(?=(%s))", c("sd_", "cor_", "sigma"))
+      ## don't want to remove these pieces, so use look*behind*
+      ran_pars =   sprintf("(?<=(%s))", c("sd_", "cor_", "sigma")),
+      components = sprintf("(?<=%s)", c("zi_","disp_"))
     )
     prefs <- list(
       fixed = "b_", ran_vals = "r_",
       ## no lookahead (doesn't work with grep[l])
-      ran_pars = c("sd_", "cor_", "sigma")
+      ran_pars = c("sd_", "cor_", "sigma"),
+      components = c("zi_", "disp_")
     )
     pref_RE <- mkRE(prefs[effects])
+  if (use_effects) {
+    ## prefixes distinguishing fixed, random effects
+
     parameters <- pref_RE
   }
   samples <- brms::posterior_samples(x, parameters)
@@ -221,13 +230,14 @@ tidy.brmsfit <- function(x, parameters = NA,
     }
   }
   ## figure out component
-  out$component <- dplyr::case_when(grepl("^zi",out$term) ~ "zi",
+  out$component <- dplyr::case_when(grepl("(^|_)zi",out$term) ~ "zi",
                                     ## ??? is this possible in brms models
                                     grepl("^disp",out$term) ~ "disp",
                                     TRUE ~ "cond")
 
+  out$term <- stringr::str_remove(out$term,mkRE(prefs[["components"]],
+                                                LB=TRUE))
   out <- reorder_cols(out)
-  
   return(out)
 }
 

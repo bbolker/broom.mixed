@@ -9,7 +9,8 @@
 \usage{
 \method{tidy}{brmsfit}(x, parameters = NA, effects = c("fixed",
   "ran_pars"), robust = FALSE, conf.int = TRUE, conf.level = 0.95,
-  conf.method = c("quantile", "HPDinterval"), ...)
+  conf.method = c("quantile", "HPDinterval"), fix.intercept = TRUE,
+  ...)
 
 \method{glance}{brmsfit}(x, looic = FALSE, ...)
 
@@ -43,6 +44,9 @@ Only used if \code{conf.int = TRUE}.}
 
 \item{conf.method}{method for computing confidence intervals
 ("quantile" or "HPDinterval")}
+
+\item{fix.intercept}{rename "Intercept" parameter to "(Intercept)", to match
+behaviour of other model types?}
 
 \item{...}{Extra arguments, not used}
 

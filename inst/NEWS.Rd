@@ -17,6 +17,9 @@
       \item tidy.brmsfit gets component column (GH #35: @strengejacke),
       response column for multi-response models (GH #34: @strengejacke)
       \item component tags are stripped from tidied brmsfit objects
+      \item "Intercept" terms in brms fits are re-coded as
+      "(Intercept)" by default, for dotwhisker/cross-model
+      compatibility; for previous behaviour, specify \code{fix.intercept=FALSE}
     }
   }
 }

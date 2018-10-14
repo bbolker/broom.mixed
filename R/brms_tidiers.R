@@ -61,10 +61,11 @@ NULL
 #'  Only used if \code{conf.int = TRUE}.
 #' @param conf.method method for computing confidence intervals
 #' ("quantile" or "HPDinterval")
+#' @param fix.intercept rename "Intercept" parameter to "(Intercept)", to match
+#' behaviour of other model types?
 #' @param looic Should the LOO Information Criterion (and related info) be
 #'   included? See \code{\link[rstanarm]{loo.stanreg}} for details. Note: for
 #'   models fit to very large datasets this can be a slow computation.
-
 #' @param ... Extra arguments, not used
 #'
 #' @return
@@ -102,6 +103,7 @@ tidy.brmsfit <- function(x, parameters = NA,
                          robust = FALSE, conf.int = TRUE,
                          conf.level = 0.95,
                          conf.method = c("quantile", "HPDinterval"),
+                         fix.intercept = TRUE,
                          ...) {
   use_effects <- anyNA(parameters)
   conf.method <- match.arg(conf.method)
@@ -237,6 +239,14 @@ tidy.brmsfit <- function(x, parameters = NA,
 
   out$term <- stringr::str_remove(out$term,mkRE(prefs[["components"]],
                                                 LB=TRUE))
+  if (fix.intercept) {
+      ## use lookahead/lookbehind: replace Intercept with word boundary
+      ## or underscore before/after by (Intercept) - without removing
+      ## underscores!
+      out$term <- stringr::str_replace(out$term,
+                                        "(?<=(\\b|_))Intercept(?=(\\b|_))",
+                                        "(Intercept)")
+  }
   out <- reorder_cols(out)
   return(out)
 }

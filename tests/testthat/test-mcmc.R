@@ -54,7 +54,8 @@ if (suppressPackageStartupMessages(require("brms", quietly = TRUE))) {
     test_that("component tags stripped from brms models",
     {
         expect_equal(c(table(zz2[["term"]])),
-         c(Intercept = 2L, minedno = 2L, sd__Intercept = 2L, sppDESML = 1L, 
+                     c(`(Intercept)` = 2L, minedno = 2L, `sd__(Intercept)` = 2L,
+                       sppDESML = 1L, 
            `sppDESML:minedno` = 1L, sppDF = 1L, `sppDF:minedno` = 1L,
            sppDM = 1L, `sppDM:minedno` = 1L, sppECMA = 1L,
            `sppECMA:minedno` = 1L, sppECML = 1L, `sppECML:minedno` = 1L,

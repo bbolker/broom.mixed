@@ -38,7 +38,7 @@ library(knitr)
 
 ## Time-consuming computations
 
-Some kinds of computations needed for mixed model summaries are computationally expensive, e.g. likelihood profiles or parametric bootstrapping. In this case 
+Some kinds of computations needed for mixed model summaries are computationally expensive, e.g. likelihood profiles or parametric bootstrapping. In this case `broom.mixed` may offer an option for passing a pre-computed object to `tidy()`, eg. the `profile` argument in the `tidy.merMod` (`lmer`/`glmer`) method.
 
 # Capabilities
 
@@ -63,3 +63,27 @@ There are many, many things one might want to do with a fitted model, and `broom
 ## huxtable + broom.mixed
 
 ## dotwhisker + broom.mixed
+
+`dotwhisker` is a convenient platform for creating dot-whisker plots - either directly from models or lists of models (`tidy()` methods are automatically called to convert the models to a tidy format), or from the (possibly post-processed) output of a `tidy()` call. There are a couple of caveats and issues to be aware of when using `dotwhisker` in conjunction with `broom.mixed`, however.
+
+1. For fixed effects, the `group` value is set to `NA`: in the current CRAN version (0.5.0), an unfortunate `na.omit()` within the `dwplot` code will eliminate all of the fixed effects unless you drop this column before passing the results to `dwplot` (this [has been fixed](https://github.com/fsolt/dotwhisker/commit/e014e8dba95181dfcf5a68964cd7fdeb844e97cd) in the current GitHub version, which you can install with `devtools::install_github("fsolt/dotwhisker")`).
+2. In `broom.mixed` output, it is fairly common for a single tidied model to have duplicated entries in the `term` column (e.g. effects that appear in both the conditional and the zero-inflated model, or intercept standard deviations for several different grouping variables). `dotwhisker::dwplot` takes this as evidence that it has been handed a tidied object containing the results from several different models, and asks for a `model` column that will distinguish the non-unique terms. There are (at least) two strategies you can take:
+     - `dwplot(list(fitted_model))` will plot all of the non-unique values together
+     - `tidy(fitted_model) %>% tidyr::unite(term, group, term)` will create a new `term` column that's the combination of the `group` and `term` columns (which will disambiguate random-effect terms from different grouping variables); `unite(term, component, term)` will disambiguate conditional and zero-inflation parameters. The code below shows a slightly more complicated (but prettier) approach. (Some sort of `disambiguate_terms()` function could be added in a future version of the package ...)
+
+```{r dwplot1}
+library("dplyr")
+library("tidyr")
+library("broom.mixed")
+if (require("brms") && require("dotwhisker") && require("ggplot2")) {
+    L <- load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
+    gg0 <- (tidy(brms_crossedRE)
+        ## disambiguate
+        %>% mutate(term=ifelse(grepl("sd__(Int",term,fixed=TRUE),
+                               paste(group,term,sep="."),
+                               term))
+        %>% dwplot
+    )
+    gg0 + geom_vline(xintercept=0,lty=2)
+}
+```

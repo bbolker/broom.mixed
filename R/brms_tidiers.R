@@ -26,7 +26,7 @@
 #'    fit <- brms_crossedRE
 #'    tidy(fit)
 #'    tidy(fit, parameters = "^sd_", conf.int = FALSE)
-#'    tidy(fit, effects = "fixed")
+#'    tidy(fit, effects = "fixed", conf.method="HPDinterval")
 #'    tidy(fit, effects = "ran_vals")
 #'    tidy(fit, effects = "ran_pars", robust = TRUE)
 #'    # glance method
@@ -225,7 +225,8 @@ tidy.brmsfit <- function(x, parameters = NA,
     stopifnot(length(conf.level) == 1L)
     probs <- c((1 - conf.level) / 2, 1 - (1 - conf.level) / 2)
     if (conf.method == "HPDinterval") {
-      stop("HPDinterval not implemented yet")
+      out[, c("conf.low", "conf.high")] <-
+          coda::HPDinterval(coda::as.mcmc(samples, prob=conf.level))
     } else {
       out[, c("conf.low", "conf.high")] <-
         t(apply(samples, 2, stats::quantile, probs = probs))

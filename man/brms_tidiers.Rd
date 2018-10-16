@@ -112,7 +112,7 @@ are used for compatibility with other (frequentist) mixed model types.
    fit <- brms_crossedRE
    tidy(fit)
    tidy(fit, parameters = "^sd_", conf.int = FALSE)
-   tidy(fit, effects = "fixed")
+   tidy(fit, effects = "fixed", conf.method="HPDinterval")
    tidy(fit, effects = "ran_vals")
    tidy(fit, effects = "ran_pars", robust = TRUE)
    # glance method

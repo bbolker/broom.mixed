@@ -8,7 +8,7 @@ source(system.file("extdata","example_helpers.R",package="broom.mixed"))
 ## FIXME: should disaggregate/implement a Makefile!
 ## environment variable, command-line arguments to R script?
 ## slow stuff, disable for speed
-run_brms <- FALSE
+run_brms <- TRUE
 run_stan <- FALSE
 
 run_pkg("nlme", {
@@ -19,8 +19,9 @@ run_pkg("nlme", {
     method = "ML"
   )
   lmm1 <- lme(Reaction ~ Days, random = ~Days | Subject, sleepstudy)
-  ## doesn't work yet
+  ## this model doesn't work yet ...erm
   lmm2 <- lme(Reaction ~ Days, random = list(Subject = pdDiag(~Days)), sleepstudy)
+  startvec <- c(Asym = 200, xmid = 725, scal = 350)
   nm1 <- nlme(circumference ~ SSlogis(age, Asym, xmid, scal),
                   data = Orange,
                   fixed = Asym + xmid + scal ~1,
@@ -170,9 +171,14 @@ if (run_brms) {
              chains = 1, iter = 200,
              save_dso=FALSE)
 
-    brms_multi <- hack_size(brms_multi)
     
-    save_file(brms_crossedRE, brms_zip, brms_multi, pkg = pkg, type = "rda")
+    f3 <- bf(neg_c_7 ~ e42dep + c12hour + c172code + (1 |ID| e15relat))
+    f4 <- bf(c12hour ~ c172code + (1 |ID| e15relat))
+    b14 <- brm(f3 + f4 + set_rescor(FALSE), data = efc, iter = 500, chains = 1)
+    brms_multi_RE <- hack_size(b14)
+    
+    save_file(brms_crossedRE, brms_zip, brms_multi,
+              brms_multi_RE, pkg = pkg, type = "rda")
   })
 }
 

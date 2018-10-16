@@ -226,7 +226,7 @@ tidy.brmsfit <- function(x, parameters = NA,
     probs <- c((1 - conf.level) / 2, 1 - (1 - conf.level) / 2)
     if (conf.method == "HPDinterval") {
       out[, c("conf.low", "conf.high")] <-
-          coda::HPDinterval(coda::as.mcmc(samples, prob=conf.level))
+          coda::HPDinterval(coda::as.mcmc(samples), prob=conf.level)
     } else {
       out[, c("conf.low", "conf.high")] <-
         t(apply(samples, 2, stats::quantile, probs = probs))

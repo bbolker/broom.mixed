@@ -7,7 +7,7 @@
 \title{Tidying methods for an rstanarm model}
 \usage{
 \method{tidy}{stanreg}(x, effects = "fixed", conf.int = FALSE,
-  conf.level = 0.9, ...)
+  conf.level = 0.9, conf.method = c("quantile", "HPDinterval"), ...)
 
 \method{glance}{stanreg}(x, looic = FALSE, ...)
 }
@@ -24,6 +24,9 @@ See the Value section for details.}
 \code{\link[rstanarm]{posterior_interval.stanreg}} for details.}
 
 \item{conf.level}{See \code{\link[rstanarm]{posterior_interval.stanreg}}.}
+
+\item{conf.method}{method for computing confidence intervals
+("quantile" or "HPDinterval")}
 
 \item{...}{For \code{glance}, if \code{looic=TRUE}, optional arguments to
 \code{\link[rstanarm]{loo.stanreg}}.}
@@ -93,6 +96,7 @@ fit <- readRDS(system.file("extdata", "rstanarm_example.rds", package="broom.mix
 
   # non-varying ("population") parameters
   tidy(fit, conf.int = TRUE, prob = 0.5)
+  tidy(fit, conf.int = TRUE, conf.method = "HPDinterval", prob = 0.5)
 
   # hierarchical sd & correlation parameters
   tidy(fit, effects = "ran_pars")

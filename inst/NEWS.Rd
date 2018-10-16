@@ -4,12 +4,18 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
-\section{CHANGES IN VERSION 0.2.2.9000}{
+\section{CHANGES IN VERSION 0.2.3}{
   \subsection{BUG FIXES}{
     \itemize{
       \item don't ignore conf.level in tidy.(merMod|glmmTMB) (GH #30,31: @strengejacke)
       \item levels correct in tidy.brmsfit (GH #36: @strengejacke)
       \item component argument works for random effects in glmmTMB (GH #33: @strengejacke)
+    }
+  }
+  \subsection{NEW FIXES}{
+    \itemize{
+      \item \code{brmsfit} and \code{rstanarm} methods allow
+      \code{conf.method="HPDinterval"}
     }
   }
   \subsection{USER-VISIBLE CHANGES}{

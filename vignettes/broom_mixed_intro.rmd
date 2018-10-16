@@ -40,14 +40,6 @@ library(knitr)
 
 Some kinds of computations needed for mixed model summaries are computationally expensive, e.g. likelihood profiles or parametric bootstrapping. In this case `broom.mixed` may offer an option for passing a pre-computed object to `tidy()`, eg. the `profile` argument in the `tidy.merMod` (`lmer`/`glmer`) method.
 
-# Capabilities
-
-```{r results="asis",echo=FALSE}
-cc <- read.csv(system.file("capabilities.csv",package="broom.mixed"))
-if (require("pander")) {
-    pander::pander(cc)
-}
-```
 
 # Related packages
 
@@ -71,7 +63,7 @@ There are many, many things one might want to do with a fitted model, and `broom
      - `dwplot(list(fitted_model))` will plot all of the non-unique values together
      - `tidy(fitted_model) %>% tidyr::unite(term, group, term)` will create a new `term` column that's the combination of the `group` and `term` columns (which will disambiguate random-effect terms from different grouping variables); `unite(term, component, term)` will disambiguate conditional and zero-inflation parameters. The code below shows a slightly more complicated (but prettier) approach. (Some sort of `disambiguate_terms()` function could be added in a future version of the package ...)
 
-```{r dwplot1}
+```{r dwplot1,message=FALSE,warning=FALSE}
 library("dplyr")
 library("tidyr")
 library("broom.mixed")
@@ -85,5 +77,14 @@ if (require("brms") && require("dotwhisker") && require("ggplot2")) {
         %>% dwplot
     )
     gg0 + geom_vline(xintercept=0,lty=2)
+}
+```
+
+# Capabilities
+
+```{r results="asis",echo=FALSE, message=FALSE}
+cc <- read.csv(system.file("capabilities.csv",package="broom.mixed"))
+if (require("pander")) {
+    pander::pander(cc,split.tables=Inf)
 }
 ```

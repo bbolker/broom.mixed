@@ -8,7 +8,7 @@ stopifnot(
 ## objects to SKIP (from RDA files)
 skip_objects <- list(nlme_example.rda = c("lmm2"),
                   ## glance method not working for this case
-                  brms_example.rda = c("brms_multi")
+                  brms_example.rda = c("brms_multi","brms_multi_RE")
                   )
 
 skip_files <- c("efc.rds")

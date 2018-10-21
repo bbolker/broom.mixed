@@ -17,7 +17,8 @@ library(knitr)
 
 **UNDER CONSTRUCTION**
 
-`broom.mixed` is a spinoff of the [broom package](https://cran.r-project.org/web/packages/broom/vignettes/broom.html). The goal of `broom` is to bring the modeling process into a "tidy"(TM) workflow, in particular by providing standardized verbs that provide information on
+
+`broom.mixed` is a spinoff of the [broom package](https://CRAN.R-project.org/package=broom). The goal of `broom` is to bring the modeling process into a "tidy"(TM) workflow, in particular by providing standardized verbs that provide information on
 
 - `tidy`: estimates, standard errors, confidence intervals, etc.
 - `augment`: residuals, fitted values, influence measures, etc.

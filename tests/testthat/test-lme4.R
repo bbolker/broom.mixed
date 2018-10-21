@@ -128,13 +128,18 @@ context("lme4 models")
   dNAs$y[c(1, 3, 5)] <- NA
 
   test_that("augment works on lme4 fits with NAs", {
-    fitNAs <- lmer(y ~ tx * x + (x | subj), data = dNAs)
+    fitNAs <- lmer(y ~ tx * x + (x | subj), data = dNAs,
+                     control=lmerControl(check.conv.grad=
+                     .makeCC("warning", tol = 5e-2, relTol = NULL)))
     au <- suppressWarnings(broom::augment(fitNAs))
     expect_equal(nrow(au), sum(complete.cases(dNAs)))
   })
 
   test_that("augment works on lme4 fits with na.exclude", {
-    fitNAs <- lmer(y ~ tx * x + (x | subj), data = dNAs, na.action = "na.exclude")
+      fitNAs <- lmer(y ~ tx * x + (x | subj),
+                     data = dNAs, na.action = "na.exclude",
+                     control=lmerControl(check.conv.grad=
+                     .makeCC("warning", tol = 5e-2, relTol = NULL)))
 
     # expect_error(suppressWarnings(augment(fitNAs)))
     au <- suppressWarnings(broom::augment(fitNAs, dNAs))

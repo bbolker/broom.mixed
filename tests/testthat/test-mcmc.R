@@ -36,9 +36,11 @@ if (suppressPackageStartupMessages(require("brms", quietly = TRUE))) {
                      package="broom.mixed",
                      mustWork=TRUE))
     ## n.b. different S3 methods found depending on environment
-    zz <- broom.mixed::tidy(brms_zip,effects="ran_vals")
-    zz2 <- broom.mixed::tidy(brms_zip)
-    zz3 <- broom.mixed::tidy(brms_multi)
+    zz <-  tidy(brms_zip,effects="ran_vals")
+    zz2 <- tidy(brms_zip)
+    zz3 <- tidy(brms_multi)
+    expect_warning(tidy(brms_multi_RE),"currently incorrect")
+    suppressWarnings(zz4 <- tidy(brms_multi_RE))
     test_that("correct levels for models with zi/ranef",{
         expect_equal(zz[["level"]],
                      rep(c(paste("R",1:12,sep="-"),paste("VF",1:11,sep="-")),2))

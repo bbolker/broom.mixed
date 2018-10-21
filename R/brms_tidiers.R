@@ -142,8 +142,28 @@ tidy.brmsfit <- function(x, parameters = NA,
   }
   terms <- names(samples)
   if (use_effects) {
-     if (is.multiresp) {
+      if (is.multiresp) {
+        if ("ran_pars" %in% effects && any(grepl("^sd",terms))) {
+           warning("ran_pars response/group tidying for multi-response models is currently incorrect")
+        }
+        ## FIXME: unfinished attempt to fix GH #39
         ## extract response component from terms
+        ## resp0 <- strsplit(terms, "_+")
+        ## resp1 <- sapply(resp0,
+        ##          function(x) if (length(x)==2) x[2] else x[length(x)-1])
+        ## ## put the pieces back together
+        ## t0 <- lapply(resp0,
+        ##          function(x) if (length(x)==2) x[1] else x[-(length(x)-1)])
+        ## t1 <- lapply(t0,
+        ##          function(x)     
+        ##              case_when(
+        ##                  x[[1]]=="b"  ~ sprintf("b%s",x[[2]]),
+        ##                  x[[2]]=="sd" ~ sprintf("sd_%s__%s",x[[2]],x[[3]]),
+        ##                  x[[3]]=="cor" ~ sprintf("cor_%s_%s_%s_%s",
+        ##                                          x[[2]],x[[3]],x[[4]],x[[5]])
+        ##              ))
+        ## resp0 <- stringr::str_extract_all(terms, "_[^_]+")
+        ## resp1 <- lapply(resp0, gsub, pattern= "^_", replacement="")
         response <- gsub("^_","",stringr::str_extract(terms,"_[^_]+"))
         terms <- sub("_[^_]+","",terms)
     }
@@ -162,6 +182,7 @@ tidy.brmsfit <- function(x, parameters = NA,
       ss <- strsplit(rterms, "__")
       pp <- "^(cor|sd)(?=(_))"
       nodash <- function(x) gsub("^_", "", x)
+      ##  split the first term (cor/sd) into tag + group
       ss2 <- lapply(
         ss,
         function(x) {
@@ -176,9 +197,10 @@ tidy.brmsfit <- function(x, parameters = NA,
         if (grepl("^sigma",x[[1]])) {
             paste("sd", "Observation", sep = sep)
         } else {
-          paste(x[[1]],
-            paste(x[3:length(x)], collapse = "."),
-            sep = sep
+            ## re-attach remaining terms
+            paste(x[[1]],
+                  paste(x[3:length(x)], collapse = "."),
+                  sep = sep
           )
         }
       }

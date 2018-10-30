@@ -13,7 +13,8 @@ Authors@R: c(
     person("Paul", "Buerkner", role = "ctb"),
     person("Christopher", "Hua", role = "ctb"),
     person("Will", "Petry", role = "ctb"),
-    person("Josh", "Wiley", role = "ctb"),
+    person("Joshua", "Wiley", role = "ctb",
+       comment=c(ORCID="0000-0002-0271-6702")),
     person("Patrick", "Kennedy", role = "ctb")
     )
 Maintainer: Ben Bolker <bolker@mcmaster.ca>

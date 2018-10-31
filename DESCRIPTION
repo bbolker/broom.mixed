@@ -12,7 +12,8 @@ Authors@R: c(
     person("Jonah", "Gabry", role = "ctb"),
     person("Paul", "Buerkner", role = "ctb"),
     person("Christopher", "Hua", role = "ctb"),
-    person("Will", "Petry", role = "ctb"),
+    person("William", "Petry", role = "ctb",
+       comment=c(ORCID="0000-0002-5230-5987")),
     person("Joshua", "Wiley", role = "ctb",
        comment=c(ORCID="0000-0002-0271-6702")),
     person("Patrick", "Kennedy", role = "ctb")

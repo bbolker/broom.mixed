@@ -497,3 +497,25 @@ augment.gamm4 <- function(x, ...) {
 glance.gamm4 <- function(x, ...) {
   return(glance(x$mer, ...))
 }
+
+##' @export
+tidy.lmList4 <- function(x, conf.int = FALSE,
+                        conf.level = 0.95) {
+    ss <- summary(x)$coefficients
+    names(dimnames(ss)) <- c("group","cols","terms")
+    ret <- (ss
+        %>% dplyr::as.tbl_cube()
+        %>% dplyr::as_data_frame()
+        %>% tidyr::spread(cols,ss)
+        %>% rename_regex_match()
+    )
+    if (conf.int) {
+        qq <- qnorm((1+conf.level)/2)
+        ret <- (ret %>%
+                mutate(conf.low=estimate-qq*std.error,
+                       conf.high=estimate+qq*std.error)
+        )
+        ## don't think reorder_cols is necessary ...?
+    }
+    return(ret)
+}

@@ -70,9 +70,11 @@ regex_match <- function(x, table) {
 }
 
 ## rename columns according to regex matches
+## names that are not matched are left unchanged
 rename_regex_match <- function(x, table = col_matches) {
-  names(x) <- names(table)[regex_match(names(x), table)]
-  return(x)
+    rr <- regex_match(names(x), table)
+    names(x)[!is.na(rr)] <- names(table)[na.omit(rr)]
+    return(x)
 }
 
 ## convert confint output to a data frame and relabel columns

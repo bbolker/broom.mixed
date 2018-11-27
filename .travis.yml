@@ -3,6 +3,7 @@ sudo: false
 r: 
   - release
   - devel
+  - oldrel
 cache: packages
 
 latex: true

@@ -1,5 +1,6 @@
-context("glmmTMB models")
 stopifnot(require("testthat"), require("broom.mixed"))
+context("glmmTMB models")
+## source("helper-checkers.R") ## done automatically in test workflow
 
 if (require(glmmTMB, quietly = TRUE)) {
   load(system.file("extdata", "glmmTMB_example.rda",
@@ -49,4 +50,19 @@ if (require(glmmTMB, quietly = TRUE)) {
       expect_equal(dim(tidy(zipm3, effects = "ran_pars", component = "zi")),
                    c(0,5))
   })
+
+  test_that("profile tidying works", {
+      td <- tidy(glmm1, effects="fixed", conf.int=TRUE, conf.method="profile")
+      check_tidy(
+          td, 4, 9,
+      c(
+        "effect", "component", "term",
+        "estimate", "std.error", "statistic", "p.value",
+        "conf.low","conf.high"))
+      expect_equal(td$conf.low,
+                   c(-1.9012409337, -1.61676924, -1.8010155, -2.50085),
+                   tolerance=1e-4)
+  })
+  
 } ## if require(glmmTMB)
+

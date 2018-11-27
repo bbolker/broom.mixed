@@ -2,14 +2,11 @@
 stopifnot(require("testthat"), require("broom.mixed"))
 ## test tidy, augment, glance methods from lme4-tidiers.R
 
-## HACK: need to make sure we find the right generic!
-tidy <- broom.mixed:::tidy.merMod
-
 if (require(lme4, quietly = TRUE)) {
   load(system.file("extdata", "lme4_example.rda",
     package = "broom.mixed",
     mustWork = TRUE
-  ))
+    ))
 
 context("lme4 models")
 
@@ -183,7 +180,8 @@ if (require(lmerTest, quietly = TRUE)) {
   context("lmerTest")
   test_that("lmerTest results include p-values", {
     lmm1X <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
-    expect("p.value" %in% names(tidy(lmm1X, effect = "fixed")))
+    expect("p.value" %in% names(tidy(lmm1X, effect = "fixed")),
+           "no p value in lmerTest results")
   })
   detach("package:lmerTest")
 }

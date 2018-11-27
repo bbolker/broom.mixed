@@ -506,7 +506,7 @@ tidy.lmList4 <- function(x, conf.int = FALSE,
     ret <- (ss
         %>% dplyr::as.tbl_cube()
         %>% dplyr::as_data_frame()
-        %>% tidyr::spread(cols,ss)
+        %>% tidyr::spread(cols,".")
         %>% rename_regex_match()
     )
     if (conf.int) {

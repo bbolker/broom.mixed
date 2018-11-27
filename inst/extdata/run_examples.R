@@ -9,7 +9,7 @@ source(system.file("extdata","example_helpers.R",package="broom.mixed"))
 ## environment variable, command-line arguments to R script?
 ## slow stuff, disable for speed
 run_brms <- TRUE
-run_stan <- FALSE
+run_stan <- TRUE
 
 run_pkg("nlme", {
   data(sleepstudy, package = "lme4")
@@ -39,25 +39,6 @@ run_pkg("lme4", {
   save_file(lmm1_prof, lmm0, lmm0ML, lmm1, lmm2, pkg = pkg, type = "rda")
 })
 
-
-if (run_stan) {
-  run_pkg("rstan", {
-    rstan_options(auto_write = TRUE)
-    model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
-    schools_dat <- list(
-      J = 8,
-      y = c(28, 8, -3, 7, -1, 1, 18, 12),
-      sigma = c(15, 10, 16, 11, 9, 11, 10, 18)
-    )
-    set.seed(2015)
-    rstan_example <- stan(
-      file = model_file, data = schools_dat,
-      iter = 1000, chains = 2, save_dso = FALSE
-    )
-    rstan_example <- hack_size(rstan_example)
-    save_file(rstan_example, pkg = pkg, type = "rds")
-  })
-}
 
 run_pkg("glmmTMB", {
   data(sleepstudy, package = "lme4")
@@ -144,11 +125,7 @@ if (run_brms) {
     brms_crossedRE <- brm(mpg ~ wt + (1 | cyl) + (1 + wt | gear),
       data = mtcars,
       iter = 100, chains = 2,
-      ## ugh: compiled object gets stored as part of fitted
-      ##  object - not cached. So it just blows up the
-      ##  size of the fitted object, doesn't speed things
-      ##  up when re-running this code ...
-      save_dso = FALSE
+      family=gaussian
       )
 
     brms_crossedRE <- hack_size(brms_crossedRE)
@@ -179,6 +156,27 @@ if (run_brms) {
     
     save_file(brms_crossedRE, brms_zip, brms_multi,
               brms_multi_RE, pkg = pkg, type = "rda")
+  })
+}
+
+## put rstan **after** brms:
+## https://github.com/paul-buerkner/brms/issues/558
+if (run_stan) {
+  run_pkg("rstan", {
+    rstan_options(auto_write = TRUE)
+    model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
+    schools_dat <- list(
+      J = 8,
+      y = c(28, 8, -3, 7, -1, 1, 18, 12),
+      sigma = c(15, 10, 16, 11, 9, 11, 10, 18)
+    )
+    set.seed(2015)
+    rstan_example <- stan(
+      file = model_file, data = schools_dat,
+      iter = 1000, chains = 2, save_dso = FALSE
+    )
+    rstan_example <- hack_size(rstan_example)
+    save_file(rstan_example, pkg = pkg, type = "rds")
   })
 }
 

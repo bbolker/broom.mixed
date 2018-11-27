@@ -500,7 +500,10 @@ glance.gamm4 <- function(x, ...) {
 
 ##' @export
 tidy.lmList4 <- function(x, conf.int = FALSE,
-                        conf.level = 0.95) {
+                         conf.level = 0.95, ...) {
+
+    cols <- estimate <- std.error <- NULL ## R CMD check false positives
+    
     ss <- summary(x)$coefficients
     names(dimnames(ss)) <- c("group","cols","terms")
     ret <- (ss

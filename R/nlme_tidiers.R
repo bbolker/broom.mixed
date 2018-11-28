@@ -313,16 +313,25 @@ tidy.gls <- function(x,
                      conf.level = 0.95,
                      ...) {
   . <- Value <- Std.Error <- `t-value` <- `p-value` <- NULL ## glob var checks
-  summary(x)[["tTable"]] %>%
-    as.data.frame() %>% ## have to convert to df *first*
-    tibble::rownames_to_column(var = "term") %>%
-    as_tibble() %>%
-    dplyr::rename(
-      estimate = Value,
-      std.error = Std.Error,
-      statistic = `t-value`,
-      p.value = `p-value`
-    )
+  ret <- (summary(x)[["tTable"]]
+      %>% as.data.frame() ## have to convert to df *first*
+      %>% tibble::rownames_to_column(var = "term")
+      %>% as_tibble()
+      %>%  dplyr::rename(
+                      estimate = Value,
+                      std.error = Std.Error,
+                      statistic = `t-value`,
+                      p.value = `p-value`
+                  )
+  )
+  if (conf.int) {
+      cc <- (confint(x, level=conf.level)
+          %>% as.data.frame()
+          %>% setNames(c("conf.low","conf.high"))
+      )
+      ret <- dplyr::bind_cols(ret,cc)
+  }
+  return(ret)
 }
 
 #' @export

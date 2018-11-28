@@ -2,9 +2,8 @@
 ## test tidy, augment, glance methods from nlme-tidiers.R
 stopifnot(require("testthat"), require("broom.mixed"))
 
-## HACK: need to find the right generic
-tidy <- broom.mixed:::tidy.lme
-
+load(system.file("extdata", "nlme_example.rda", package = "broom.mixed",
+                 mustWork=TRUE))
 
 if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
   context("nlme models")
@@ -85,8 +84,6 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     expect_equal(complete.cases(au), complete.cases(dNAs))
   })
 
-  load(system.file("extdata", "nlme_example.rda", package = "broom.mixed"))
-
   test_that("glance includes deviance iff method='ML'", {
     expect(!("deviance" %in% names(glance(lmm0))))
     expect("deviance" %in% names(glance(lmm0ML)))
@@ -139,4 +136,16 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
   )
   # When no data are passed, a meaningful message is issued
   expect_error(augment(fit), "explicit")
+
+  context("gls models")
+  
+  test_that("basic gls tidying", {
+
+      check_tidy(tidy(gls1), 3, 5,
+                 c("term","estimate","std.error","statistic","p.value"))
+      check_tidy(tidy(gls1, conf.int=TRUE), 3, 7,
+                 c("term","estimate","std.error","statistic","p.value",
+                   "conf.low","conf.high"))
+    
+  })      
 }

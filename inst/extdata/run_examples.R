@@ -8,8 +8,8 @@ source(system.file("extdata","example_helpers.R",package="broom.mixed"))
 ## FIXME: should disaggregate/implement a Makefile!
 ## environment variable, command-line arguments to R script?
 ## slow stuff, disable for speed
-run_brms <- TRUE
-run_stan <- TRUE
+run_brms <- FALSE
+run_stan <- FALSE
 
 run_pkg("nlme", {
   data(sleepstudy, package = "lme4")
@@ -26,8 +26,15 @@ run_pkg("nlme", {
                   data = Orange,
                   fixed = Asym + xmid + scal ~1,
                   random = Asym ~1,
-                  start = startvec)
-  save_file(lmm0, lmm0ML, lmm1, lmm2, nm1, pkg = pkg, type = "rda")
+              start = startvec)
+
+  gls1 <-  gls(
+          model = follicles ~ sin(2 * pi * Time) + cos(2 * pi * Time),
+          data = Ovary,
+          correlation = corAR1(form = ~ 1 | Mare)
+          )
+
+  save_file(lmm0, lmm0ML, lmm1, lmm2, nm1, gls1, pkg = pkg, type = "rda")
 })
 
 run_pkg("lme4", {

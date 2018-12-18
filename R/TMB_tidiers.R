@@ -6,7 +6,7 @@
 ##' @param effect which effects should be returned?
 ##' @param conf.method method for computing confidence intervals
 ##' @importFrom TMB sdreport
-##' @importFrom glmmTMB tmbroot
+##' @importFrom TMB tmbroot
 ## FIXME: retrieving stored objects doesn't work well ...
 ##' @examples
 ##' if (require("TMB")) {
@@ -47,7 +47,7 @@ tidy.TMB <- function(x, effect = c("fixed", "random"),
         tt <- do.call(
           rbind,
           lapply(seq(nrow(ss)),
-            glmmTMB::tmbroot,
+            tmbroot,
             obj = x
           )
         )

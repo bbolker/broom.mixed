@@ -89,8 +89,9 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
   ## R CMD check false positives
   term <- estimate <- .id <- level <- std.error <- . <- NULL
 
+  drop.missing <- function(x) x[vapply(x,length,numeric(1))>0]
   ss <- stats::coef(summary(x))
-  ss <- ss[!sapply(ss, is.null)]
+  ss <- drop.missing(ss)
   ## FIXME: warn if !missing(component) and component includes
   ##  NULL terms
   component <- intersect(component, names(ss))
@@ -234,44 +235,14 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
   if ("ran_vals" %in% effects) {
     ## fix each group to be a tidy data frame
 
-    re <- ranef(x, condVar = TRUE)
-    getSE <- function(x) {
-      v <- attr(x, "postVar")
-      setNames(
-        as.data.frame(sqrt(t(apply(v, 3, diag))),
-          stringsAsFactors = FALSE
-        ),
-        colnames(x)
-      )
-    }
-    fix <- function(g, re, .id) {
-      newg <- broom::fix_data_frame(g, newnames = colnames(g), newcol = "level")
-      # fix_data_frame doesn't create a new column if rownames are numeric,
-      # which doesn't suit our purposes
-      newg$level <- rownames(g)
-      newg$type <- "estimate"
-
-      newg.se <- getSE(re)
-      newg.se$level <- rownames(re)
-      newg.se$type <- "std.error"
-
-      data.frame(rbind(newg, newg.se),
-        .id = .id,
-        check.names = FALSE,
-        stringsAsFactors = FALSE
-      )
-      ## prevent coercion of variable names
-    }
-
-    mm <- do.call(rbind, Map(fix, coef(x), re, names(re)))
-
-    ## block false-positive warnings due to NSE
-    type <- spread <- est <- NULL
-    mm %>%
-      gather(term, estimate, -.id, -level, -type) %>%
-      spread(type, estimate) -> ret
-
-    ## FIXME: doesn't include uncertainty of population-level estimate
+      ret <- (ranef(x, condVar = TRUE)
+        %>% as.data.frame(stringsAsFactors = FALSE)
+        %>% dplyr::rename(
+                       group = grpvar, level = grp,
+                       estimate = condval, std.error = condsd
+                   )
+        %>% dplyr::mutate_if(is.factor, as.character)
+    )
 
     if (conf.int) {
       if (conf.method != "Wald") {
@@ -285,16 +256,12 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
       )
     }
 
-    ret <- dplyr::rename(ret, grp = .id)
     ret_list$ran_vals <- ret
   }
   ret <- (ret_list
-  %>%
-    dplyr::bind_rows(.id = "effect")
-    %>%
-    as_tibble()
-    %>%
-    reorder_cols()
+      %>% dplyr::bind_rows(.id = "effect")
+      %>% as_tibble()
+      %>% reorder_cols()
   )
   return(ret)
 }

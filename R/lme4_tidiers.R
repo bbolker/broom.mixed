@@ -73,12 +73,13 @@ confint.rlmerMod <- function(x, parm,
 }
 
 ## FIXME: relatively trivial/only used in one place, could
-## probably be eliminated?
+## probably be eliminated? OR move to utils (also in glmmTMB?)
 fix_ran_vals <- function(g) {
   term <- level <- estimate <- NULL
-  r <- g %>%
-    tibble::rownames_to_column("level") %>%
-    gather(term, estimate, -level)
+  r <- (g
+      %>% tibble::rownames_to_column("level")
+      %>% gather(term, estimate, -level)
+  )
   return(r)
 }
 
@@ -265,15 +266,12 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     ## fix each group to be a tidy data frame
 
     ret <- (ranef(x, condVar = TRUE)
-    %>%
-      as.data.frame(stringsAsFactors = FALSE)
-      %>%
-      dplyr::rename(
-        group = grpvar, level = grp,
-        estimate = condval, std.error = condsd
-      )
-      %>%
-      dplyr::mutate_if(is.factor, as.character)
+        %>% as.data.frame(stringsAsFactors = FALSE)
+        %>% dplyr::rename(
+                       group = grpvar, level = grp,
+                       estimate = condval, std.error = condsd
+                   )
+        %>% dplyr::mutate_if(is.factor, as.character)
     )
 
     if (conf.int) {

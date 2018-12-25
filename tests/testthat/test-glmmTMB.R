@@ -51,6 +51,11 @@ if (require(glmmTMB, quietly = TRUE)) {
                    c(0,5))
   })
 
+  test_that("ran_vals works", {
+      expect_equal(dim(tidy(zipm3, effects = "ran_pars", component = "zi")),
+                   c(0,5))
+  })
+
   test_that("profile tidying works", {
       td <- tidy(glmm1, effects="fixed", conf.int=TRUE, conf.method="profile")
       check_tidy(

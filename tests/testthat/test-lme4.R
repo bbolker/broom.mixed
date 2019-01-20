@@ -176,6 +176,24 @@ test_that("tidy respects conf.level", {
      expect_equal(tmpf(0.5),244.831,tolerance=1e-4)
 })
 
+test_that("effects='ran_pars' + conf.int works", {
+    tt <- tidy(lmm0, effects="ran_pars", conf.int=TRUE, conf.method="profile",
+               quiet=TRUE)[c("conf.low","conf.high")]
+    tt0 <- structure(list(conf.low = c(26.007120448854, 27.8138472081303
+), conf.high = c(52.9359835296834, 34.591049857869)), row.names = c(NA, 
+-2L), class = c("tbl_df", "tbl", "data.frame"))
+    tt0 <- structure(list(conf.low = c(26.00712, 27.81384),
+                                conf.high = c(52.9359, 34.59104)),
+                           row.names = c(NA, -2L),
+                     class = c("tbl_df", "tbl", "data.frame"))
+    ## ??? why do I need as.data.frame??
+    ## otherwise [1] "Rows in x but not y: 2, 1. Rows in y but not x: 2, 1. "
+    expect_equal(as.data.frame(tt0), as.data.frame(tt),
+                 tolerance=1e-5)
+
+})
+
+## KEEP THIS LAST to avoid screwing up S3 methods stack
 if (require(lmerTest, quietly = TRUE)) {
   context("lmerTest")
   test_that("lmerTest results include p-values", {

@@ -145,6 +145,12 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     stop("unknown effect type ", miss)
   }
 
+  if (conf.int && conf.method == "profile" && !is.null(profile)) {
+     p <- profile
+  } else {
+     p <- x
+  }
+
   ret_list <- list()
   if ("fixed" %in% effects) {
     # return tidied fixed effects
@@ -160,12 +166,6 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     if (debug) {
       cat("output from coef(summary(x)):\n")
       print(coef(ss))
-    }
-
-    if (conf.int && conf.method == "profile" && !is.null(profile)) {
-      p <- profile
-    } else {
-      p <- x
     }
 
     ## need to save rownames before dplyr (mutate(), bind_cols())

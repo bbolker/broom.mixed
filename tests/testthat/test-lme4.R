@@ -203,3 +203,4 @@ if (require(lmerTest, quietly = TRUE)) {
   })
   detach("package:lmerTest")
 }
+

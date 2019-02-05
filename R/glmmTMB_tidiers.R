@@ -87,7 +87,8 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
   ##   - avoid (as.)data.frame
 
   ## R CMD check false positives
-  term <- estimate <- .id <- level <- std.error <- . <- NULL
+  condsd <- condval <- grp <- grpvar <-
+        term <- estimate <- .id <- level <- std.error <- . <- NULL
 
   drop.missing <- function(x) x[vapply(x,length,numeric(1))>0]
   ss <- stats::coef(summary(x))

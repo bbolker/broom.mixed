@@ -342,7 +342,7 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
   if (missing(newdata)) {
     newdata <- NULL
   }
-  ret <- augment_columns(x, data, newdata, se.fit = NULL, ...)
+  ret <- suppressMessages(augment_columns(x, data, newdata, se.fit = NULL, ...))
 
   # add predictions with no random effects (population means)
   predictions <- stats::predict(x, re.form = NA)
@@ -420,12 +420,12 @@ glance.merMod <- function(x, ...) {
 ##'          geom_vline(xintercept=0,lty=2)+
 ##'          geom_point()+facet_wrap(~variable,scale="free_x")
 ##'       ## emphasize extreme values
-##'       aa2 <- aa  %>% group_by(grp,level) %>%
-##'             mutate(keep=any(estimate/std.error>2))
-##'        ## Update caterpillar plot with extreme levels highlighted
-##'        ##  (highlight all groups with *either* extreme intercept *or*
-##'        ##   extreme slope)
-##'       ggplot(aa2,aes(estimate,level,xmin=lb,xmax=ub,colour=factor(keep)))+
+##'       aa2 <- group_by(aa,grp,level)
+##'       aa3 <- mutate(aa2, keep=any(estimate/std.error>2))
+##'       ## Update caterpillar plot with extreme levels highlighted
+##'       ##  (highlight all groups with *either* extreme intercept *or*
+##'       ##   extreme slope)
+##'       ggplot(aa3, aes(estimate,level,xmin=lb,xmax=ub,colour=factor(keep)))+
 ##'          geom_errorbarh(height=0)+
 ##'          geom_vline(xintercept=0,lty=2)+
 ##'          geom_point()+facet_wrap(~variable,scale="free_x")+

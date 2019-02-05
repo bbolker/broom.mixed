@@ -193,6 +193,11 @@ test_that("effects='ran_pars' + conf.int works", {
 
 })
 
+test_that("augment returns a tibble", {
+    ## GH 51
+    expect_is(augment(fit), "tbl")
+})
+
 ## KEEP THIS LAST to avoid screwing up S3 methods stack
 if (require(lmerTest, quietly = TRUE)) {
   context("lmerTest")

@@ -336,6 +336,7 @@ tidy.rlmerMod <- tidy.merMod
 #' ".offset", ".sqrtXwt", ".sqrtrwt", ".eta"}.
 #'
 #' @importFrom broom augment augment_columns
+#' @importFrom dplyr bind_cols
 #' @export
 augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
   # move rownames if necessary
@@ -363,11 +364,11 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
   cols <- lapply(respCols, function(cc) x@resp[[cc]])
   names(cols) <- paste0(".", respCols)
   ## remove missing fields
-  cols <- as.data.frame(compact(cols), stringsAsFactors = FALSE)
+  cols <- dplyr::bind_cols(compact(cols))
 
   cols <- insert_NAs(cols, ret)
   if (length(cols) > 0) {
-    ret <- cbind(ret, cols)
+    ret <- dplyr::bind_cols(ret, cols)
   }
 
   return(unrowname(ret))

@@ -38,7 +38,6 @@ Imports:
     methods,
     stringr,
     coda,
-    glmmTMB,
     TMB
 Suggests:
     knitr,
@@ -54,6 +53,7 @@ Suggests:
     gamlss,
     lmerTest,
     glmmADMB,
+    glmmTMB,
     dotwhisker,
     pander
 URL: http://github.com/bbolker/broom.mixed

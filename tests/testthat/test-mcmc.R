@@ -73,3 +73,26 @@ if (suppressPackageStartupMessages(require("brms", quietly = TRUE))) {
     })
     
 } ## if require("brms")
+
+context("mcmc tidiers")
+
+if (suppressPackageStartupMessages(require(coda, quietly = TRUE))) {
+    data(line)
+    x1 <- line[[1]]
+    
+    test_that("mcmc with ess",
+    {
+
+        expect_warning(td <- tidy(
+                           x = x1,
+                           conf.int = TRUE,
+                           robust = TRUE,
+                           rhat = TRUE,
+                           index = TRUE,
+                           ess = TRUE),
+                       "ignoring 'rhat'")
+        check_tidy(td, 3, 7,
+                   c("term","index","estimate","std.error",
+                     "conf.low","conf.high","ess"))
+    })
+}

@@ -113,10 +113,17 @@ tidyMCMC <- function(x,
     ret <- bind_cols(ret, ci)
   }
 
-  if (rhat || ess) {
-    if (!stan) warning("ignoring 'rhat' and 'ess' (only available for stanfit objects)")
-    summ <- rstan::summary(x, pars = pars, probs = NULL)$summary[, c("Rhat", "n_eff"), drop = FALSE]
-    summ <- summ[!dimnames(summ)[[1L]] %in% drop.pars, , drop = FALSE]
+  if (!stan) {
+      if (rhat) warning("ignoring 'rhat' (only available for stanfit objects)")
+      if (ess) {
+          ess_vals <- coda::effectiveSize(x)
+          ## FIXME: deal with this
+          if (!missing(pars)) warning("pars ignored in ESS computation - might break something?")
+          ret$ess <- as.integer(round(ess_vals))
+      }
+  } else {
+      summ <- rstan::summary(x, pars = pars, probs = NULL)$summary[, c("Rhat", "n_eff"), drop = FALSE]
+      summ <- summ[!dimnames(summ)[[1L]] %in% drop.pars, , drop = FALSE]
     if (rhat) ret$rhat <- summ[, "Rhat"]
     if (ess) ret$ess <- as.integer(round(summ[, "n_eff"]))
   }

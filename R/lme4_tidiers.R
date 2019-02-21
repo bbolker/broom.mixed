@@ -363,8 +363,12 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
   )
   cols <- lapply(respCols, function(cc) x@resp[[cc]])
   names(cols) <- paste0(".", respCols)
-  ## remove missing fields
-  cols <- dplyr::bind_cols(compact(cols))
+
+  ## remove too-long fields and empty fields
+  n_vals <- vapply(cols,length,1L)
+  min_n <- min(n_vals[n_vals>0])
+  
+  cols <- dplyr::bind_cols(cols[n_vals==min_n])
 
   cols <- insert_NAs(cols, ret)
   if (length(cols) > 0) {

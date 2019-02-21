@@ -129,14 +129,18 @@ if (require("lme4")) {
     tidy(glmm1)
     tidy(glmm1,exponentiate=TRUE)
     tidy(glmm1, effects = "fixed")
-    head(augment(glmm1, cbpp))
+    ## suppress warning about influence.merMod
+    head(suppressWarnings(augment(glmm1, cbpp)))
     glance(glmm1)
 
     startvec <- c(Asym = 200, xmid = 725, scal = 350)
     nm1 <- nlmer(circumference ~ SSlogis(age, Asym, xmid, scal) ~ Asym|Tree,
                   Orange, start = startvec)
+    ## suppress warnings about var-cov matrix ...
+    op <- options(warn=-1)
     tidy(nm1)
     tidy(nm1, effects = "fixed")
+    options(op)
     head(augment(nm1, Orange))
     glance(nm1)
     detach("package:lme4")

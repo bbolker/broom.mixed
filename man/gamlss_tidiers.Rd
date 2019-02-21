@@ -5,35 +5,47 @@
 \alias{tidy.gamlss}
 \title{Tidying methods for gamlss objects}
 \usage{
-\method{tidy}{gamlss}(x, quick = FALSE, ...)
+\method{tidy}{gamlss}(x, quick = FALSE, conf.int = FALSE,
+  conf.level = 0.95, ...)
 }
 \arguments{
 \item{x}{A "gamlss" object}
 
 \item{quick}{Whether to perform a fast version, and return only the coefficients}
 
-\item{...}{Extra arguments (not used)}
+\item{conf.int}{whether to return confidence intervals}
+
+\item{conf.level}{confidence level for CI}
+
+\item{...}{arguments passed to \code{confint.gamlss}}
 }
 \value{
 All tidying methods return a data.frame without rownames, whose
 structure depends on the method chosen.
 
-A data.frame with one row for each coefficient, containing columns
-  \item{parameter}{Type of coefficient being estimated: \code{mu}, \code{sigma},
-  \code{nu}, or \code{tau}}
-  \item{term}{The term in the model being estimated and tested}
-  \item{estimate}{The estimated coefficient}
-  \item{std.error}{The standard error from the linear model}
+A tibble with one row for each coefficient, containing columns:
+  \item{parameter}{type of coefficient being estimated: \code{mu}, \code{sigma}, \code{nu}, or \code{tau}}
+  \item{term}{term in the model being estimated and tested}
+  \item{estimate}{estimated coefficient}
+  \item{std.error}{standard error}
   \item{statistic}{t-statistic}
   \item{p.value}{two-sided p-value}
-
-if (requireNamespace("gamlss", quietly = TRUE)) {
-    data(abdom)
-    mod<-gamlss(y~pb(x),sigma.fo=~pb(x),family=BCT, data=abdom, method=mixed(1,20))
-
-    tidy(mod)
-}
 }
 \description{
 Tidying methods for "gamlss" objects from the gamlss package.
+}
+\examples{
+if (requireNamespace("gamlss", quietly = TRUE) &&
+    requireNamespace("gamlss.data", quietly = TRUE)) {
+    data(abdom, package="gamlss.data")
+    \dontrun{
+         mod <- gamlss(y~pb(x), sigma.fo=~pb(x), family=BCT,
+                       data=abdom, method=mixed(1,20))
+    }
+    ## load stored object
+    mod <- readRDS(system.file("extdata", "gamlss_example.rds",
+                   package="broom.mixed"))
+    tidy(mod)
+}
+
 }

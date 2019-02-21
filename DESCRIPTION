@@ -51,6 +51,7 @@ Suggests:
     brms,
     mgcv,
     gamlss,
+    gamlss.data,
     lmerTest,
     glmmADMB,
     glmmTMB,

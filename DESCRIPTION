@@ -56,7 +56,8 @@ Suggests:
     glmmADMB,
     glmmTMB,
     dotwhisker,
-    pander
+    pander,
+    R2jags
 URL: http://github.com/bbolker/broom.mixed
 BugReports: http://github.com/bbolker/broom.mixed/issues
 License: GPL-3

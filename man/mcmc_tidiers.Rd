@@ -7,6 +7,7 @@
 \alias{tidy.rjags}
 \alias{tidy.stanfit}
 \alias{tidy.mcmc}
+\alias{tidy.mcmc.list}
 \title{Tidying methods for MCMC (Stan, JAGS, etc.) fits}
 \usage{
 \method{tidy}{MCMCglmm}(x, effects = c("fixed", "ran_pars"),
@@ -17,7 +18,7 @@ tidyMCMC(x, pars, robust = FALSE, conf.int = FALSE,
   drop.pars = c("lp__", "deviance"), rhat = FALSE, ess = FALSE,
   index = FALSE, ...)
 
-\method{tidy}{rjags}(x, estimate.method = "mean", conf.int = FALSE,
+\method{tidy}{rjags}(x, robust = FALSE, conf.int = FALSE,
   conf.level = 0.95, conf.method = "quantile", ...)
 
 \method{tidy}{stanfit}(x, pars, robust = FALSE, conf.int = FALSE,
@@ -26,6 +27,11 @@ tidyMCMC(x, pars, robust = FALSE, conf.int = FALSE,
   index = FALSE, ...)
 
 \method{tidy}{mcmc}(x, pars, robust = FALSE, conf.int = FALSE,
+  conf.level = 0.95, conf.method = c("quantile", "HPDinterval"),
+  drop.pars = c("lp__", "deviance"), rhat = FALSE, ess = FALSE,
+  index = FALSE, ...)
+
+\method{tidy}{mcmc.list}(x, pars, robust = FALSE, conf.int = FALSE,
   conf.level = 0.95, conf.method = c("quantile", "HPDinterval"),
   drop.pars = c("lp__", "deviance"), rhat = FALSE, ess = FALSE,
   index = FALSE, ...)
@@ -58,8 +64,6 @@ as log-probability information)}
 
 \item{index}{Add index column, remove index from term. For example,
 \code{term a[13]} becomes \code{term a} and \code{index 13}.}
-
-\item{estimate.method}{method for computing point estimate ("mean" or "median")}
 }
 \description{
 Tidying methods for MCMC (Stan, JAGS, etc.) fits
@@ -102,7 +106,7 @@ if (require(rstan)) {
    tidy(rstan_example)
    tidy(rstan_example, conf.int = TRUE, pars = "theta")
    td_mean <- tidy(rstan_example, conf.int = TRUE)
-   td_median <- tidy(rstan_example, conf.int = TRUE, estimate.method = "median")
+   td_median <- tidy(rstan_example, conf.int = TRUE, robust = TRUE)
 
   if (require(dplyr) && require(ggplot2)) {
     tds <- rbind(mutate(td_mean, method = "mean"),
@@ -117,5 +121,10 @@ if (require(rstan)) {
       facet_wrap(~type,scale="free",ncol=1)
  } ## require(dplyr,ggplot2)
 } ## require(rstan)
+if (require(R2jags)) {
+   ## load stored object
+   R2jags_example <- readRDS(system.file("extdata", "R2jags_example.rds", package = "broom.mixed"))
+   tidy(R2jags_example)
+}
 
 }

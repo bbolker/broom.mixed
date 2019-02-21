@@ -9,13 +9,21 @@
      \itemize{
 	\item \code{gls} tidier gets confint (GH #49)
 	}
-  }
-  \subsection{BUG FIXES}{
-     \itemize{
-        \item misc fixes for \code{lme4} tidiers (confint for ran_vals, profile conf intervals fixed)
-	\item ran_vals works for \code{glmmTMB}
-     }
-   }
+      }
+      \subsection{USER-VISIBLE CHANGES}{
+	\itemize{
+	  \item redundant \code{estimate.method} in MCMC tidiers goes
+	  away; use \code{robust} to compute point estimates/uncertainty via
+	  median and MAD rather than mean and SE
+	}
+      }
+      \subsection{BUG FIXES}{
+	\itemize{
+          \item misc fixes: \code{lme4} tidiers (confint for ran_vals,
+	  profile conf intervals fixed), \code{R2jags}, \code{gamlss} ...
+	  \item ran_vals works for \code{glmmTMB}
+	}
+      }
 }
 	
 \section{CHANGES IN VERSION 0.2.3}{

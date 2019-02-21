@@ -63,6 +63,18 @@ run_pkg("glmmTMB", {
   save_file(lmm1, glmm1, zipm3, pkg = pkg, type = "rda")
 })
 
+run_pkg("gamlss", {
+  data(abdom, package="gamlss")
+    gamlss1 <- gamlss(
+        y ~ pb(x),
+        sigma.fo = ~ pb(x),
+        family = BCT,
+        data = abdom,
+        method = mixed(1, 20)
+    )
+  save_file(gamlss1, pkg=pkg, type="rds")
+})
+
 run_pkg("glmmADMB", {
   data(sleepstudy, package = "lme4")
   lmm1 <- glmmadmb(Reaction ~ Days + (Days | Subject), sleepstudy,
@@ -109,6 +121,7 @@ if (FALSE) {
         save_file(obj, pkg=pkg, type="rds")
     })
 }
+
 
 ## slowest stuff last
 

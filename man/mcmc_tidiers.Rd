@@ -122,9 +122,13 @@ if (require(rstan)) {
  } ## require(dplyr,ggplot2)
 } ## require(rstan)
 if (require(R2jags)) {
+   ## see help("jags",package="R2jags")
+   ## and  example("jags",package="R2jags")
+   ## for details
    ## load stored object
    R2jags_example <- readRDS(system.file("extdata", "R2jags_example.rds", package = "broom.mixed"))
    tidy(R2jags_example)
+   tidy(R2jags_example, conf.int=TRUE, conf.method="quantile")
 }
 
 }

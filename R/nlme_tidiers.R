@@ -44,6 +44,7 @@
 #'                          correlation = corAR1(form = ~ 1 | Mare))
 #'     tidy(gls1)
 #'     glance(gls1)
+#'     head(augment(gls1))
 #' }
 #'
 #' @rdname nlme_tidiers
@@ -347,4 +348,16 @@ glance.gls <- function(x, ...) {
       df.residual = dims[["N"]] - dims[["p"]]
     )
   )
+}
+
+#' @rdname nlme_tidiers
+#' @export
+augment.gls <- function(x, data = nlme::getData(x), newdata, ...) {
+
+  # move rownames if necessary
+  if (missing(newdata)) {
+    newdata <- NULL
+  }
+  ret <- augment_columns(x, data, newdata, se.fit = NULL)
+  ret
 }

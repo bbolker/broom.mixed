@@ -147,5 +147,17 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
                  c("term","estimate","std.error","statistic","p.value",
                    "conf.low","conf.high"))
     
-  })      
+  })    
+
+  test_that("basic gls augment with & without data", {
+    au <- augment(gls1)
+    expect_is(au, 'data.frame')
+    expect_equal(nrow(au), nrow(Ovary))
+    expect_true(all(c(".fitted", ".resid") %in% names(au)))
+
+    au <- augment(gls1, data = Ovary)
+    expect_is(au, 'data.frame')
+    expect_equal(nrow(au), nrow(Ovary))
+    expect_true(all(c(".fitted", ".resid") %in% names(au)))
+  })  
 }

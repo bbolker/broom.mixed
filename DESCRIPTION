@@ -16,7 +16,9 @@ Authors@R: c(
        comment=c(ORCID="0000-0002-5230-5987")),
     person("Joshua", "Wiley", role = "ctb",
        comment=c(ORCID="0000-0002-0271-6702")),
-    person("Patrick", "Kennedy", role = "ctb")
+    person("Patrick", "Kennedy", role = "ctb"),
+    person("Eduard", "Szöcs", role = "ctb",
+       comment=c(ORCID = "0000-0001-5376-1194", sponsor = "BASF SE"))
     )
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 Description: Convert fitted objects from various R mixed-model packages

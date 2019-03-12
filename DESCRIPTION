@@ -53,6 +53,7 @@ Suggests:
     gamlss,
     gamlss.data,
     lmerTest,
+    pbkrtest,
     glmmADMB,
     glmmTMB,
     dotwhisker,

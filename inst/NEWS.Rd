@@ -4,6 +4,14 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
+\section{CHANGES IN VERSION 0.2.4.9000}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{lmer} tidier gets \code{ddf.method} (applies only to
+  lmerTest fits)
+    }
+  }
+}
 \section{CHANGES IN VERSION 0.2.4}{
   \subsection{NEW FEATURES}{
      \itemize{

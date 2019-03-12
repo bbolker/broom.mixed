@@ -11,12 +11,12 @@
 \method{tidy}{merMod}(x, effects = c("ran_pars", "fixed"),
   scales = NULL, exponentiate = FALSE, ran_prefix = NULL,
   conf.int = FALSE, conf.level = 0.95, conf.method = "Wald",
-  profile = NULL, debug = FALSE, ...)
+  ddf.method = NULL, profile = NULL, debug = FALSE, ...)
 
 \method{tidy}{rlmerMod}(x, effects = c("ran_pars", "fixed"),
   scales = NULL, exponentiate = FALSE, ran_prefix = NULL,
   conf.int = FALSE, conf.level = 0.95, conf.method = "Wald",
-  profile = NULL, debug = FALSE, ...)
+  ddf.method = NULL, profile = NULL, debug = FALSE, ...)
 
 \method{augment}{merMod}(x, data = stats::model.frame(x), newdata, ...)
 
@@ -39,6 +39,8 @@
 \item{conf.level}{confidence level for CI}
 
 \item{conf.method}{method for computing confidence intervals (see \code{lme4::confint.merMod})}
+
+\item{ddf.method}{the method for computing the degrees of freedom and t-statistics (only applicable when using the \pkg{lmerTest} package: see \code{\link[lmerTest]{summary.lmerModLmerTest}}}
 
 \item{profile}{pre-computed profile object, for speed when using \code{conf.method="profile"}}
 

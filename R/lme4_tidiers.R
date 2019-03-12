@@ -98,6 +98,7 @@ fix_ran_vals <- function(g) {
 #' @param exponentiate  whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale
 #' @param ran_prefix a length-2 character vector specifying the strings to use as prefixes for self- (variance/standard deviation) and cross- (covariance/correlation) random effects terms
 #' @param profile pre-computed profile object, for speed when using \code{conf.method="profile"}
+#' @param ddf.method  the method for computing the degrees of freedom and t-statistics (only applicable when using the \pkg{lmerTest} package: see \code{\link[lmerTest]{summary.lmerModLmerTest}}
 #'
 #' @return \code{tidy} returns one row for each estimated effect, either
 #' with groups depending on the \code{effects} parameter.
@@ -128,6 +129,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
                         conf.int = FALSE,
                         conf.level = 0.95,
                         conf.method = "Wald",
+                        ddf.method = NULL,
                         profile = NULL,
                         debug = FALSE,
                         ...) {
@@ -157,16 +159,20 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
 
   ret_list <- list()
   if ("fixed" %in% effects) {
-    # return tidied fixed effects
-    ## not quite sure why implicit/automatic method dispatch doesn't work,
-    ##  but we seem to need this to get the right summary for  merModLmerTest
-    ##  objects ...
-    sum_fun <- selectMethod("summary", class(x))
-    ss <- sum_fun(x)
-    ret <- stats::coef(ss) %>%
-      data.frame(check.names = FALSE) %>%
-      rename_regex_match()
-
+      ## return tidied fixed effects
+      ## not quite sure why implicit/automatic method dispatch doesn't work,
+      ##  but we seem to need this to get the right summary for  merModLmerTest
+      ##  objects ...
+      sum_fun <- selectMethod("summary", class(x))
+      if (inherits(x,"lmerModLmerTest")) {
+          ss <- sum_fun(x, ddf=ddf.method)
+      } else {
+          ss <- sum_fun(x)
+      }
+      ret <- stats::coef(ss) %>%
+          data.frame(check.names = FALSE) %>%
+          rename_regex_match()
+      
     if (debug) {
       cat("output from coef(summary(x)):\n")
       print(coef(ss))
@@ -179,7 +185,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     if (conf.int) {
       if (is(x, "merMod") || is(x, "rlmerMod")) {
           cifix <- cifun(p, parm = "beta_", method = conf.method,
-                         level=conf.level, ...)
+                         level = conf.level, ...)
       } else {
         ## ?? for glmmTMB?  check ...
         cifix <- cifun(p, level = conf.level, ...)

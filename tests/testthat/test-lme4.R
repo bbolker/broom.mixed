@@ -198,14 +198,9 @@ test_that("augment returns a tibble", {
     expect_is(augment(fit), "tbl")
 })
 
-## KEEP THIS LAST to avoid screwing up S3 methods stack
-if (require(lmerTest, quietly = TRUE)) {
-  context("lmerTest")
-  test_that("lmerTest results include p-values", {
-    lmm1X <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
-    expect("p.value" %in% names(tidy(lmm1X, effect = "fixed")),
-           "no p value in lmerTest results")
-  })
-  detach("package:lmerTest")
-}
-
+test_that("conf intervals for ranef in correct order", {
+    ## GH 65
+    t1 <- tidy(lmm1,conf.int=TRUE,effect="ran_pars",conf.method="profile",quiet=TRUE)
+    cor_vals <- t1[t1$term=="cor__(Intercept).Days",]
+    expect_true(cor_vals$conf.low>(-1) && cor_vals$conf.high<1)
+})

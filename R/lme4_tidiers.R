@@ -238,7 +238,9 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
       }
       class(vc) <- "VarCorr.merMod"
     }
-    ret <- as.data.frame(vc)
+    ## n.b. use order="lower.tri" here so that term order matches
+    ## that returned by confint() !
+    ret <- as.data.frame(vc, order="lower.tri")
     ## purrr::map_at?
     ret[] <- lapply(ret, function(x) if (is.factor(x)) {
         as.character(x)
@@ -265,9 +267,10 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
       c("group", "term", "estimate")
     )
 
+    ## FIXME: need to get these in the right order!
     if (conf.int) {
-      ciran <- cifun(p, parm = "theta_", method = conf.method, ...)
-      ret <- data.frame(ret, ciran, stringsAsFactors = FALSE)
+        ciran <- cifun(p, parm = "theta_", method = conf.method, ...)
+        ret <- data.frame(ret, ciran, stringsAsFactors = FALSE)
     }
     ret_list$ran_pars <- ret
   }

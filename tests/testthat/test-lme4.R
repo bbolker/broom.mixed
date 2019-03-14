@@ -30,8 +30,10 @@ context("lme4 models")
       c(
         "(Intercept)", "tx2", "tx3", "tx4", "x",
         "tx2:x", "tx3:x", "tx4:x",
-        "sd__(Intercept)", "sd__x",
-        "cor__(Intercept).x", "sd__Observation"
+        "sd__(Intercept)",
+        "cor__(Intercept).x",
+        "sd__x",
+        "sd__Observation"
       )
     )
   })
@@ -92,9 +94,14 @@ context("lme4 models")
       "unrecognized ran_pars scale"
     )
     t3 <- tidy(fit, effects = "ran_pars", scales = "vcov")
+
+    get_sdvar <- function(x) {
+        (x %>% dplyr::filter(grepl("^(sd|var)",term))
+            %>% dplyr::select(estimate)
+            )}
     expect_equal(
-      t3$estimate[c(1, 2, 4)],
-      t2$estimate[c(1, 2, 4)]^2
+        get_sdvar(t3),
+        get_sdvar(t2)^2
     )
     expect_error(
       tidy(fit, scales = "vcov"),

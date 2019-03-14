@@ -119,7 +119,7 @@ if (require("lme4")) {
     tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
     ## coefficients (group-level estimates)
     (rcoef1 <- tidy(lmm1, effects = "ran_coefs"))
-    if (require(tidyr)) {
+    if (require(tidyr) && require(dplyr)) {
        ## reconstitute standard coefficient-by-level table
        spread(rcoef1,key=term,value=estimate)
        ## split ran_pars into type + term; sort fixed/sd/cor

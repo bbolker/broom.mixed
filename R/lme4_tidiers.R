@@ -20,7 +20,7 @@
 #'     }
 #'     ## load stored object
 #'     load(system.file("extdata", "lme4_example.rda", package="broom.mixed"))
-#'     tidy(lmm1)
+#'     (tt <- tidy(lmm1))
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE)
 #'     tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
@@ -30,9 +30,12 @@
 #'     tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
 #'     ## coefficients (group-level estimates)
 #'     (rcoef1 <- tidy(lmm1, effects = "ran_coefs"))
-#'     ## reconstitute standard coefficient-by-level table
 #'     if (require(tidyr)) {
+#'        ## reconstitute standard coefficient-by-level table
 #'        spread(rcoef1,key=term,value=estimate)
+#'        ## split ran_pars into type + term; sort fixed/sd/cor
+#'        (tt %>% separate(term,c("type","term"),sep="__",fill="left")
+#'            %>% arrange(!is.na(type),desc(type)))
 #'     }
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)

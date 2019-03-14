@@ -28,7 +28,7 @@
 
 \item{effects}{A character vector including one or more of "fixed" (fixed-effect parameters); "ran_pars" (variances and covariances or standard deviations and correlations of random effect terms); "ran_vals" (conditional modes/BLUPs/latent variable estimates); or "ran_coefs" (predicted parameter values for each group, as returned by \code{\link[lme4]{coef.merMod}})}
 
-\item{scales}{scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects; inverse-link transformations (exponentiation or logistic) are not yet implemented, but may be in the future.}
+\item{scales}{scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects.}
 
 \item{exponentiate}{whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale}
 
@@ -109,7 +109,7 @@ if (require("lme4")) {
     }
     ## load stored object
     load(system.file("extdata", "lme4_example.rda", package="broom.mixed"))
-    tidy(lmm1)
+    (tt <- tidy(lmm1))
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, effects = "fixed", conf.int=TRUE)
     tidy(lmm1, effects = "fixed", conf.int=TRUE, conf.method="profile")
@@ -119,9 +119,12 @@ if (require("lme4")) {
     tidy(lmm1, effects = "ran_vals", conf.int=TRUE)
     ## coefficients (group-level estimates)
     (rcoef1 <- tidy(lmm1, effects = "ran_coefs"))
-    ## reconstitute standard coefficient-by-level table
     if (require(tidyr)) {
+       ## reconstitute standard coefficient-by-level table
        spread(rcoef1,key=term,value=estimate)
+       ## split ran_pars into type + term; sort fixed/sd/cor
+       (tt \%>\% separate(term,c("type","term"),sep="__",fill="left")
+           \%>\% arrange(!is.na(type),desc(type)))
     }
     head(augment(lmm1, sleepstudy))
     glance(lmm1)

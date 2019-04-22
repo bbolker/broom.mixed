@@ -5,6 +5,7 @@
 #'
 #' @param x An object of class \code{merMod}, such as those from \code{lmer},
 #' \code{glmer}, or \code{nlmer}
+#' @param ... Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})
 #'
 #' @return All tidying methods return a \code{data.frame} without rownames.
 #' The structure depends on the method chosen.
@@ -270,7 +271,8 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
       c("group", "term", "estimate")
     )
 
-    ## FIXME: need to get these in the right order!
+    ## these are in 'lower.tri' order, need to make sure this
+    ## is matched in as.data.frame() below 
     if (conf.int) {
         ciran <- cifun(p, parm = "theta_", method = conf.method, ...)
         ret <- data.frame(ret, ciran, stringsAsFactors = FALSE)
@@ -396,8 +398,6 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
 
 
 #' @rdname lme4_tidiers
-#'
-#' @param ... extra arguments (not used)
 #'
 #' @return \code{glance} returns one row with the columns
 #'   \item{sigma}{the square root of the estimated residual variance}

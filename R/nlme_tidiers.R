@@ -49,11 +49,11 @@
 #'
 #' @rdname nlme_tidiers
 #'
-#' @param effects Either "random" (default) or "fixed"
+#' @param effects Either "fixed" or "random" (default) or "fixed"
 #'
 #' @return \code{tidy} returns one row for each estimated effect, either
 #' random or fixed depending on the \code{effects} parameter. If
-#' \code{effects = "random"}, it contains the columns
+#' \code{effects = "ran_vals"} (or \code{"random"}), it contains the columns
 #'   \item{group}{the group within which the random effect is being estimated}
 #'   \item{level}{level within group}
 #'   \item{term}{term being estimated}
@@ -115,7 +115,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
       ret <- dplyr::full_join(ret, cifix, by = "term")
     }
 
-    ran_effs <- sprintf("ran_%s", c("pars", "modes", "coefs"))
+    ran_effs <- sprintf("ran_%s", c("pars", "vals", "coefs"))
     if (any(purrr::map_lgl(ran_effs, ~. %in% effects))) {
       ## add group="fixed" to tidy table for fixed effects
       ret <- mutate(ret, effect = "fixed", group = "fixed")

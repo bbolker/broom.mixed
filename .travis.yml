@@ -31,7 +31,8 @@ before_install:
   - sed -i.bak "s/O[0-3]/O$CXX_OLEVEL/" ~/.R/Makevars
   - sudo add-apt-repository -y "ppa:marutter/rrutter3.5"
   - sudo add-apt-repository -y "ppa:marutter/c2d4u3.5"
-  - sudo apt-get update && sudo apt-get install -y --no-install-recommends r-cran-rstan
+  - sudo apt-get update
+  - sudo apt-get install -y --no-install-recommends r-cran-rstan r-cran-rstanarm
 
 script:
   - |

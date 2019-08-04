@@ -49,11 +49,12 @@
 #'
 #' @rdname nlme_tidiers
 #'
-#' @param effects Either "fixed" or "random" (default) or "fixed"
+#' @param effects One or more of "ran_pars", "fixed", "ran_vals", and/or
+#'   "ran_coefs".
 #'
 #' @return \code{tidy} returns one row for each estimated effect, either
 #' random or fixed depending on the \code{effects} parameter. If
-#' \code{effects = "ran_vals"} (or \code{"random"}), it contains the columns
+#' \code{effects = "ran_vals"} (or \code{"ran_pars"}), it contains the columns
 #'   \item{group}{the group within which the random effect is being estimated}
 #'   \item{level}{level within group}
 #'   \item{term}{term being estimated}

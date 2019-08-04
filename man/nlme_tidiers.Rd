@@ -24,7 +24,8 @@
 \item{x}{An object of class \code{lme}, such as those from \code{lme}
 or \code{nlme}}
 
-\item{effects}{Either "random" (default) or "fixed"}
+\item{effects}{One or more of "ran_pars", "fixed", "ran_vals", and/or
+"ran_coefs".}
 
 \item{scales}{scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects.}
 
@@ -45,7 +46,7 @@ The structure depends on the method chosen.
 
 \code{tidy} returns one row for each estimated effect, either
 random or fixed depending on the \code{effects} parameter. If
-\code{effects = "random"}, it contains the columns
+\code{effects = "ran_vals"} (or \code{"ran_pars"}), it contains the columns
   \item{group}{the group within which the random effect is being estimated}
   \item{level}{level within group}
   \item{term}{term being estimated}

@@ -46,7 +46,7 @@
 
 \item{debug}{print debugging output?}
 
-\item{...}{extra arguments (not used)}
+\item{...}{Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})}
 
 \item{data}{original data this was fitted on; if not given this will
 attempt to be reconstructed}

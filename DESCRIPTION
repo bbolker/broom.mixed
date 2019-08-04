@@ -48,8 +48,6 @@ Suggests:
     Matrix,
     MCMCglmm,
     lme4,
-    rstan,
-    rstanarm,
     brms,
     mgcv,
     gamlss,

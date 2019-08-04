@@ -26,6 +26,9 @@
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, conf.int = TRUE)
+#'     tidy(lmm1, effects = "ran_pars")
+#'     tidy(lmm1, effects = "ran_vals")
+#'     tidy(lmm1, effects = "ran_coefs")
 #'     head(augment(lmm1, sleepstudy))
 #'     glance(lmm1)
 #'

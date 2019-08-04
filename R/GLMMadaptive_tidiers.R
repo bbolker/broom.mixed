@@ -1,6 +1,6 @@
 tidy.MixMod <- function(x, effects = c("fixed"), conf.int=TRUE,
                         conf.level=0.95) {
-    estimate <- std.err <- NULL ## R CMD check/NSE
+    estimate <- std.error <- NULL ## R CMD check/NSE
     effects <- match.arg(effects)
     ret <- (coef(summary(x))
         %>% as.data.frame()

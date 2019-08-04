@@ -59,7 +59,9 @@ Suggests:
     dotwhisker,
     pander,
     R2jags,
-    GLMMadaptive
+    GLMMadaptive,
+    rstan,
+    rstanarm
 URL: http://github.com/bbolker/broom.mixed
 BugReports: http://github.com/bbolker/broom.mixed/issues
 License: GPL-3

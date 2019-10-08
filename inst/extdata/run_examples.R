@@ -192,6 +192,7 @@ if (run_brms) {
     brms_multi <- brm(f1 + f2 + set_rescor(FALSE), data = efc,
              chains = 1, iter = 200,
              save_dso=FALSE)
+    brms_multi <- hack_size(brms_multi)
 
     
     f3 <- bf(neg_c_7 ~ e42dep + c12hour + c172code + (1 |ID| e15relat))
@@ -199,8 +200,17 @@ if (run_brms) {
     b14 <- brm(f3 + f4 + set_rescor(FALSE), data = efc, iter = 500, chains = 1)
     brms_multi_RE <- hack_size(b14)
     
+    data(sleepstudy, package="lme4")
+    ss.tmp <- sleepstudy
+    ss.tmp$Days_extra <- ss.tmp$Days # To check underscores in column names are handled properly
+    brms_RE <- brm(Reaction ~ Days_extra + (Days_extra|Subject), 
+                   data = ss.tmp, 
+                   chains = 1,
+                   iter=200)
+    brms_RE <- hack_size(brms_RE)
+    
     save_file(brms_crossedRE, brms_zip, brms_multi,
-              brms_multi_RE, pkg = pkg, type = "rda")
+              brms_multi_RE, brms_RE, pkg = pkg, type = "rda")
   })
 }
 

@@ -213,7 +213,7 @@ tidy.brmsfit <- function(x, parameters = NA,
     if ("ran_vals" %in% effects) {
       rterms <- grep(mkRE(prefs$ran_vals), terms, value = TRUE)
       
-      vals <- stringr::str_match_all(rterms, "_(\\w+?)\\[(\\w+?),(\\w+?)\\]")
+      vals <- stringr::str_match_all(rterms, "_(.+?)\\[(.+?),(.+?)\\]")
 
       res_list$ran_vals <-
         data_frame(

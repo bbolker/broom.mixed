@@ -9,8 +9,14 @@
 \alias{augment.gls}
 \title{Tidying methods for mixed effects models}
 \usage{
-\method{tidy}{lme}(x, effects = c("ran_pars", "fixed"), scales = NULL,
-  conf.int = FALSE, conf.level = 0.95, ...)
+\method{tidy}{lme}(
+  x,
+  effects = c("ran_pars", "fixed"),
+  scales = NULL,
+  conf.int = FALSE,
+  conf.level = 0.95,
+  ...
+)
 
 \method{augment}{lme}(x, data = x$data, newdata, ...)
 

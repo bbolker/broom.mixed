@@ -6,8 +6,14 @@
 \alias{glance.stanreg}
 \title{Tidying methods for an rstanarm model}
 \usage{
-\method{tidy}{stanreg}(x, effects = "fixed", conf.int = FALSE,
-  conf.level = 0.9, conf.method = c("quantile", "HPDinterval"), ...)
+\method{tidy}{stanreg}(
+  x,
+  effects = "fixed",
+  conf.int = FALSE,
+  conf.level = 0.9,
+  conf.method = c("quantile", "HPDinterval"),
+  ...
+)
 
 \method{glance}{stanreg}(x, looic = FALSE, ...)
 }

@@ -4,9 +4,14 @@
 \alias{tidy.TMB}
 \title{Tidying methods for TMB models}
 \usage{
-\method{tidy}{TMB}(x, effect = c("fixed", "random"), conf.int = FALSE,
-  conf.level = 0.95, conf.method = c("wald", "uniroot", "profile"),
-  ...)
+\method{tidy}{TMB}(
+  x,
+  effect = c("fixed", "random"),
+  conf.int = FALSE,
+  conf.level = 0.95,
+  conf.method = c("wald", "uniroot", "profile"),
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class \code{TMB} (you may need to use

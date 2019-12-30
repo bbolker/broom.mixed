@@ -8,9 +8,17 @@
 \alias{glance.glmmadmb}
 \title{Tidying methods for glmmADMB models}
 \usage{
-\method{tidy}{glmmadmb}(x, effects = c("fixed", "ran_pars"),
-  component = "cond", scales = NULL, ran_prefix = NULL,
-  conf.int = FALSE, conf.level = 0.95, conf.method = "Wald", ...)
+\method{tidy}{glmmadmb}(
+  x,
+  effects = c("fixed", "ran_pars"),
+  component = "cond",
+  scales = NULL,
+  ran_prefix = NULL,
+  conf.int = FALSE,
+  conf.level = 0.95,
+  conf.method = "Wald",
+  ...
+)
 
 \method{augment}{glmmadmb}(x, data = stats::model.frame(x), newdata, ...)
 

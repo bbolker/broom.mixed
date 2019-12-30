@@ -8,15 +8,35 @@
 \alias{glance.merMod}
 \title{Tidying methods for mixed effects models}
 \usage{
-\method{tidy}{merMod}(x, effects = c("ran_pars", "fixed"),
-  scales = NULL, exponentiate = FALSE, ran_prefix = NULL,
-  conf.int = FALSE, conf.level = 0.95, conf.method = "Wald",
-  ddf.method = NULL, profile = NULL, debug = FALSE, ...)
+\method{tidy}{merMod}(
+  x,
+  effects = c("ran_pars", "fixed"),
+  scales = NULL,
+  exponentiate = FALSE,
+  ran_prefix = NULL,
+  conf.int = FALSE,
+  conf.level = 0.95,
+  conf.method = "Wald",
+  ddf.method = NULL,
+  profile = NULL,
+  debug = FALSE,
+  ...
+)
 
-\method{tidy}{rlmerMod}(x, effects = c("ran_pars", "fixed"),
-  scales = NULL, exponentiate = FALSE, ran_prefix = NULL,
-  conf.int = FALSE, conf.level = 0.95, conf.method = "Wald",
-  ddf.method = NULL, profile = NULL, debug = FALSE, ...)
+\method{tidy}{rlmerMod}(
+  x,
+  effects = c("ran_pars", "fixed"),
+  scales = NULL,
+  exponentiate = FALSE,
+  ran_prefix = NULL,
+  conf.int = FALSE,
+  conf.level = 0.95,
+  conf.method = "Wald",
+  ddf.method = NULL,
+  profile = NULL,
+  debug = FALSE,
+  ...
+)
 
 \method{augment}{merMod}(x, data = stats::model.frame(x), newdata, ...)
 

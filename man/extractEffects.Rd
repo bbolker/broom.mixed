@@ -4,8 +4,12 @@
 \alias{.extractEffects}
 \title{Internal function to extract the fixed or random effects from an \code{MCMCglmm} object}
 \usage{
-.extractEffects(object, use = c("all", "mean"), which = c("fixed",
-  "random"), ...)
+.extractEffects(
+  object,
+  use = c("all", "mean"),
+  which = c("fixed", "random"),
+  ...
+)
 }
 \arguments{
 \item{object}{An \code{MCMCglmm} object}

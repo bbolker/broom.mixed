@@ -5,8 +5,7 @@
 \alias{tidy.gamlss}
 \title{Tidying methods for gamlss objects}
 \usage{
-\method{tidy}{gamlss}(x, quick = FALSE, conf.int = FALSE,
-  conf.level = 0.95, ...)
+\method{tidy}{gamlss}(x, quick = FALSE, conf.int = FALSE, conf.level = 0.95, ...)
 }
 \arguments{
 \item{x}{A "gamlss" object}

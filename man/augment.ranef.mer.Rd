@@ -4,8 +4,7 @@
 \alias{augment.ranef.mer}
 \title{Augmentation for random effects (for caterpillar plots etc.)}
 \usage{
-\method{augment}{ranef.mer}(x, ci.level = 0.9, reorder = TRUE,
-  order.var = 1, ...)
+\method{augment}{ranef.mer}(x, ci.level = 0.9, reorder = TRUE, order.var = 1, ...)
 }
 \arguments{
 \item{x}{ranef (conditional mode) information from an lme4 fit, using \code{ranef(.,condVar=TRUE)}}

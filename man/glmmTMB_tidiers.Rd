@@ -7,9 +7,17 @@
 \alias{glance.glmmTMB}
 \title{Tidying methods for glmmTMB models}
 \usage{
-\method{tidy}{glmmTMB}(x, effects = c("ran_pars", "fixed"),
-  component = c("cond", "zi"), scales = NULL, ran_prefix = NULL,
-  conf.int = FALSE, conf.level = 0.95, conf.method = "Wald", ...)
+\method{tidy}{glmmTMB}(
+  x,
+  effects = c("ran_pars", "fixed"),
+  component = c("cond", "zi"),
+  scales = NULL,
+  ran_prefix = NULL,
+  conf.int = FALSE,
+  conf.level = 0.95,
+  conf.method = "Wald",
+  ...
+)
 
 \method{augment}{glmmTMB}(x, data = stats::model.frame(x), newdata, ...)
 

@@ -265,7 +265,7 @@ has_rownames <- function(df) {
 }
 
 ## previously from broom
-## converts to tibble, optionally
+## converts to tibble, adding non-trivial rownames and optionally renaming existing columns
 fix_data_frame <- function(df, newnames=NULL, newcol=".rownames") {
     df <- as.data.frame(df)
     if (!is.null(newnames)) df <- setNames(df,newnames)

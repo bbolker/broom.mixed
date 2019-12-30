@@ -258,3 +258,19 @@ rename_cols <- function(x,
   }
   return(x)
 }
+
+has_rownames <- function(df) {
+  return (!tibble::is_tibble(df) && 
+          any(rownames(df) != as.character(seq(nrow(df)))))
+}
+
+## previously from broom
+## converts to tibble, optionally
+fix_data_frame <- function(df, newnames=NULL, newcol=".rownames") {
+    df <- as.data.frame(df)
+    if (!is.null(newnames)) df <- setNames(df,newnames)
+    if (has_rownames(df)) df <- df %>%
+                              rownames_to_column(var=newcol)
+    df <- as_tibble(df) ## must happen **AFTER** converting rownames
+    return(df)
+}

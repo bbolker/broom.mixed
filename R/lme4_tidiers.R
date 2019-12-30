@@ -122,7 +122,6 @@ fix_ran_vals <- function(g) {
 #' @importFrom purrr map
 #' @importFrom nlme VarCorr ranef
 #' @importFrom methods is selectMethod
-#' @importFrom broom fix_data_frame
 #' @importFrom stats cov2cor
 
 #' @export

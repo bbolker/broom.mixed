@@ -81,132 +81,130 @@ tidy.stanreg <- function(x,
                          conf.level = 0.9,
                          conf.method=c("quantile","HPDinterval"),
                          ...) {
-  conf.method <- match.arg(conf.method)
-  effects <-
-    match.arg(effects,
-      several.ok = TRUE,
-      choices = c(
-        "fixed", "ran_vals",
-        "ran_pars", "auxiliary"
-      )
-    )
-  if (any(effects %in% c("ran_vals", "ran_pars"))) {
-    if (!inherits(x, "lmerMod")) {
-      stop("Model does not have varying ('ran_vals') or hierarchical ('ran_pars') effects.")
-    }
-  }
-
-  nn <- c("estimate", "std.error")
-  ret_list <- list()
-  if ("fixed" %in% effects) {
-    nv_pars <- names(rstanarm::fixef(x))
-    ret <- cbind(
-      rstanarm::fixef(x),
-      rstanarm::se(x)[nv_pars]
-    )
-
-    if (inherits(x, "polr")) {
-      # also include cutpoints
-      cp <- x$zeta
-      se_cp <- apply(as.matrix(x, pars = names(cp)), 2, stats::mad)
-      ret <- rbind(ret, cbind(cp, se_cp))
-      nv_pars <- c(nv_pars, names(cp))
+    conf.method <- match.arg(conf.method)
+    effects <-
+        match.arg(effects,
+                  several.ok = TRUE,
+                  choices = c(
+                      "fixed", "ran_vals",
+                      "ran_pars", "auxiliary"
+                  )
+                  )
+    if (any(effects %in% c("ran_vals", "ran_pars"))) {
+        if (!inherits(x, "lmerMod")) {
+            stop("Model does not have varying ('ran_vals') or hierarchical ('ran_pars') effects.")
+        }
     }
 
-    if (conf.int) {
-        cifix <- switch(conf.method,
-                        HPDinterval= {
-                            m <- as.matrix(x$stanfit)
-                            m <- m[,colnames(m) %in% nv_pars]
-                            coda::HPDinterval(coda::as.mcmc(m),
-                                              prob=conf.level)
-        },
-        quantile=rstanarm::posterior_interval(
-                                 object = x,
-                                 pars = nv_pars,
-                                 prob = conf.level
-                           )
-        ) ## cifix
-      ret <- data.frame(ret, cifix)
-      nn <- c(nn, "conf.low", "conf.high")
-    }
-    ret_list$non_ran_vals <- fix_data_frame(ret, newnames = nn)
-  }
-  if ("auxiliary" %in% effects) {
     nn <- c("estimate", "std.error")
-    parnames <- rownames(x$stan_summary)
-    auxpars <- c(
-      "sigma", "shape", "overdispersion", "R2", "log-fit_ratio",
-      grep("mean_PPD", parnames, value = TRUE)
-    )
-    auxpars <- auxpars[which(auxpars %in% parnames)]
-    ret <- summary(x, pars = auxpars)[, c("50%", "sd"), drop = FALSE]
-    if (conf.int) {
-      ints <- rstanarm::posterior_interval(x, pars = auxpars, prob = conf.level)
-      ret <- data.frame(ret, ints)
-      nn <- c(nn, "conf.low", "conf.high")
+    ret_list <- list()
+    if ("fixed" %in% effects) {
+        nv_pars <- names(rstanarm::fixef(x))
+        ret <- cbind(
+            rstanarm::fixef(x),
+            rstanarm::se(x)[nv_pars]
+        )
+
+        if (inherits(x, "polr")) {
+            ## also include cutpoints
+            cp <- x$zeta
+            se_cp <- apply(as.matrix(x, pars = names(cp)), 2, stats::mad)
+            ret <- rbind(ret, cbind(cp, se_cp))
+            nv_pars <- c(nv_pars, names(cp))
+        }
+
+        if (conf.int) {
+            cifix <- switch(conf.method,
+                            HPDinterval= {
+                                m <- as.matrix(x$stanfit)
+                                m <- m[,colnames(m) %in% nv_pars]
+                                coda::HPDinterval(coda::as.mcmc(m),
+                                                  prob=conf.level)
+                            },
+                            quantile=rstanarm::posterior_interval(
+                                                   object = x,
+                                                   pars = nv_pars,
+                                                   prob = conf.level
+                                               )
+                            ) ## cifix
+            ret <- data.frame(ret, cifix)
+            nn <- c(nn, "conf.low", "conf.high")
+        }
+        ret_list$non_ran_vals <- fix_data_frame(ret, newnames = nn, newcol="term")
     }
-    ret_list$auxiliary <-
-      fix_data_frame(ret, newnames = nn)
-  }
-  if ("ran_pars" %in% effects) {
-    ret <- as.data.frame(rstanarm::VarCorr(x))
-    ret[] <- lapply(ret, function(x) if (is.factor(x)) {
-        as.character(x)
-      } else {
-        x
-      } )
-    rscale <- "sdcor" # FIXME
-    ran_prefix <- c("sd", "cor") # FIXME
-    pfun <- function(x) {
-      v <- na.omit(unlist(x))
-      if (length(v) == 0) v <- "Observation"
-      p <- paste(v, collapse = ".")
-      if (!identical(ran_prefix, NA)) {
-        p <- paste(ran_prefix[length(v)], p, sep = "_")
-      }
-      return(p)
+    if ("auxiliary" %in% effects) {
+        nn <- c("estimate", "std.error")
+        parnames <- rownames(x$stan_summary)
+        auxpars <- c(
+            "sigma", "shape", "overdispersion", "R2", "log-fit_ratio",
+            grep("mean_PPD", parnames, value = TRUE)
+        )
+        auxpars <- auxpars[which(auxpars %in% parnames)]
+        ret <- summary(x, pars = auxpars)[, c("50%", "sd"), drop = FALSE]
+        if (conf.int) {
+            ints <- rstanarm::posterior_interval(x, pars = auxpars, prob = conf.level)
+            ret <- data.frame(ret, ints)
+            nn <- c(nn, "conf.low", "conf.high")
+        }
+        ret_list$auxiliary <-
+            fix_data_frame(ret, newnames = nn, newcol="term")
+    }
+    if ("ran_pars" %in% effects) {
+        ret <- (rstanarm::VarCorr(x)
+            %>% as.data.frame()
+            %>% mutate_if(is.factor,as.character)
+        )
+        rscale <- "sdcor" # FIXME
+        ran_prefix <- c("sd", "cor") # FIXME
+        pfun <- function(x) {
+            v <- na.omit(unlist(x))
+            if (length(v) == 0) v <- "Observation"
+            p <- paste(v, collapse = ".")
+            if (!identical(ran_prefix, NA)) {
+                p <- paste(ran_prefix[length(v)], p, sep = "_")
+            }
+            return(p)
+        }
+
+        rownames(ret) <- paste(apply(ret[c("var1", "var2")], 1, pfun),
+                               ret[, "grp"],
+                               sep = "."
+                               )
+        ret_list$hierarchical <- fix_data_frame(ret[c("grp", rscale)],
+                                                 newcol="term",
+                                                newnames = c("group", "estimate"))
     }
 
-    rownames(ret) <- paste(apply(ret[c("var1", "var2")], 1, pfun),
-      ret[, "grp"],
-      sep = "."
-    )
-    ret_list$hierarchical <- fix_data_frame(ret[c("grp", rscale)],
-      newnames = c("group", "estimate")
-    )
-  }
+    if ("ran_vals" %in% effects) {
+        nn <- c("estimate", "std.error")
+        s <- summary(x, pars = "varying") ## goes through to rstanarm
+        ret <- cbind(s[, "50%"], rstanarm::se(x)[rownames(s)])
 
-  if ("ran_vals" %in% effects) {
-    nn <- c("estimate", "std.error")
-    s <- summary(x, pars = "varying") ## goes through to rstanarm
-    ret <- cbind(s[, "50%"], rstanarm::se(x)[rownames(s)])
+        if (conf.int) {
+            ciran <- rstanarm::posterior_interval(x,
+                                                  regex_pars = "^b\\[",
+                                                  prob = conf.level
+                                                  )
+            ret <- data.frame(ret, ciran)
+            nn <- c(nn, "conf.low", "conf.high")
+        }
 
-    if (conf.int) {
-      ciran <- rstanarm::posterior_interval(x,
-        regex_pars = "^b\\[",
-        prob = conf.level
-      )
-      ret <- data.frame(ret, ciran)
-      nn <- c(nn, "conf.low", "conf.high")
+        double_splitter <- function(x, split1, sel1, split2, sel2) {
+            y <- unlist(lapply(strsplit(x, split = split1, fixed = TRUE), "[[", sel1))
+            unlist(lapply(strsplit(y, split = split2, fixed = TRUE), "[[", sel2))
+        }
+        vv <- fix_data_frame(ret, newnames = nn, newcol="term")
+        nn <- c("level", "group", "term", nn)
+        nms <- vv$term
+        vv$term <- NULL
+        lev <- double_splitter(nms, ":", 2, "]", 1)
+        grp <- double_splitter(nms, " ", 2, ":", 1)
+        trm <- double_splitter(nms, " ", 1, "[", 2)
+        vv <- data.frame(lev, grp, trm, vv)
+        ret_list$ran_vals <- fix_data_frame(vv, newnames = nn, newcol="term")
     }
 
-    double_splitter <- function(x, split1, sel1, split2, sel2) {
-      y <- unlist(lapply(strsplit(x, split = split1, fixed = TRUE), "[[", sel1))
-      unlist(lapply(strsplit(y, split = split2, fixed = TRUE), "[[", sel2))
-    }
-    vv <- fix_data_frame(ret, newnames = nn)
-    nn <- c("level", "group", "term", nn)
-    nms <- vv$term
-    vv$term <- NULL
-    lev <- double_splitter(nms, ":", 2, "]", 1)
-    grp <- double_splitter(nms, " ", 2, ":", 1)
-    trm <- double_splitter(nms, " ", 1, "[", 2)
-    vv <- data.frame(lev, grp, trm, vv)
-    ret_list$ran_vals <- fix_data_frame(vv, newnames = nn)
-  }
-
-  return(rbind.fill(ret_list))
+    return(rbind.fill(ret_list))
 }
 
 
@@ -232,59 +230,59 @@ tidy.stanreg <- function(x,
 #'
 #' @export
 glance.stanreg <- function(x, looic = FALSE, ...) {
-  glance_stan(x, looic = looic, type = "stanreg", ...)
+    glance_stan(x, looic = looic, type = "stanreg", ...)
 }
 
 
 glance_stan <- function(x, looic = FALSE, ..., type) {
-  sigma <- if (getRversion() >= "3.3.0") {
-    get("sigma", asNamespace("stats"))
-  } else {
-    ## FIXME: could fail if old R & called from brms
-    ## & rstanarm not installed ...
-    get("sigma", asNamespace("rstanarm"))
-  }
-  if (type == "stanreg") {
-    algo <- x$algorithm
-    sim <- x$stanfit@sim
-  } else {
-    ## method is recorded for every chain; pick the first
-    algo <- x$fit@stan_args[[1]][["method"]]
-    sim <- x$fit@sim
-  }
-
-  ret <- dplyr::data_frame(algorithm = algo)
-
-  if (algo != "optimizing") {
-    pss <- sim$n_save
-    if (algo == "sampling") {
-      pss <- sum(pss - sim$warmup2)
-    }
-    ret <- dplyr::mutate(ret, pss = pss)
-  }
-
-  ret <- mutate(ret, nobs = stats::nobs(x))
-  if (length(sx <- sigma(x)) > 0) {
-    ret <- dplyr::mutate(ret, sigma = sx)
-  }
-  if (looic) {
-    if (algo == "sampling") {
-      if (type == "stanreg") {
-        loo1 <- rstanarm::loo(x, ...)
-      } else {
-        loo1 <- brms::loo(x, ...)
-      }
-      loo1_est <- loo1[["estimates"]]
-      ret <- data.frame(
-        ret,
-        rbind(loo1_est[
-          c("looic", "elpd_loo", "p_loo"),
-          "Estimate"
-        ])
-      )
+    sigma <- if (getRversion() >= "3.3.0") {
+                 get("sigma", asNamespace("stats"))
+             } else {
+                 ## FIXME: could fail if old R & called from brms
+                 ## & rstanarm not installed ...
+                 get("sigma", asNamespace("rstanarm"))
+             }
+    if (type == "stanreg") {
+        algo <- x$algorithm
+        sim <- x$stanfit@sim
     } else {
-      message("looic only available for models fit using MCMC")
+        ## method is recorded for every chain; pick the first
+        algo <- x$fit@stan_args[[1]][["method"]]
+        sim <- x$fit@sim
     }
-  }
-  dplyr::as_tibble(unrowname(ret))
+
+    ret <- dplyr::data_frame(algorithm = algo)
+
+    if (algo != "optimizing") {
+        pss <- sim$n_save
+        if (algo == "sampling") {
+            pss <- sum(pss - sim$warmup2)
+        }
+        ret <- dplyr::mutate(ret, pss = pss)
+    }
+
+    ret <- mutate(ret, nobs = stats::nobs(x))
+    if (length(sx <- sigma(x)) > 0) {
+        ret <- dplyr::mutate(ret, sigma = sx)
+    }
+    if (looic) {
+        if (algo == "sampling") {
+            if (type == "stanreg") {
+                loo1 <- rstanarm::loo(x, ...)
+            } else {
+                loo1 <- brms::loo(x, ...)
+            }
+            loo1_est <- loo1[["estimates"]]
+            ret <- data.frame(
+                ret,
+                rbind(loo1_est[
+                    c("looic", "elpd_loo", "p_loo"),
+                    "Estimate"
+                ])
+            )
+        } else {
+            message("looic only available for models fit using MCMC")
+        }
+    }
+    dplyr::as_tibble(unrowname(ret))
 }

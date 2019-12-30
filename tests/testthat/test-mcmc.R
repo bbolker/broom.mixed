@@ -41,6 +41,9 @@ if (suppressPackageStartupMessages(require("brms", quietly = TRUE))) {
     zz3 <- tidy(brms_multi)
     expect_warning(tidy(brms_multi_RE),"currently incorrect")
     suppressWarnings(zz4 <- tidy(brms_multi_RE))
+    
+    zz5 <- tidy(brms_RE, effects = "ran_vals")
+    
     test_that("correct levels for models with zi/ranef",{
         expect_equal(zz[["level"]],
                      rep(c(paste("R",1:12,sep="-"),paste("VF",1:11,sep="-")),2))
@@ -70,6 +73,16 @@ if (suppressPackageStartupMessages(require("brms", quietly = TRUE))) {
                    c("response", "effect", "component", "group",
                      "term", "estimate", "std.error",
                      "conf.low", "conf.high"))
+    })
+    
+    sleepstudy.levels <- rep(c("308", "309", "310", "330", "331", "332", "333", "334", "335", "337",
+                           "349", "350", "351", "352", "369", "370", "371", "372"), 2)
+    test_that("ran_vals returns correct output", {
+        expect_equal(nrow(zz5), 36)
+        expect_equal(nrow(zz5 %>% filter(group == "Subject")), 36)
+        expect_equal(nrow(zz5 %>% filter(term == "(Intercept)")), 18)
+        expect_equal(nrow(zz5 %>% filter(term == "Days_extra")), 18)
+        expect_equal(zz5$level, sleepstudy.levels)
     })
     
 } ## if require("brms")

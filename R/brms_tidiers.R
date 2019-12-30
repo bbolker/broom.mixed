@@ -212,15 +212,14 @@ tidy.brmsfit <- function(x, parameters = NA,
     }
     if ("ran_vals" %in% effects) {
       rterms <- grep(mkRE(prefs$ran_vals), terms, value = TRUE)
-      ss <- strsplit(rterms, "(_+|\\[|\\]|,)")
-      termfun <- function(x) x[[length(x)]]
-      grpfun <- function(x) x[[2]]
-      levelfun <- function(x) x[[length(x)-1]]
+      
+      vals <- stringr::str_match_all(rterms, "_(.+?)\\[(.+?),(.+?)\\]")
+
       res_list$ran_vals <-
         data_frame(
-          group = sapply(ss, grpfun),
-          term = sapply(ss, termfun),
-          level = sapply(ss, levelfun)
+          group = plyr::laply(vals, function (v) { v[[2]] }),
+          term = plyr::laply(vals, function (v) { v[[4]] }),
+          level = plyr::laply(vals, function (v) { v[[3]] })
         )
     }
     out <- dplyr::bind_rows(res_list, .id = "effect")

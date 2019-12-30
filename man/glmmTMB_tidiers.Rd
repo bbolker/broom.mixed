@@ -19,7 +19,7 @@
   ...
 )
 
-\method{augment}{glmmTMB}(x, data = stats::model.frame(x), newdata, ...)
+\method{augment}{glmmTMB}(x, data = stats::model.frame(x), newdata = NULL, ...)
 
 \method{glance}{glmmTMB}(x, ...)
 }

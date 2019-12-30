@@ -282,7 +282,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
 #'   \item{.fixed}{predicted values with no random effects}
 #'
 #' @export
-augment.glmmTMB <- function(x, data = stats::model.frame(x), newdata,
+augment.glmmTMB <- function(x, data = stats::model.frame(x), newdata=NULL,
                             ...) {
   broom::augment_columns(x, data, newdata, ...)
 }

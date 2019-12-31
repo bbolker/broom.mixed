@@ -63,7 +63,11 @@ regex_match <- function(x, table) {
     x,
     function(z) {
       m <- vapply(col_matches, grepl, x = z, ignore.case = TRUE, logical(1))
-      if (any(m)) return(which(m)) else return(NA)
+      if (any(m)) {
+        return(which(m))
+      } else {
+        return(NA)
+      }
     }
   )
   return(unname(r))
@@ -72,9 +76,9 @@ regex_match <- function(x, table) {
 ## rename columns according to regex matches
 ## names that are not matched are left unchanged
 rename_regex_match <- function(x, table = col_matches) {
-    rr <- regex_match(names(x), table)
-    names(x)[!is.na(rr)] <- names(table)[na.omit(rr)]
-    return(x)
+  rr <- regex_match(names(x), table)
+  names(x)[!is.na(rr)] <- names(table)[na.omit(rr)]
+  return(x)
 }
 
 ## convert confint output to a data frame and relabel columns
@@ -237,7 +241,7 @@ trans_brms_params <- function(tidy_obj) {
 ## should contain all possible column names
 reorder_cols <- function(x) {
   all_cols <- c(
-    "response","effect",
+    "response", "effect",
     "component", ## glmmTMB, brms
     "group", "level", "term", "index", "estimate",
     "std.error", "statistic",
@@ -260,17 +264,19 @@ rename_cols <- function(x,
 }
 
 has_rownames <- function(df) {
-  return (!tibble::is_tibble(df) && 
-          any(rownames(df) != as.character(seq(nrow(df)))))
+  return(!tibble::is_tibble(df) &&
+    any(rownames(df) != as.character(seq(nrow(df)))))
 }
 
 ## previously from broom
 ## converts to tibble, adding non-trivial rownames and optionally renaming existing columns
-fix_data_frame <- function(df, newnames=NULL, newcol=".rownames") {
-    df <- as.data.frame(df)
-    if (!is.null(newnames)) df <- setNames(df,newnames)
-    if (has_rownames(df)) df <- df %>%
-                              rownames_to_column(var=newcol)
-    df <- as_tibble(df) ## must happen **AFTER** converting rownames
-    return(df)
+fix_data_frame <- function(df, newnames = NULL, newcol = ".rownames") {
+  df <- as.data.frame(df)
+  if (!is.null(newnames)) df <- setNames(df, newnames)
+  if (has_rownames(df)) {
+    df <- df %>%
+      rownames_to_column(var = newcol)
+  }
+  df <- as_tibble(df) ## must happen **AFTER** converting rownames
+  return(df)
 }

@@ -2,15 +2,17 @@
 ## test tidy, augment, glance methods from nlme-tidiers.R
 stopifnot(require("testthat"), require("broom.mixed"))
 
-load(system.file("extdata", "nlme_example.rda", package = "broom.mixed",
-                 mustWork=TRUE))
+load(system.file("extdata", "nlme_example.rda",
+  package = "broom.mixed",
+  mustWork = TRUE
+))
 
 if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
   context("nlme models")
 
   d <- as.data.frame(ChickWeight)
   colnames(d) <- c("y", "x", "subj", "tx")
-  fit <- lme(y ~ tx * x, random = ~x | subj, data = d)
+  fit <- lme(y ~ tx * x, random = ~ x | subj, data = d)
 
   test_that("tidy works on nlme/lme fits", {
     td <- tidy(fit)
@@ -63,7 +65,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
 
   test_that("augment works on lme fits with NAs and na.omit", {
     fitNAs <- lme(y ~ tx * x,
-      random = ~x | subj, data = dNAs,
+      random = ~ x | subj, data = dNAs,
       na.action = "na.omit"
     )
     au <- augment(fitNAs)
@@ -73,7 +75,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
 
   test_that("augment works on lme fits with na.omit", {
     fitNAs <- lme(y ~ tx * x,
-      random = ~x | subj, data = dNAs,
+      random = ~ x | subj, data = dNAs,
       na.action = "na.exclude"
     )
 
@@ -110,9 +112,9 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     })
   }
 
-  testFit(lme(score ~ Machine, data = Machines, random = ~1 | Worker))
-  testFit(lme(score ~ Machine, data = Machines, random = ~1 | Worker, method = "ML"))
-  testFit(lme(score ~ Machine, data = Machines, random = ~1 | Worker / Machine))
+  testFit(lme(score ~ Machine, data = Machines, random = ~ 1 | Worker))
+  testFit(lme(score ~ Machine, data = Machines, random = ~ 1 | Worker, method = "ML"))
+  testFit(lme(score ~ Machine, data = Machines, random = ~ 1 | Worker / Machine))
   testFit(lme(pixel ~ day + day^2, data = Pixel, random = list(Dog = ~day, Side = ~1)))
   testFit(lme(pixel ~ day + day^2 + Side,
     data = Pixel,
@@ -121,7 +123,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
 
   testFit(lme(yield ~ ordered(nitro) * Variety,
     data = Oats,
-    random = ~1 / Block / Variety
+    random = ~ 1 / Block / Variety
   ))
   # There are cases where no data set is returned in the result
   # We can do nothing about this inconsistency but give a useful error message in augment
@@ -130,7 +132,8 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     random = pdDiag(lKe + lKa + lCl ~ 1)
   )
   test_that(
-    "Fit without data in returned structure works when data are given", {
+    "Fit without data in returned structure works when data are given",
+    {
       expect_true(testFit(fit, Theoph))
     }
   )
@@ -138,26 +141,30 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
   expect_error(augment(fit), "explicit")
 
   context("gls models")
-  
-  test_that("basic gls tidying", {
 
-      check_tidy(tidy(gls1), 3, 5,
-                 c("term","estimate","std.error","statistic","p.value"))
-      check_tidy(tidy(gls1, conf.int=TRUE), 3, 7,
-                 c("term","estimate","std.error","statistic","p.value",
-                   "conf.low","conf.high"))
-    
-  })    
+  test_that("basic gls tidying", {
+    check_tidy(
+      tidy(gls1), 3, 5,
+      c("term", "estimate", "std.error", "statistic", "p.value")
+    )
+    check_tidy(
+      tidy(gls1, conf.int = TRUE), 3, 7,
+      c(
+        "term", "estimate", "std.error", "statistic", "p.value",
+        "conf.low", "conf.high"
+      )
+    )
+  })
 
   test_that("basic gls augment with & without data", {
     au <- augment(gls1)
-    expect_is(au, 'data.frame')
+    expect_is(au, "data.frame")
     expect_equal(nrow(au), nrow(Ovary))
     expect_true(all(c(".fitted", ".resid") %in% names(au)))
 
     au <- augment(gls1, data = Ovary)
-    expect_is(au, 'data.frame')
+    expect_is(au, "data.frame")
     expect_equal(nrow(au), nrow(Ovary))
     expect_true(all(c(".fitted", ".resid") %in% names(au)))
-  })  
+  })
 }

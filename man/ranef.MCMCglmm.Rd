@@ -25,17 +25,17 @@ random effects posteriors or return the posterior means.
 }
 \examples{
 \dontrun{
-  # a simple MCMCglmm model
-  data(PlodiaPO)
-  m <- MCMCglmm(PO ~ 1, random= ~ FSfamily, data=PlodiaPO, pr=TRUE, verbose=FALSE)
+# a simple MCMCglmm model
+data(PlodiaPO)
+m <- MCMCglmm(PO ~ 1, random = ~FSfamily, data = PlodiaPO, pr = TRUE, verbose = FALSE)
 
-  # only extract average fixed effects
-  head(ranef(m, use = "mean"))
+# only extract average fixed effects
+head(ranef(m, use = "mean"))
 
-  # histogram of posterior samples of fixed effects
-  hist(ranef(m)[1, ])
-  # matches the mean
-  rowMeans(ranef(m)[1:6, ])
+# histogram of posterior samples of fixed effects
+hist(ranef(m)[1, ])
+# matches the mean
+rowMeans(ranef(m)[1:6, ])
 }
 }
 \seealso{

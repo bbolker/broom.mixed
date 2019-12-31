@@ -14,30 +14,31 @@
 #' @param x Fitted model object from the \pkg{brms} package. See
 #'   \code{\link[brms]{brmsfit-class}}.
 #' @examples
-#'  ## original model
-#'  \dontrun{
-#'     brms_crossedRE <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
-#'            iter = 500, chains = 2)
-#'  }
-#'  if (require("brms")) {
-#'    ## load stored object
-#'    load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
-#'
-#'    fit <- brms_crossedRE
-#'    tidy(fit)
-#'    tidy(fit, parameters = "^sd_", conf.int = FALSE)
-#'    tidy(fit, effects = "fixed", conf.method="HPDinterval")
-#'    tidy(fit, effects = "ran_vals")
-#'    tidy(fit, effects = "ran_pars", robust = TRUE)
-#'    # glance method
-#'    glance(fit)
-#'    ## this example will give a warning that it should be run with
-#'    ## reloo=TRUE; however, doing this will fail
-#'    ## because the \code{fit} object has been stripped down to save space
-#'    suppressWarnings(glance(fit, looic = TRUE, cores = 1))
-#'    head(augment(fit))
+#' ## original model
+#' \dontrun{
+#' brms_crossedRE <- brm(mpg ~ wt + (1 | cyl) + (1 + wt | gear),
+#'   data = mtcars,
+#'   iter = 500, chains = 2
+#' )
 #' }
+#' if (require("brms")) {
+#'   ## load stored object
+#'   load(system.file("extdata", "brms_example.rda", package = "broom.mixed"))
 #'
+#'   fit <- brms_crossedRE
+#'   tidy(fit)
+#'   tidy(fit, parameters = "^sd_", conf.int = FALSE)
+#'   tidy(fit, effects = "fixed", conf.method = "HPDinterval")
+#'   tidy(fit, effects = "ran_vals")
+#'   tidy(fit, effects = "ran_pars", robust = TRUE)
+#'   # glance method
+#'   glance(fit)
+#'   ## this example will give a warning that it should be run with
+#'   ## reloo=TRUE; however, doing this will fail
+#'   ## because the \code{fit} object has been stripped down to save space
+#'   suppressWarnings(glance(fit, looic = TRUE, cores = 1))
+#'   head(augment(fit))
+#' }
 NULL
 ## examples for all methods (tidy/glance/augment) included in the same
 ##  block so we can surround them with a single "if (require(brms))" block
@@ -56,7 +57,7 @@ NULL
 #' @param conf.int If \code{TRUE} columns for the lower (\code{conf.low})
 #' and upper bounds (\code{conf.high}) of posterior uncertainty intervals are included.
 #' @param conf.level Defines the range of the posterior uncertainty conf.int,
-#'  such that \code{100 * conf.level}\% of the parameter's posterior distributio
+#'  such that \code{100 * conf.level}\% of the parameter's posterior distribution
 #'  lies within the corresponding interval.
 #'  Only used if \code{conf.int = TRUE}.
 #' @param conf.method method for computing confidence intervals
@@ -107,28 +108,28 @@ tidy.brmsfit <- function(x, parameters = NA,
                          ...) {
   use_effects <- anyNA(parameters)
   conf.method <- match.arg(conf.method)
-  is.multiresp <- length(x$formula$forms)>1
+  is.multiresp <- length(x$formula$forms) > 1
   ## make regular expression from a list of prefixes
-  mkRE <- function(x,LB=FALSE) {
-      pref <- "(^|_)"
-      if (LB) pref <- sprintf("(?<=%s)",pref)
-      sprintf("%s(%s)", pref, paste(unlist(x), collapse = "|"))
+  mkRE <- function(x, LB = FALSE) {
+    pref <- "(^|_)"
+    if (LB) pref <- sprintf("(?<=%s)", pref)
+    sprintf("%s(%s)", pref, paste(unlist(x), collapse = "|"))
   }
   ## NOT USED:  could use this (or something like) to
-  ##  obviate need for gsub("_","",str_extract(...)) pattern ...  
+  ##  obviate need for gsub("_","",str_extract(...)) pattern ...
   prefs_LB <- list(
-      fixed = "b_", ran_vals = "r_",
-      ## don't want to remove these pieces, so use look*behind*
-      ran_pars =   sprintf("(?<=(%s))", c("sd_", "cor_", "sigma")),
-      components = sprintf("(?<=%s)", c("zi_","disp_"))
-    )
-    prefs <- list(
-      fixed = "b_", ran_vals = "r_",
-      ## no lookahead (doesn't work with grep[l])
-      ran_pars = c("sd_", "cor_", "sigma"),
-      components = c("zi_", "disp_")
-    )
-    pref_RE <- mkRE(prefs[effects])
+    fixed = "b_", ran_vals = "r_",
+    ## don't want to remove these pieces, so use look*behind*
+    ran_pars = sprintf("(?<=(%s))", c("sd_", "cor_", "sigma")),
+    components = sprintf("(?<=%s)", c("zi_", "disp_"))
+  )
+  prefs <- list(
+    fixed = "b_", ran_vals = "r_",
+    ## no lookahead (doesn't work with grep[l])
+    ran_pars = c("sd_", "cor_", "sigma"),
+    components = c("zi_", "disp_")
+  )
+  pref_RE <- mkRE(prefs[effects])
   if (use_effects) {
     ## prefixes distinguishing fixed, random effects
 
@@ -142,30 +143,30 @@ tidy.brmsfit <- function(x, parameters = NA,
   }
   terms <- names(samples)
   if (use_effects) {
-      if (is.multiresp) {
-        if ("ran_pars" %in% effects && any(grepl("^sd",terms))) {
-           warning("ran_pars response/group tidying for multi-response models is currently incorrect")
-        }
-        ## FIXME: unfinished attempt to fix GH #39
-        ## extract response component from terms
-        ## resp0 <- strsplit(terms, "_+")
-        ## resp1 <- sapply(resp0,
-        ##          function(x) if (length(x)==2) x[2] else x[length(x)-1])
-        ## ## put the pieces back together
-        ## t0 <- lapply(resp0,
-        ##          function(x) if (length(x)==2) x[1] else x[-(length(x)-1)])
-        ## t1 <- lapply(t0,
-        ##          function(x)     
-        ##              case_when(
-        ##                  x[[1]]=="b"  ~ sprintf("b%s",x[[2]]),
-        ##                  x[[2]]=="sd" ~ sprintf("sd_%s__%s",x[[2]],x[[3]]),
-        ##                  x[[3]]=="cor" ~ sprintf("cor_%s_%s_%s_%s",
-        ##                                          x[[2]],x[[3]],x[[4]],x[[5]])
-        ##              ))
-        ## resp0 <- stringr::str_extract_all(terms, "_[^_]+")
-        ## resp1 <- lapply(resp0, gsub, pattern= "^_", replacement="")
-        response <- gsub("^_","",stringr::str_extract(terms,"_[^_]+"))
-        terms <- sub("_[^_]+","",terms)
+    if (is.multiresp) {
+      if ("ran_pars" %in% effects && any(grepl("^sd", terms))) {
+        warning("ran_pars response/group tidying for multi-response models is currently incorrect")
+      }
+      ## FIXME: unfinished attempt to fix GH #39
+      ## extract response component from terms
+      ## resp0 <- strsplit(terms, "_+")
+      ## resp1 <- sapply(resp0,
+      ##          function(x) if (length(x)==2) x[2] else x[length(x)-1])
+      ## ## put the pieces back together
+      ## t0 <- lapply(resp0,
+      ##          function(x) if (length(x)==2) x[1] else x[-(length(x)-1)])
+      ## t1 <- lapply(t0,
+      ##          function(x)
+      ##              case_when(
+      ##                  x[[1]]=="b"  ~ sprintf("b%s",x[[2]]),
+      ##                  x[[2]]=="sd" ~ sprintf("sd_%s__%s",x[[2]],x[[3]]),
+      ##                  x[[3]]=="cor" ~ sprintf("cor_%s_%s_%s_%s",
+      ##                                          x[[2]],x[[3]],x[[4]],x[[5]])
+      ##              ))
+      ## resp0 <- stringr::str_extract_all(terms, "_[^_]+")
+      ## resp1 <- lapply(resp0, gsub, pattern= "^_", replacement="")
+      response <- gsub("^_", "", stringr::str_extract(terms, "_[^_]+"))
+      terms <- sub("_[^_]+", "", terms)
     }
     res_list <- list()
     fixed.only <- identical(effects, "fixed")
@@ -175,7 +176,7 @@ tidy.brmsfit <- function(x, parameters = NA,
       res_list$fixed <- as_tibble(matrix(nrow = nfixed, ncol = 0))
     }
     grpfun <- function(x) {
-        if (grepl("sigma",x[[1]])) "Residual" else x[[2]]
+      if (grepl("sigma", x[[1]])) "Residual" else x[[2]]
     }
     if ("ran_pars" %in% effects) {
       rterms <- grep(mkRE(prefs$ran_pars), terms, value = TRUE)
@@ -194,13 +195,13 @@ tidy.brmsfit <- function(x, parameters = NA,
       )
       sep <- getOption("broom.mixed.sep1")
       termfun <- function(x) {
-        if (grepl("^sigma",x[[1]])) {
-            paste("sd", "Observation", sep = sep)
+        if (grepl("^sigma", x[[1]])) {
+          paste("sd", "Observation", sep = sep)
         } else {
-            ## re-attach remaining terms
-            paste(x[[1]],
-                  paste(x[3:length(x)], collapse = "."),
-                  sep = sep
+          ## re-attach remaining terms
+          paste(x[[1]],
+            paste(x[3:length(x)], collapse = "."),
+            sep = sep
           )
         }
       }
@@ -212,14 +213,20 @@ tidy.brmsfit <- function(x, parameters = NA,
     }
     if ("ran_vals" %in% effects) {
       rterms <- grep(mkRE(prefs$ran_vals), terms, value = TRUE)
-      
+
       vals <- stringr::str_match_all(rterms, "_(.+?)\\[(.+?),(.+?)\\]")
 
       res_list$ran_vals <-
         data_frame(
-          group = plyr::laply(vals, function (v) { v[[2]] }),
-          term = plyr::laply(vals, function (v) { v[[4]] }),
-          level = plyr::laply(vals, function (v) { v[[3]] })
+          group = plyr::laply(vals, function(v) {
+            v[[2]]
+          }),
+          term = plyr::laply(vals, function(v) {
+            v[[4]]
+          }),
+          level = plyr::laply(vals, function(v) {
+            v[[3]]
+          })
         )
     }
     out <- dplyr::bind_rows(res_list, .id = "effect")
@@ -231,7 +238,7 @@ tidy.brmsfit <- function(x, parameters = NA,
       out$term[v] <- newterms
     }
     if (is.multiresp) {
-        out$response <- response
+      out$response <- response
     }
     ## prefixes already removed for ran_vals; don't remove for ran_pars
   } else {
@@ -247,27 +254,32 @@ tidy.brmsfit <- function(x, parameters = NA,
     probs <- c((1 - conf.level) / 2, 1 - (1 - conf.level) / 2)
     if (conf.method == "HPDinterval") {
       out[, c("conf.low", "conf.high")] <-
-          coda::HPDinterval(coda::as.mcmc(samples), prob=conf.level)
+        coda::HPDinterval(coda::as.mcmc(samples), prob = conf.level)
     } else {
       out[, c("conf.low", "conf.high")] <-
         t(apply(samples, 2, stats::quantile, probs = probs))
     }
   }
   ## figure out component
-  out$component <- dplyr::case_when(grepl("(^|_)zi",out$term) ~ "zi",
-                                    ## ??? is this possible in brms models
-                                    grepl("^disp",out$term) ~ "disp",
-                                    TRUE ~ "cond")
+  out$component <- dplyr::case_when(
+    grepl("(^|_)zi", out$term) ~ "zi",
+    ## ??? is this possible in brms models
+    grepl("^disp", out$term) ~ "disp",
+    TRUE ~ "cond"
+  )
 
-  out$term <- stringr::str_remove(out$term,mkRE(prefs[["components"]],
-                                                LB=TRUE))
+  out$term <- stringr::str_remove(out$term, mkRE(prefs[["components"]],
+    LB = TRUE
+  ))
   if (fix.intercept) {
-      ## use lookahead/lookbehind: replace Intercept with word boundary
-      ## or underscore before/after by (Intercept) - without removing
-      ## underscores!
-      out$term <- stringr::str_replace(out$term,
-                                        "(?<=(\\b|_))Intercept(?=(\\b|_))",
-                                        "(Intercept)")
+    ## use lookahead/lookbehind: replace Intercept with word boundary
+    ## or underscore before/after by (Intercept) - without removing
+    ## underscores!
+    out$term <- stringr::str_replace(
+      out$term,
+      "(?<=(\\b|_))Intercept(?=(\\b|_))",
+      "(Intercept)"
+    )
   }
   out <- reorder_cols(out)
   return(out)

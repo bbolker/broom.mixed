@@ -22,13 +22,13 @@ parameter names from an \code{MCMCglmm} object.
 }
 \examples{
 \dontrun{
-  # a simple MCMCglmm model
-  if (require(MCMCglmm)) {
-     data(PlodiaPO)
-     m <- MCMCglmm(PO ~ 1, random = ~ FSfamily, data = PlodiaPO, verbose=FALSE, pr=TRUE)
-  }
-  # extract the parameter names
-  paramNamesMCMCglmm(m)
+# a simple MCMCglmm model
+if (require(MCMCglmm)) {
+  data(PlodiaPO)
+  m <- MCMCglmm(PO ~ 1, random = ~FSfamily, data = PlodiaPO, verbose = FALSE, pr = TRUE)
+}
+# extract the parameter names
+paramNamesMCMCglmm(m)
 }
 }
 \seealso{

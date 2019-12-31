@@ -61,7 +61,7 @@ NULL
 #' For models with group-specific parameters (e.g., models fit with
 #' \code{\link[rstanarm]{stan_glmer}}), setting \code{effects="ran_vals"}
 #' selects the group-level parameters instead of the non-varying regression
-#' coefficients. Addtional columns are added indicating the \code{level} and
+#' coefficients. Additional columns are added indicating the \code{level} and
 #' \code{group}. Specifying \code{effects="ran_pars"} selects the
 #' standard deviations and (for certain models) correlations of the group-level
 #' parameters.

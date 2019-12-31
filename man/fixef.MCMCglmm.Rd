@@ -25,17 +25,17 @@ fixed effects posteriors or return the posterior means.
 }
 \examples{
 \dontrun{
-  # a simple MCMCglmm model
-  data(PlodiaPO)
-  m <- MCMCglmm(PO ~ 1, random= ~ FSfamily, data=PlodiaPO, verbose=FALSE)
+# a simple MCMCglmm model
+data(PlodiaPO)
+m <- MCMCglmm(PO ~ 1, random = ~FSfamily, data = PlodiaPO, verbose = FALSE)
 
-  # only extract average fixed effects
-  fixef(m, use = "mean")
+# only extract average fixed effects
+fixef(m, use = "mean")
 
-  # histogram of posterior samples of fixed effects
-  hist(fixef(m))
-  # matches the mean
-  rowMeans(fixef(m))
+# histogram of posterior samples of fixed effects
+hist(fixef(m))
+# matches the mean
+rowMeans(fixef(m))
 }
 }
 \seealso{

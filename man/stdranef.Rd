@@ -34,43 +34,45 @@ models (\code{family="ordinal"}).
 }
 \examples{
 \dontrun{
-  # a simple MCMCglmm model
-  data(PlodiaPO)
-  PlodiaPO <- within(PlodiaPO, {
-    PO2 <- cut(PO, quantile(PO, c(0, .33, .66, 1)))
-    plate <- factor(plate)
-  })
+# a simple MCMCglmm model
+data(PlodiaPO)
+PlodiaPO <- within(PlodiaPO, {
+  PO2 <- cut(PO, quantile(PO, c(0, .33, .66, 1)))
+  plate <- factor(plate)
+})
 
-  m <- MCMCglmm(PO2 ~ 1, random = ~ FSfamily + plate,
-    family = "ordinal", data = PlodiaPO,
-    prior = list(
-      R = list(V = 1, fix = 1),
-      G = list(
-        G1 = list(V = 1, nu = .002),
-        G2 = list(V = 1, nu = .002)
-      )
-    ), verbose=FALSE, thin=1, pr=TRUE)
+m <- MCMCglmm(PO2 ~ 1,
+  random = ~ FSfamily + plate,
+  family = "ordinal", data = PlodiaPO,
+  prior = list(
+    R = list(V = 1, fix = 1),
+    G = list(
+      G1 = list(V = 1, nu = .002),
+      G2 = list(V = 1, nu = .002)
+    )
+  ), verbose = FALSE, thin = 1, pr = TRUE
+)
 
-  # summary of the model
-  summary(m)
+# summary of the model
+summary(m)
 
-  # examples of extracting standard deviations of
-  # different random effects on the linear predictor metric
-  # or after transformation to probabilities (only for ordinal)
-  stdranef(m, which = list(1), type = "lp")
-  stdranef(m, which = list(2), type = "lp")
-  stdranef(m, which = list(1, 2, c(1, 2)), type = "lp")
-  stdranef(m, type = "lp")
+# examples of extracting standard deviations of
+# different random effects on the linear predictor metric
+# or after transformation to probabilities (only for ordinal)
+stdranef(m, which = list(1), type = "lp")
+stdranef(m, which = list(2), type = "lp")
+stdranef(m, which = list(1, 2, c(1, 2)), type = "lp")
+stdranef(m, type = "lp")
 
-  ## error because no 3rd random effect
-  #stdranef(m, which = list(1, 2, 3), type = "lp")
+## error because no 3rd random effect
+# stdranef(m, which = list(1, 2, 3), type = "lp")
 
-  stdranef(m, which = list("FSfamily", "plate"), type = "lp")
+stdranef(m, which = list("FSfamily", "plate"), type = "lp")
 
-  # mean standard deviations on the probability metric
-  # also the full distributions, if desired in the Data slot.
-  res <- stdranef(m, type = "response")
-  res$M # means
-  hist(res$Data$FSfamily[, 1]) # histogram
+# mean standard deviations on the probability metric
+# also the full distributions, if desired in the Data slot.
+res <- stdranef(m, type = "response")
+res$M # means
+hist(res$Data$FSfamily[, 1]) # histogram
 }
 }

@@ -132,44 +132,49 @@ if (require("MCMCglmm")) {
 # https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started
 
 model_file <- system.file("extdata", "8schools.stan", package = "broom.mixed")
-schools_dat <- list(J = 8,
-                    y = c(28,  8, -3,  7, -1,  1, 18, 12),
-                    sigma = c(15, 10, 16, 11,  9, 11, 10, 18))
+schools_dat <- list(
+  J = 8,
+  y = c(28, 8, -3, 7, -1, 1, 18, 12),
+  sigma = c(15, 10, 16, 11, 9, 11, 10, 18)
+)
 ## original model
 \dontrun{
-    set.seed(2015)
-    rstan_example <- rstan::stan(file = model_file, data = schools_dat,
-                         iter = 1000, chains = 2, save_dso = FALSE)
+set.seed(2015)
+rstan_example <- rstan::stan(
+  file = model_file, data = schools_dat,
+  iter = 1000, chains = 2, save_dso = FALSE
+)
 }
 if (require(rstan)) {
-   ## load stored object
-   rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
-   tidy(rstan_example)
-   tidy(rstan_example, conf.int = TRUE, pars = "theta")
-   td_mean <- tidy(rstan_example, conf.int = TRUE)
-   td_median <- tidy(rstan_example, conf.int = TRUE, robust = TRUE)
-   
-   if (require(dplyr) && require(ggplot2)) {
-       tds <- (dplyr::bind_rows(list(mean=td_mean, median=td_median), .id="method")
-          \%>\% mutate(type=ifelse(grepl("^theta",term),"theta",
-            ifelse(grepl("^eta",term),"eta",
-                  "other")))
-      )
+  ## load stored object
+  rstan_example <- readRDS(system.file("extdata", "rstan_example.rds", package = "broom.mixed"))
+  tidy(rstan_example)
+  tidy(rstan_example, conf.int = TRUE, pars = "theta")
+  td_mean <- tidy(rstan_example, conf.int = TRUE)
+  td_median <- tidy(rstan_example, conf.int = TRUE, robust = TRUE)
 
-     ggplot(tds, aes(estimate, term)) +
-      geom_errorbarh(aes(xmin = conf.low, xmax = conf.high),height=0) +
-      geom_point(aes(color = method))+
-      facet_wrap(~type,scale="free",ncol=1)
- } ## require(dplyr,ggplot2)
+  if (require(dplyr) && require(ggplot2)) {
+    tds <- (dplyr::bind_rows(list(mean = td_mean, median = td_median), .id = "method")
+    \%>\% mutate(type = ifelse(grepl("^theta", term), "theta",
+        ifelse(grepl("^eta", term), "eta",
+          "other"
+        )
+      ))
+    )
+
+    ggplot(tds, aes(estimate, term)) +
+      geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height = 0) +
+      geom_point(aes(color = method)) +
+      facet_wrap(~type, scale = "free", ncol = 1)
+  } ## require(dplyr,ggplot2)
 } ## require(rstan)
 if (require(R2jags)) {
-   ## see help("jags",package="R2jags")
-   ## and  example("jags",package="R2jags")
-   ## for details
-   ## load stored object
-   R2jags_example <- readRDS(system.file("extdata", "R2jags_example.rds", package = "broom.mixed"))
-   tidy(R2jags_example)
-   tidy(R2jags_example, conf.int=TRUE, conf.method="quantile")
+  ## see help("jags",package="R2jags")
+  ## and  example("jags",package="R2jags")
+  ## for details
+  ## load stored object
+  R2jags_example <- readRDS(system.file("extdata", "R2jags_example.rds", package = "broom.mixed"))
+  tidy(R2jags_example)
+  tidy(R2jags_example, conf.int = TRUE, conf.method = "quantile")
 }
-
 }

@@ -6,9 +6,9 @@ if (require(lme4, quietly = TRUE)) {
   load(system.file("extdata", "lme4_example.rda",
     package = "broom.mixed",
     mustWork = TRUE
-    ))
+  ))
 
-context("lme4 models")
+  context("lme4 models")
 
   d <- as.data.frame(ChickWeight)
   colnames(d) <- c("y", "x", "subj", "tx")
@@ -96,12 +96,13 @@ context("lme4 models")
     t3 <- tidy(fit, effects = "ran_pars", scales = "vcov")
 
     get_sdvar <- function(x) {
-        (x %>% dplyr::filter(grepl("^(sd|var)",term))
-            %>% dplyr::select(estimate)
-            )}
+      (x %>% dplyr::filter(grepl("^(sd|var)", term))
+        %>% dplyr::select(estimate)
+      )
+    }
     expect_equal(
-        get_sdvar(t3),
-        get_sdvar(t2)^2
+      get_sdvar(t3),
+      get_sdvar(t2)^2
     )
     expect_error(
       tidy(fit, scales = "vcov"),
@@ -111,7 +112,7 @@ context("lme4 models")
 
   test_that("tidy works with more than one RE grouping variable", {
     dd <- expand.grid(f = factor(1:10), g = factor(1:5), rep = 1:3)
-    dd$y <- suppressMessages(simulate(~(1 | f) + (1 | g),
+    dd$y <- suppressMessages(simulate(~ (1 | f) + (1 | g),
       newdata = dd,
       newparams = list(beta = 1, theta = c(1, 1)),
       family = poisson, seed = 101
@@ -132,18 +133,25 @@ context("lme4 models")
   dNAs$y[c(1, 3, 5)] <- NA
 
   test_that("augment works on lme4 fits with NAs", {
-    fitNAs <- lmer(y ~ tx * x + (x | subj), data = dNAs,
-                     control=lmerControl(check.conv.grad=
-                     .makeCC("warning", tol = 5e-2, relTol = NULL)))
+    fitNAs <- lmer(y ~ tx * x + (x | subj),
+      data = dNAs,
+      control = lmerControl(
+        check.conv.grad =
+          .makeCC("warning", tol = 5e-2, relTol = NULL)
+      )
+    )
     au <- suppressWarnings(broom::augment(fitNAs))
     expect_equal(nrow(au), sum(complete.cases(dNAs)))
   })
 
   test_that("augment works on lme4 fits with na.exclude", {
-      fitNAs <- lmer(y ~ tx * x + (x | subj),
-                     data = dNAs, na.action = "na.exclude",
-                     control=lmerControl(check.conv.grad=
-                     .makeCC("warning", tol = 5e-2, relTol = NULL)))
+    fitNAs <- lmer(y ~ tx * x + (x | subj),
+      data = dNAs, na.action = "na.exclude",
+      control = lmerControl(
+        check.conv.grad =
+          .makeCC("warning", tol = 5e-2, relTol = NULL)
+      )
+    )
 
     # expect_error(suppressWarnings(augment(fitNAs)))
     au <- suppressWarnings(broom::augment(fitNAs, dNAs))
@@ -176,38 +184,44 @@ context("lme4 models")
 }
 
 test_that("tidy respects conf.level", {
-     tmpf <- function(cl=0.95) {
-         return(tidy(lmm0,conf.int=TRUE,conf.level=cl)[1,][["conf.low"]])
-     }
-     expect_equal(tmpf(),232.3019,tolerance=1e-4)
-     expect_equal(tmpf(0.5),244.831,tolerance=1e-4)
+  tmpf <- function(cl = 0.95) {
+    return(tidy(lmm0, conf.int = TRUE, conf.level = cl)[1, ][["conf.low"]])
+  }
+  expect_equal(tmpf(), 232.3019, tolerance = 1e-4)
+  expect_equal(tmpf(0.5), 244.831, tolerance = 1e-4)
 })
 
 test_that("effects='ran_pars' + conf.int works", {
-    tt <- tidy(lmm0, effects="ran_pars", conf.int=TRUE, conf.method="profile",
-               quiet=TRUE)[c("conf.low","conf.high")]
-    tt0 <- structure(list(conf.low = c(26.007120448854, 27.8138472081303
-), conf.high = c(52.9359835296834, 34.591049857869)), row.names = c(NA, 
--2L), class = c("tbl_df", "tbl", "data.frame"))
-    tt0 <- structure(list(conf.low = c(26.00712, 27.81384),
-                                conf.high = c(52.9359, 34.59104)),
-                           row.names = c(NA, -2L),
-                     class = c("tbl_df", "tbl", "data.frame"))
-    ## ??? why do I need as.data.frame??
-    ## otherwise [1] "Rows in x but not y: 2, 1. Rows in y but not x: 2, 1. "
-    expect_equal(as.data.frame(tt0), as.data.frame(tt),
-                 tolerance=1e-5)
-
+  tt <- tidy(lmm0,
+    effects = "ran_pars", conf.int = TRUE, conf.method = "profile",
+    quiet = TRUE
+  )[c("conf.low", "conf.high")]
+  tt0 <- structure(list(conf.low = c(26.007120448854, 27.8138472081303), conf.high = c(52.9359835296834, 34.591049857869)), row.names = c(
+    NA,
+    -2L
+  ), class = c("tbl_df", "tbl", "data.frame"))
+  tt0 <- structure(list(
+    conf.low = c(26.00712, 27.81384),
+    conf.high = c(52.9359, 34.59104)
+  ),
+  row.names = c(NA, -2L),
+  class = c("tbl_df", "tbl", "data.frame")
+  )
+  ## ??? why do I need as.data.frame??
+  ## otherwise [1] "Rows in x but not y: 2, 1. Rows in y but not x: 2, 1. "
+  expect_equal(as.data.frame(tt0), as.data.frame(tt),
+    tolerance = 1e-5
+  )
 })
 
 test_that("augment returns a tibble", {
-    ## GH 51
-    expect_is(augment(fit), "tbl")
+  ## GH 51
+  expect_is(augment(fit), "tbl")
 })
 
 test_that("conf intervals for ranef in correct order", {
-    ## GH 65
-    t1 <- tidy(lmm1,conf.int=TRUE,effect="ran_pars",conf.method="profile",quiet=TRUE)
-    cor_vals <- t1[t1$term=="cor__(Intercept).Days",]
-    expect_true(cor_vals$conf.low>(-1) && cor_vals$conf.high<1)
+  ## GH 65
+  t1 <- tidy(lmm1, conf.int = TRUE, effect = "ran_pars", conf.method = "profile", quiet = TRUE)
+  cor_vals <- t1[t1$term == "cor__(Intercept).Days", ]
+  expect_true(cor_vals$conf.low > (-1) && cor_vals$conf.high < 1)
 })

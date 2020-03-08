@@ -1,5 +1,8 @@
-tidy.MixMod <- function(x, effects = c("fixed"), conf.int=TRUE,
-                        conf.level=0.95) {
+## INCOMPLETE
+
+#' @export
+tidy.MixMod <- function(x, effects = c("fixed","ran_pars"), conf.int=TRUE,
+                        conf.level=0.95, ...) {
     estimate <- std.error <- NULL ## R CMD check/NSE
     effects <- match.arg(effects)
     ret <- (coef(summary(x))

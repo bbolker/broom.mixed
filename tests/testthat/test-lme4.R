@@ -98,10 +98,11 @@ context("lme4 models")
     get_sdvar <- function(x) {
         (x %>% dplyr::filter(grepl("^(sd|var)",term))
             %>% dplyr::select(estimate)
-            )}
+        )}
+    ## ?? need to coerce to data frames: https://github.com/tidyverse/dplyr/issues/2751
     expect_equal(
-        get_sdvar(t3),
-        get_sdvar(t2)^2
+        as.data.frame(get_sdvar(t3)),
+        as.data.frame(get_sdvar(t2) %>% mutate_all(~.^2))
     )
     expect_error(
       tidy(fit, scales = "vcov"),

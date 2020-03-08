@@ -5,7 +5,7 @@ if (require(lmerTest, quietly = TRUE)) {
   test_that("testing lmerTest p-values behind Douglas Bates' back", {
     lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
     td <- tidy(lmm1, "fixed")
-    expect_equal(td$df, c(17.005, 16.995), tol=1e-4)
+    expect_equal(td$df, c(17, 17), tolerance=1e-3)
     check_tidy(td, 2, 7, c(
       "effect", "term", "estimate",
       "std.error", "df", "statistic", "p.value"

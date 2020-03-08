@@ -8,7 +8,9 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{lmer} tidier gets \code{ddf.method} (applies only to
-  lmerTest fits)
+      lmerTest fits)
+      \item \code{glmmTMB} gets \code{exponentiate} options
+      \item experimental \code{GLMMadaptive} tidiers
     }
   }
 }

@@ -16,6 +16,7 @@
   conf.int = FALSE,
   conf.level = 0.95,
   conf.method = "Wald",
+  exponentiate = FALSE,
   ...
 )
 
@@ -41,6 +42,8 @@ or logistic) are not yet implemented, but may be in the future.}
 \item{conf.level}{confidence level for CI}
 
 \item{conf.method}{method for computing confidence intervals (see \code{\link[lme4]{confint.merMod}})}
+
+\item{exponentiate}{whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale}
 
 \item{...}{extra arguments (not used)}
 
@@ -117,9 +120,15 @@ if (require("glmmTMB") && require("lme4")) {
     ##                  data = cbpp, family = binomial, weights=size)
     tidy(glmm1)
     tidy(glmm1, effects = "fixed")
+    tidy(glmm1, effects = "fixed", exponentiate=TRUE)
+    tidy(glmm1, effects = "fixed", conf.int=TRUE, exponentiate=TRUE)
     head(augment(glmm1, cbpp))
     head(augment(glmm1, cbpp, type.residuals="pearson"))
     glance(glmm1)
+\dontrun{
+## profile CIs - a little bit slower but more accurate
+    tidy(glmm1, effects = "fixed", conf.int=TRUE, exponentiate=TRUE, conf.method="profile")
+}
 }
 }
 \seealso{

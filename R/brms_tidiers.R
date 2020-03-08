@@ -246,12 +246,12 @@ tidy.brmsfit <- function(x, parameters = NA,
     stopifnot(length(conf.level) == 1L)
     probs <- c((1 - conf.level) / 2, 1 - (1 - conf.level) / 2)
     if (conf.method == "HPDinterval") {
-      out[, c("conf.low", "conf.high")] <-
-          coda::HPDinterval(coda::as.mcmc(samples), prob=conf.level)
+        cc <- coda::HPDinterval(coda::as.mcmc(samples), prob=conf.level)
     } else {
-      out[, c("conf.low", "conf.high")] <-
-        t(apply(samples, 2, stats::quantile, probs = probs))
+        cc <- t(apply(samples, 2, stats::quantile, probs = probs))
     }
+    out$conf.low <- cc[,1]
+    out$conf.high <- cc[,2]
   }
   ## figure out component
   out$component <- dplyr::case_when(grepl("(^|_)zi",out$term) ~ "zi",

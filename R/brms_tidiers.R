@@ -67,7 +67,6 @@ NULL
 #'   included? See \code{\link[rstanarm]{loo.stanreg}} for details. Note: for
 #'   models fit to very large datasets this can be a slow computation.
 #' @param ... Extra arguments, not used
-#'
 #' @return
 #' When \code{parameters = NA}, the \code{effects} argument is used
 #' to determine which parameters to summarize.
@@ -97,6 +96,7 @@ NULL
 #' in previous versions of the package), while technically inappropriate in
 #' a Bayesian setting where "fixed" and "random" effects are not well-defined,
 #' are used for compatibility with other (frequentist) mixed model types.
+#' @note At present, the components of parameter estimates are separated by parsing the column names of \code{posterior_samples} (e.g. \code{r_patient[1,Intercept]} for the random effect on the intercept for patient 1, or \code{b_Trt1} for the fixed effect \code{Trt1}. We try to detect underscores in parameter names and warn, but detection may be imperfect.
 #' @export
 tidy.brmsfit <- function(x, parameters = NA,
                          effects = c("fixed", "ran_pars"),
@@ -105,6 +105,10 @@ tidy.brmsfit <- function(x, parameters = NA,
                          conf.method = c("quantile", "HPDinterval"),
                          fix.intercept = TRUE,
                          ...) {
+  if (any(grepl("_", rownames(fixef(x)))) ||
+        any(grepl("_", names(ranef(x))))) {
+      warning("some parameter names contain underscores: term naming may be unreliable!")
+  }
   use_effects <- anyNA(parameters)
   conf.method <- match.arg(conf.method)
   is.multiresp <- length(x$formula$forms)>1

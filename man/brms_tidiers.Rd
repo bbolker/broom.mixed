@@ -104,6 +104,8 @@ The names \sQuote{fixed}, \sQuote{ran_pars}, and \sQuote{ran_vals}
 in previous versions of the package), while technically inappropriate in
 a Bayesian setting where "fixed" and "random" effects are not well-defined,
 are used for compatibility with other (frequentist) mixed model types.
+
+At present, the components of parameter estimates are separated by parsing the column names of \code{posterior_samples} (e.g. \code{r_patient[1,Intercept]} for the random effect on the intercept for patient 1, or \code{b_Trt1} for the fixed effect \code{Trt1}. We try to detect underscores in parameter names and warn, but detection may be imperfect.
 }
 \examples{
  ## original model

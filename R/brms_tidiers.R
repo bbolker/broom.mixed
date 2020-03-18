@@ -306,6 +306,9 @@ augment.brmsfit <- function(x, data = stats::model.frame(x), newdata = NULL,
   if (se.fit) ret[[".se.fit"]] <- pred[, "Est.Error"]
   if (is.null(newdata)) {
     ret[[".resid"]] <- stats::residuals(x)[, "Estimate"]
+    ret <- dplyr::bind_cols(as_tibble(data), ret)
+  } else {
+    ret <- dplyr::bind_cols(as_tibble(newdata), ret)
   }
   return(ret)
 }

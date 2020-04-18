@@ -116,7 +116,7 @@ fix_ran_vals <- function(g) {
 #'   \item{p.value}{P-value computed from t-statistic (may be missing/NA)}
 #'
 #' @importFrom plyr ldply
-#' @importFrom dplyr mutate bind_rows data_frame bind_cols
+#' @importFrom dplyr mutate bind_rows bind_cols
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyr gather spread
 #' @importFrom purrr map

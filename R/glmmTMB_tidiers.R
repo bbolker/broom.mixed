@@ -222,7 +222,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
           ranpar_names
        )
     } else {
-        ret <- dplyr::data_frame(component=character(0),
+        ret <- dplyr::tibble(component=character(0),
                       group=character(0),
                       term=character(0),
                       estimate=numeric(0))

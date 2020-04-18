@@ -102,7 +102,7 @@ tidyMCMC <- function(x,
   m <- if (robust) colMeans(ss) else apply(ss, 2, median)
 
   stdfun <- if (robust) stats::mad else stats::sd
-  ret <- dplyr::data_frame(
+  ret <- dplyr::tibble(
     term = names(m),
     estimate = m,
     std.error = apply(ss, 2, stdfun)

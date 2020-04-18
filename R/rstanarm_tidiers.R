@@ -251,7 +251,7 @@ glance_stan <- function(x, looic = FALSE, ..., type) {
         sim <- x$fit@sim
     }
 
-    ret <- dplyr::data_frame(algorithm = algo)
+    ret <- dplyr::tibble(algorithm = algo)
 
     if (algo != "optimizing") {
         pss <- sim$n_save

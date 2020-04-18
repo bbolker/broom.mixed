@@ -209,7 +209,7 @@ tidy.brmsfit <- function(x, parameters = NA,
         }
       }
       res_list$ran_pars <-
-        data_frame(
+        dplyr::tibble(
           group = sapply(ss2, grpfun),
           term = sapply(ss2, termfun)
         )
@@ -220,7 +220,7 @@ tidy.brmsfit <- function(x, parameters = NA,
       vals <- stringr::str_match_all(rterms, "_(.+?)\\[(.+?),(.+?)\\]")
 
       res_list$ran_vals <-
-        data_frame(
+        dplyr::tibble(
           group = plyr::laply(vals, function (v) { v[[2]] }),
           term = plyr::laply(vals, function (v) { v[[4]] }),
           level = plyr::laply(vals, function (v) { v[[3]] })
@@ -240,7 +240,7 @@ tidy.brmsfit <- function(x, parameters = NA,
     ## prefixes already removed for ran_vals; don't remove for ran_pars
   } else {
     ## if !use_effects
-    out <- data_frame(term = names(samples))
+    out <- dplyr::tibble(term = names(samples))
   }
   pointfun <- if (robust) stats::median else base::mean
   stdfun <- if (robust) stats::mad else stats::sd
@@ -302,7 +302,7 @@ augment.brmsfit <- function(x, data = stats::model.frame(x), newdata = NULL,
   ## allow optional arguments to augment, e.g. pred.type,
   ## residual.type, re.form ...
   pred <- do.call(stats::predict, args)
-  ret <- dplyr::data_frame(.fitted = pred[, "Estimate"])
+  ret <- dplyr::tibble(.fitted = pred[, "Estimate"])
   if (se.fit) ret[[".se.fit"]] <- pred[, "Est.Error"]
   if (is.null(newdata)) {
     ret[[".resid"]] <- stats::residuals(x)[, "Estimate"]

@@ -168,7 +168,7 @@ tidy.glmmadmb <- function(x, effects = c("fixed", "ran_pars"),
     )
 
     estimate <- vv2[[rscale]]
-    ret <- data_frame(group = vv2$grp, term, estimate)
+    ret <- dplyr::tibble(group = vv2$grp, term, estimate)
 
 
     if (conf.int) {

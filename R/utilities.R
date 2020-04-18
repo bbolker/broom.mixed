@@ -97,7 +97,7 @@ reorder_frame <- function(x, first_cols = c("effect", "group", "term", "estimate
 
 ## FIXME: store functions to run as a list of expressions,
 ##  allow user-specified 'skip' argument?
-finish_glance <- function(ret = dplyr::data_frame(), x) {
+finish_glance <- function(ret = dplyr::tibble(), x) {
   stopifnot(length(ret) == 0 || nrow(ret) == 1)
 
   ## catch NULL, numeric(0), error responses
@@ -108,7 +108,7 @@ finish_glance <- function(ret = dplyr::data_frame(), x) {
     return(tt)
   }
 
-  newvals <- dplyr::data_frame(
+  newvals <- dplyr::tibble(
     sigma = tfun(sigma(x)),
     logLik = tfun(as.numeric(stats::logLik(x))),
     AIC = tfun(stats::AIC(x)),

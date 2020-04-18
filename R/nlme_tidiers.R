@@ -73,7 +73,7 @@
 #' @importFrom plyr ldply
 #' @importFrom nlme getVarCov intervals
 #' @import dplyr
-## @importFrom dplyr data_frame select full_join
+## @importFrom dplyr tibble select full_join
 #'
 #' @export
 tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
@@ -152,7 +152,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
           "nonlinear models"
         }
       )
-      ret <- dplyr::data_frame()
+      ret <- dplyr::tibble()
     } else {
       vc <- nlme::getVarCov(x)
       ran_prefix <- switch(rscale,
@@ -192,7 +192,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
         diag(vals) <- sqrt(diag(vc))
         vals <- c(lwrtri(vals), sigma(x))
       }
-      ret <- dplyr::data_frame(
+      ret <- dplyr::tibble(
         effect = "ran_pars",
         group = grpnames,
         term = c(nmvec),
@@ -217,7 +217,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
             sub(re, "_\\2.\\1", nm[corterms],
               perl = TRUE
             )
-          return(dplyr::data_frame(
+          return(dplyr::tibble(
             term = nm, conf.low = z[, "lower"],
             conf.high = z[, "upper"]
           ))

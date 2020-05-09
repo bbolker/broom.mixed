@@ -68,6 +68,14 @@ if (require(glmmTMB, quietly = TRUE)) {
                    c(-1.9012409337, -1.61676924, -1.8010155, -2.50085),
                    tolerance=1e-4)
   })
+
+  test_that("confint with non-pos-def results", {
+      d <- data.frame(x=rep(1,100))
+      suppressWarnings(m1 <- glmmTMB(x~1,family=nbinom2,data=d))
+      expect_is(tidy(m1),"tbl_df")
+      res <- unlist(suppressWarnings(tidy(m1,conf.int=TRUE)[,c("conf.low","conf.high")]))
+      expect_equal(unname(res),c(-0.196,0.196),tolerance=1e-4)
+  })
   
 } ## if require(glmmTMB)
 

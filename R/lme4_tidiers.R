@@ -525,7 +525,7 @@ tidy.lmList4 <- function(x, conf.int = FALSE,
     ss <- summary(x)$coefficients
     names(dimnames(ss)) <- c("group","cols","terms")
     ret <- (ss
-        %>% dplyr::as.tbl_cube()
+        %>% cubelyr::as.tbl_cube()
         %>% dplyr::as_data_frame()
         %>% tidyr::spread(cols,".")
         %>% rename_regex_match()

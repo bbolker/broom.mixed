@@ -1,7 +1,7 @@
 Package: broom.mixed
 Type: Package
 Title: Tidying Methods for Mixed Models
-Version: 0.2.6
+Version: 0.2.7
 Authors@R: c(
     person("Ben", "Bolker", email = "bolker@mcmaster.ca",
         role = c("aut", "cre"),

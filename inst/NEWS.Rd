@@ -5,13 +5,15 @@
 \encoding{UTF-8}
 
 \section{CHANGES IN VERSION 0.2.7}{
+  \subsection{BUG FIXES}
   \itemize{
-    \item No improvements; skip examples on Windows
+    \item \code{lmerTest} Wald confidence intervals for \code{lmerTest}
+    models now respect \code{ddf.method}
   }
 }
-\section{CHANGES IN VERSION 0.2.6 (unreleased)}{
+\section{CHANGES IN VERSION 0.2.6 (2020-05-17)}{
   \itemize{
-    \item No improvements; compatibility with dplyr 1.0.0
+    \item No improvements; compatibility with dplyr 1.0.0; skip examples
   }
 }
 \section{CHANGES IN VERSION 0.2.5 (2020-04-19)}{

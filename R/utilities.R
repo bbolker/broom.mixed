@@ -91,7 +91,7 @@ cifun <- function(x, method="Wald", ddf.method=NULL, level=0.95, ...) {
      }
      r <- (cc
          %>% transmute(conf.low=Estimate-mult*`Std. Error`,
-                       conf.high=Estimate-mult+`Std. Error`)
+                       conf.high=Estimate+mult*`Std. Error`)
      )
   }  else {  
       r <- as.data.frame(confint(x, method=method, level=level, ...))

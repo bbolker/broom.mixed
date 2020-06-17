@@ -78,10 +78,28 @@ rename_regex_match <- function(x, table = col_matches) {
 }
 
 ## convert confint output to a data frame and relabel columns
-cifun <- function(x, ...) {
-  r <- confint(x, ...) %>%
-    data.frame() %>%
-    setNames(c("conf.low", "conf.high"))
+cifun <- function(x, method="Wald", ddf.method=NULL, level=0.95, ...) {
+  Estimate <- `Std. Error` <- NULL ## global var check
+  ## compute Wald-t estimates if necessary (not handled by confint for lmerTest)
+  if (!is.null(ddf.method)) {
+     if (method != "Wald") warning("ddf.method ignored when conf.method != \"Wald\"")
+     cc <-  as.data.frame(coef(summary(x, ddf=ddf.method)))
+     if (!"df" %in% colnames(cc)) {
+         mult <- qnorm((1 + level) / 2)
+     } else {
+         mult <- stats::qt((1+level)/2, df=cc$df)
+     }
+     r <- (cc
+         %>% transmute(conf.low=Estimate-mult*`Std. Error`,
+                       conf.high=Estimate-mult+`Std. Error`)
+     )
+  }  else {  
+      r <- as.data.frame(confint(x, method=method, level=level, ...))
+  }
+  r <- (r
+      %>% tibble()
+      %>% setNames(c("conf.low", "conf.high"))
+      )
   return(r)
 }
 

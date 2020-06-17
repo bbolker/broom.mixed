@@ -126,7 +126,7 @@ if (require("glmmTMB") && require("lme4")) {
     head(augment(glmm1, cbpp, type.residuals="pearson"))
     glance(glmm1)
 \dontrun{
-## profile CIs - a little bit slower but more accurate
+    ## profile CIs - a little bit slower but more accurate
     tidy(glmm1, effects = "fixed", conf.int=TRUE, exponentiate=TRUE, conf.method="profile")
 }
 }

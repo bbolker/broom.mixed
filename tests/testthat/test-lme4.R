@@ -58,9 +58,9 @@ context("lme4 models")
   })
 
   test_that("glance includes deviance iff method='ML'", {
-    expect(!("deviance" %in% names(glance(lmm0))))
-    expect("REMLcrit" %in% names(glance(lmm0)))
-    expect("deviance" %in% names(glance(lmm0ML)))
+    expect(!("deviance" %in% names(glance(lmm0))),"deviance not included")
+    expect("REMLcrit" %in% names(glance(lmm0)),"REMLcrit not included")
+    expect("deviance" %in% names(glance(lmm0ML)),"deviance not included")
   })
 
 

@@ -141,6 +141,9 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
   variable <- level <- term <- estimate <- std.error <- grpvar <-
     .id <- grp <- condval <- condsd <- NULL
 
+  if(is.null(ddf.method)) {
+      ddf.method <- if (inherits(x,"lmerModLmerTest")) "Satterthwaite" else NULL
+  }
   effect_names <- c("ran_pars", "fixed", "ran_vals", "ran_coefs")
   if (!is.null(scales)) {
     if (length(scales) != length(effects)) {
@@ -188,7 +191,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     if (conf.int) {
       if (is(x, "merMod") || is(x, "rlmerMod")) {
           cifix <- cifun(p, parm = "beta_", method = conf.method,
-                         level = conf.level, ...)
+                         level = conf.level, ddf.method = ddf.method, ...)
       } else {
         ## ?? for glmmTMB?  check ...
         cifix <- cifun(p, level = conf.level, ...)
@@ -273,7 +276,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     ## these are in 'lower.tri' order, need to make sure this
     ## is matched in as.data.frame() below 
     if (conf.int) {
-        ciran <- cifun(p, parm = "theta_", method = conf.method, ...)
+        ciran <- cifun(p, parm = "theta_", method = conf.method, level = conf.level, ...)
         ret <- data.frame(ret, ciran, stringsAsFactors = FALSE)
     }
     ret_list$ran_pars <- ret

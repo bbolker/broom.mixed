@@ -85,8 +85,8 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
   })
 
   test_that("glance includes deviance iff method='ML'", {
-    expect(!("deviance" %in% names(glance(lmm0))))
-    expect("deviance" %in% names(glance(lmm0ML)))
+    expect(!("deviance" %in% names(glance(lmm0))),"deviance should not be in glance()")
+    expect("deviance" %in% names(glance(lmm0ML)),"deviance should be in glance()")
   })
 
   ## FIXME: weak tests - only shows that no error occurs and

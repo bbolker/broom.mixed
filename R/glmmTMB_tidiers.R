@@ -10,7 +10,7 @@
 #' The structure depends on the method chosen.
 #'
 #' @name glmmTMB_tidiers
-#'
+#' @aliases tidy.glmmTMB
 #' @examples
 #' if (require("glmmTMB") && require("lme4")) {
 #'     data("sleepstudy",package="lme4")
@@ -39,7 +39,7 @@
 #'     head(augment(glmm1, cbpp, type.residuals="pearson"))
 #'     glance(glmm1)
 #' \dontrun{
-#' ## profile CIs - a little bit slower but more accurate
+#'     ## profile CIs - a little bit slower but more accurate
 #'     tidy(glmm1, effects = "fixed", conf.int=TRUE, exponentiate=TRUE, conf.method="profile")
 #' }
 #' }

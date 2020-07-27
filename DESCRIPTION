@@ -1,7 +1,7 @@
 Package: broom.mixed
 Type: Package
 Title: Tidying Methods for Mixed Models
-Version: 0.2.7
+Version: 0.2.7.9000
 Authors@R: c(
     person("Ben", "Bolker", email = "bolker@mcmaster.ca",
         role = c("aut", "cre"),
@@ -67,7 +67,7 @@ Suggests:
 URL: http://github.com/bbolker/broom.mixed
 BugReports: http://github.com/bbolker/broom.mixed/issues
 License: GPL-3
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8
 Additional_repositories: http://bbolker.github.io/drat
 VignetteBuilder: knitr

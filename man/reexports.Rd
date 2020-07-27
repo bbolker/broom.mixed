@@ -13,6 +13,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{broom}{\code{\link[broom]{augment}}, \code{\link[broom]{glance}}, \code{\link[broom]{tidy}}}
+  \item{broom}{\code{\link[broom:reexports]{augment}}, \code{\link[broom:reexports]{glance}}, \code{\link[broom:reexports]{tidy}}}
 }}
 

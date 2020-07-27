@@ -25,7 +25,7 @@
 
 \item{conf.method}{method for computing confidence intervals}
 
-\item{...}{extra arguments (not used)}
+\item{...}{additional arguments passed to confint function (tmbroot, tmbprofile)}
 }
 \description{
 Tidying methods for TMB models
@@ -36,5 +36,6 @@ if (require("TMB")) {
     class(obj) <- "TMB"
     tidy(obj,conf.int=TRUE,conf.method="wald")
     tidy(obj,conf.int=TRUE,conf.method="uniroot")
+    tidy(obj,conf.int=TRUE,conf.method="profile")
 }
 }

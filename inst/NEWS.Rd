@@ -4,6 +4,13 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
+\section{CHANGES IN VERSION 0.2.7.9000}{
+  \subsection{NEW FEATURES}
+  \itemize{
+    \item experimental \code{TMB} tidiers
+    }
+}
+
 \section{CHANGES IN VERSION 0.2.7}{
   \subsection{BUG FIXES}
   \itemize{

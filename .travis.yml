@@ -29,7 +29,8 @@ before_install:
   - if [[ $CXX = "clang++" ]] ;  then export CLANG_EXTRA_ARG=" -Qunused-arguments -fcolor-diagnostics " ; fi
   - sed -i.bak "s/ g++/ ${CXX}${CLANG_EXTRA_ARG}/" ~/.R/Makevars
   - sed -i.bak "s/O[0-3]/O$CXX_OLEVEL/" ~/.R/Makevars
-  - sudo add-apt-repository -y "ppa:marutter/c2d4u4.0+"
+  - sudo add-apt-repository -y "ppa:marutter/rrutter4.0"
+  - sudo add-apt-repository -y "ppa:marutter/c2d4u"
   - sudo apt-get update
   - sudo apt-get install -y --no-install-recommends r-cran-rstan r-cran-rstanarm r-cran-stanheaders r-cran-ggplot2 r-cran-rcppeigen r-cran-bayesplot r-cran-lme4 r-cran-matrix r-cran-nlme r-cran-shinystan r-cran-survival 
 

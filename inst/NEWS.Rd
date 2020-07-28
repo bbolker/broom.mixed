@@ -15,7 +15,7 @@
       \item \code{lmerTest} Wald confidence intervals for \code{lmerTest}
       models now respect \code{ddf.method}
     }
-  }
+ } 
 }
 \section{CHANGES IN VERSION 0.2.6 (2020-05-17)}{
   \itemize{

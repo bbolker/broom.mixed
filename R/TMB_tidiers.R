@@ -15,8 +15,8 @@
 ##'     runExample("simple",thisR=TRUE)
 ##'     class(obj) <- "TMB"
 ##'     tidy(obj,conf.int=TRUE,conf.method="wald")
-##'     tidy(obj,conf.int=TRUE,conf.method="uniroot")
-##'     tidy(obj,conf.int=TRUE,conf.method="profile")
+##'     \dontrun{tidy(obj,conf.int=TRUE,conf.method="uniroot")}
+##'     \dontrun{tidy(obj,conf.int=TRUE,conf.method="profile")}
 ##' }
 ##' @export
 tidy.TMB <- function(x, effect = c("fixed", "random"),

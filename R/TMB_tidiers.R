@@ -6,8 +6,8 @@
 ##' @param effect which effects should be returned?
 ##' @param conf.method method for computing confidence intervals
 ##' @param ... additional arguments passed to confint function (tmbroot, tmbprofile)
-##' @importFrom TMB sdreport
-##' @importFrom TMB tmbroot
+##' @importFrom TMB sdreport tmbroot tmbprofile
+##' @importFrom stats approx predict
 ##' @importFrom splines backSpline interpSpline
 ## FIXME: retrieving stored objects doesn't work well ...
 ##' @examples
@@ -24,7 +24,7 @@ tidy.TMB <- function(x, effect = c("fixed", "random"),
                      conf.level = 0.95,
                      conf.method = c("wald", "uniroot", "profile"), ...) {
   ## R CMD check/global variables
-  Estimate <- estimate <- std.error <- NULL
+  branch <- v <- param <- value <- zeta <- Estimate <- estimate <- std.error <- NULL
   sdr <- sdreport(x)
   retlist <- list()
   if ("fixed" %in% effect) {
@@ -59,7 +59,7 @@ tidy.TMB <- function(x, effect = c("fixed", "random"),
             ## FIXME: allow parm specs
             ## FIXME: repeated var names?
             all_vars <- names(x$env$last.par.best)[-x$env$random]
-            prof0 <- purrr:::map_dfr(seq_along(all_vars),
+            prof0 <- purrr::map_dfr(seq_along(all_vars),
                                      ~ setNames(tmbprofile(x,name=.,trace=FALSE),c("focal","value")),
                                      .id="param")
             prof1 <- (prof0

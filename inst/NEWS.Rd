@@ -8,7 +8,7 @@
   \subsection{NEW FEATURES}
   \itemize{
     \item experimental \code{TMB} tidiers
-    }
+  }
 }
 
 \section{CHANGES IN VERSION 0.2.7}{

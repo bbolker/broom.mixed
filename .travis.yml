@@ -1,5 +1,5 @@
 language: r
-sudo: false
+
 r: 
   - release
   - devel

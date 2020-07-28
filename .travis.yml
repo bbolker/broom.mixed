@@ -13,12 +13,12 @@ r_check_args: '--ignore-vignettes --no-manual'
 r_github_packages:
   - jimhester/covr
 
-addons:
-  apt:
-    sources: 
-    - sourceline: 'ppa:marutter/rrutter4.0'
-    packages:
-    - r-cran-rstan r-cran-rstanarm r-cran-stanheaders r-cran-ggplot2 r-cran-rcppeigen r-cran-bayesplot r-cran-lme4 r-cran-shinystan r-cran-survival
+## addons:
+##   apt:
+##     sources: 
+##     - sourceline: 'ppa:marutter/rrutter4.0'
+##    packages:
+##    - r-cran-rstan r-cran-rstanarm r-cran-stanheaders r-cran-ggplot2 r-cran-rcppeigen r-cran-bayesplot r-cran-lme4 r-cran-shinystan r-cran-survival
 
 env:
   global:

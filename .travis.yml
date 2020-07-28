@@ -14,7 +14,7 @@ r_github_packages:
   - jimhester/covr
 
 r_binary_packages:
-  - r-cran-rstan r-cran-rstanarm r-cran-stanheaders r-cran-ggplot2 r-cran-rcppeigen r-cran-bayesplot r-cran-lme4 r-cran-matrix r-cran-nlme r-cran-shinystan r-cran-survival
+  - rstan rstanarm stanheaders ggplot2 rcppeigen bayesplot lme4 matrix nlme shinystan survival
 
 env:
   global:

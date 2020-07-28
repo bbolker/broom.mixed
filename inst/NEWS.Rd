@@ -4,18 +4,17 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
-\section{CHANGES IN VERSION 0.2.7.9000}{
-  \subsection{NEW FEATURES}
-  \itemize{
-    \item experimental \code{TMB} tidiers
-  }
-}
-
 \section{CHANGES IN VERSION 0.2.7}{
-  \subsection{BUG FIXES}
-  \itemize{
-    \item \code{lmerTest} Wald confidence intervals for \code{lmerTest}
-    models now respect \code{ddf.method}
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item experimental \code{TMB} tidiers
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{lmerTest} Wald confidence intervals for \code{lmerTest}
+      models now respect \code{ddf.method}
+    }
   }
 }
 \section{CHANGES IN VERSION 0.2.6 (2020-05-17)}{
@@ -59,7 +58,6 @@
 	}
       }
 }
-	
 \section{CHANGES IN VERSION 0.2.3}{
   \subsection{BUG FIXES}{
     \itemize{

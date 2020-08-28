@@ -10,11 +10,14 @@
 ##' @importFrom stats approx predict
 ##' @importFrom splines backSpline interpSpline
 ## FIXME: retrieving stored objects doesn't work well ...
+## but we also don't want to try compiling as part of example!
 ##' @examples
 ##' if (require("TMB")) {
-##'     runExample("simple",thisR=TRUE)
-##'     class(obj) <- "TMB"
-##'     tidy(obj,conf.int=TRUE,conf.method="wald")
+##' 
+##'     \dontrun{runExample("simple",thisR=TRUE)
+##'        class(obj) <- "TMB"
+##'        tidy(obj,conf.int=TRUE,conf.method="wald")
+##'     }
 ##'     \dontrun{tidy(obj,conf.int=TRUE,conf.method="uniroot")}
 ##'     \dontrun{tidy(obj,conf.int=TRUE,conf.method="profile")}
 ##' }
@@ -58,7 +61,10 @@ tidy.TMB <- function(x, effect = c("fixed", "random"),
         } else if (conf.method == "profile") {
             ## FIXME: allow parm specs
             ## FIXME: repeated var names?
-            all_vars <- names(x$env$last.par.best)[-x$env$random]
+            all_vars <- names(x$env$last.par.best)
+            if (!is.null(rnd <- x$env$random)) {
+                all_vars <- all_vars[-rnd]
+            }
             prof0 <- purrr::map_dfr(seq_along(all_vars),
                                      ~ setNames(tmbprofile(x,name=.,trace=FALSE),c("focal","value")),
                                      .id="param")

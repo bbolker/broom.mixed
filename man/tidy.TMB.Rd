@@ -32,9 +32,11 @@ Tidying methods for TMB models
 }
 \examples{
 if (require("TMB")) {
-    runExample("simple",thisR=TRUE)
-    class(obj) <- "TMB"
-    tidy(obj,conf.int=TRUE,conf.method="wald")
+
+    \dontrun{runExample("simple",thisR=TRUE)
+       class(obj) <- "TMB"
+       tidy(obj,conf.int=TRUE,conf.method="wald")
+    }
     \dontrun{tidy(obj,conf.int=TRUE,conf.method="uniroot")}
     \dontrun{tidy(obj,conf.int=TRUE,conf.method="profile")}
 }

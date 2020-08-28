@@ -106,8 +106,14 @@ tidy.brmsfit <- function(x, parameters = NA,
                          conf.method = c("quantile", "HPDinterval"),
                          fix.intercept = TRUE,
                          ...) {
+
+  if (!requireNamespace("brms", quietly=TRUE)) {
+      stop("can't tidy brms objects without brms installed")
+  }
+  xr <- brms::restructure(x)
+  has_ranef <- nrow(xr$ranef)>0  
   if (any(grepl("_", rownames(fixef(x)))) ||
-        any(grepl("_", names(ranef(x))))) {
+        (has_ranef && any(grepl("_", names(ranef(x)))))) {
       warning("some parameter names contain underscores: term naming may be unreliable!")
   }
   use_effects <- anyNA(parameters)

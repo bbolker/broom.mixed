@@ -7,7 +7,7 @@
 #' @return All tidying methods return a \code{data.frame} without rownames.
 #' The structure depends on the method chosen.
 #'
-#' @seealso \code{\link[rstanarm]{summary.stanreg}}
+#' @seealso \code{\link[rstan]{summary,stanfit-method}}
 #'
 #' @name rstanarm_tidiers
 #'

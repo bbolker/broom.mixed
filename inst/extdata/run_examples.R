@@ -8,7 +8,7 @@ source(system.file("extdata","example_helpers.R",package="broom.mixed"))
 ## FIXME: should disaggregate/implement a Makefile!
 ## environment variable, command-line arguments to R script?
 ## slow stuff, disable for speed
-run_brms <- FALSE
+run_brms <- TRUE
 run_stan <- FALSE
 
 run_pkg("nlme", {
@@ -64,15 +64,17 @@ run_pkg("glmmTMB", {
 })
 
 run_pkg("gamlss", {
-  data(abdom, package="gamlss")
-    gamlss1 <- gamlss(
+    if (requireNamespace("gamlss.data")) {
+        data(abdom, package="gamlss.data")
+        gamlss1 <- gamlss(
         y ~ pb(x),
         sigma.fo = ~ pb(x),
         family = BCT,
         data = abdom,
         method = mixed(1, 20)
-    )
-  save_file(gamlss1, pkg=pkg, type="rds")
+        )
+        save_file(gamlss1, pkg=pkg, type="rds")
+    }
 })
 
 run_pkg("glmmADMB", {
@@ -176,22 +178,25 @@ if (run_brms) {
     brms_crossedRE <- hack_size(brms_crossedRE)
     ## save_file(brms_crossedRE,  pkg = "brms", type = "rds")
 
+    brms_noran <- brm(mpg ~ wt,
+                      data = mtcars,
+                      iter = 100, chains = 2,
+                      family=gaussian
+                      )
     
     data(Salamanders, package="glmmTMB")
     brms_zip <- brm(bf(count ~ spp * mined + (1 | site),
                        zi = ~ mined + (1|site)),
                     data= Salamanders,
                     family = zero_inflated_poisson,
-                    iter=100, chains=2,
-                    save_dso=FALSE)
+                    iter=100, chains=2)
 
     brms_zip <- hack_size(brms_zip)
 
     f1 <- bf(neg_c_7 ~ e42dep + c12hour + c172code)
     f2 <- bf(c12hour ~ c172code)
     brms_multi <- brm(f1 + f2 + set_rescor(FALSE), data = efc,
-             chains = 1, iter = 200,
-             save_dso=FALSE)
+             chains = 1, iter = 200)
     brms_multi <- hack_size(brms_multi)
 
     
@@ -209,7 +214,7 @@ if (run_brms) {
                    iter=200)
     brms_RE <- hack_size(brms_RE)
     
-    save_file(brms_crossedRE, brms_zip, brms_multi,
+    save_file(brms_crossedRE, brms_zip, brms_multi, brms_noran,
               brms_multi_RE, brms_RE, pkg = pkg, type = "rda")
   })
 }
@@ -228,7 +233,7 @@ if (run_stan) {
     set.seed(2015)
     rstan_example <- stan(
       file = model_file, data = schools_dat,
-      iter = 1000, chains = 2, save_dso = FALSE
+      iter = 1000, chains = 2
     )
     rstan_example <- hack_size(rstan_example)
     save_file(rstan_example, pkg = pkg, type = "rds")

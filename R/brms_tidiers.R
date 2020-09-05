@@ -65,8 +65,8 @@ NULL
 #' @param fix.intercept rename "Intercept" parameter to "(Intercept)", to match
 #' behaviour of other model types?
 #' @param looic Should the LOO Information Criterion (and related info) be
-#'   included? See \code{\link[rstanarm]{loo.stanreg}} for details. Note: for
-#'   models fit to very large datasets this can be a slow computation.
+#'   included? See \code{\link[rstan]{loo.stanfit}} for details. (This
+#'   can be slow for models fit to large datasets.)
 #' @param ... Extra arguments, not used
 #' @return
 #' When \code{parameters = NA}, the \code{effects} argument is used
@@ -284,8 +284,20 @@ tidy.brmsfit <- function(x, parameters = NA,
   return(out)
 }
 
-#' @rdname brms_tidiers
 
+#' @importFrom stats quantile
+#' @export
+sigma.brmsfit <- function (object, ...)  {
+    if (!("sigma" %in% names(object$fit)))
+        return(1)
+    if (!requireNamespace("rstanarm")) {
+        warning("need to install rstanarm to use extract sigma from brms fits")
+        return(NA)
+    }
+    stats::quantile(as.data.frame(object$fit)[["sigma"]], probs=0.5)
+}
+
+#' @rdname brms_tidiers
 #' @export
 glance.brmsfit <- function(x, looic = FALSE, ...) {
   ## defined in rstanarm_tidiers.R

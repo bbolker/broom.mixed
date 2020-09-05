@@ -38,8 +38,8 @@ See the Value section for details.}
 \code{\link[rstanarm]{loo.stanreg}}.}
 
 \item{looic}{Should the LOO Information Criterion (and related info) be
-included? See \code{\link[rstanarm]{loo.stanreg}} for details. Note: for
-models fit to very large datasets this can be a slow computation.}
+included? See \code{\link[rstan]{loo.stanfit}} for details. (This
+can be slow for models fit to large datasets.)}
 }
 \value{
 All tidying methods return a \code{data.frame} without rownames.
@@ -118,5 +118,5 @@ fit <- readRDS(system.file("extdata", "rstanarm_example.rds", package="broom.mix
 } ## if require("rstanarm")
 }
 \seealso{
-\code{\link[rstanarm]{summary.stanreg}}
+\code{\link[rstan]{summary,stanfit-method}}
 }

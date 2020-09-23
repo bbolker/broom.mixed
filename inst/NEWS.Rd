@@ -14,6 +14,8 @@
     \itemize{
       \item \code{lmerTest} Wald confidence intervals for \code{lmerTest}
       models now respect \code{ddf.method}
+      \item \code{tidy.glmmTMB(.,effects="ran_vals")} fixed for
+      \code{stringsAsFactors} changes in \code{glmmTMB} (GH #103)
     }
  } 
 }

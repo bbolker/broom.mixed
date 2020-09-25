@@ -228,10 +228,11 @@ tidy.brmsfit <- function(x, parameters = NA,
 
       res_list$ran_vals <-
         dplyr::tibble(
-          group = plyr::laply(vals, function (v) { v[[2]] }),
-          term = plyr::laply(vals, function (v) { v[[4]] }),
-          level = plyr::laply(vals, function (v) { v[[3]] })
+          group = purrr::map_chr(vals, function (v) { v[[2]] }),
+          term = purrr::map_chr(vals, function (v) { v[[4]] }),
+          level = purrr::map_chr(vals, function (v) { v[[3]] })
         )
+
     }
     out <- dplyr::bind_rows(res_list, .id = "effect")
     v <- if (fixed.only) seq(nrow(out)) else is.na(out$term)

@@ -204,7 +204,7 @@ tidy.stanreg <- function(x,
         ret_list$ran_vals <- fix_data_frame(vv, newnames = nn, newcol="term")
     }
 
-    return(rbind.fill(ret_list))
+    return(dplyr::bind_rows(ret_list))
 }
 
 

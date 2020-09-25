@@ -115,7 +115,6 @@ fix_ran_vals <- function(g) {
 #'   \item{statistic}{t- or Z-statistic (\code{NA} for modes)}
 #'   \item{p.value}{P-value computed from t-statistic (may be missing/NA)}
 #'
-#' @importFrom plyr ldply
 #' @importFrom dplyr mutate bind_rows bind_cols
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyr gather spread
@@ -425,8 +424,6 @@ glance.merMod <- function(x, ...) {
 ##' @param reorder reorder levels by conditional mode values?
 ##' @param order.var numeric or character: which variable to use for ordering levels?
 ##' @param \dots additional arguments (unused: for generic consistency)
-##' @importFrom reshape2 melt
-##' @importFrom plyr ldply
 ##' @examples
 ##' if (require("lme4")) {
 ##'    load(system.file("extdata","lme4_example.rda",package="broom.mixed"))
@@ -484,13 +481,15 @@ augment.ranef.mer <- function(x,
     cols <- 1:(dim(pv)[1])
     se <- unlist(lapply(cols, function(i) sqrt(pv[i, i, ])))
     ## n.b.: depends on explicit column-major ordering of se/melt
-    zzz <- cbind(melt(zz, id.vars = "level", value.name = "estimate"),
-      qq = qq, std.error = se
-    )
+    zzz <- zz %>% 
+           tidyr::pivot_longer(-level, values_to = "estimate", names_to = "variable") %>%
+           dplyr::arrange(variable, level)
+    zzz <- cbind(zzz, qq = qq, std.error = se)
     ## reorder columns:
     subset(zzz, select = c(variable, level, estimate, qq, std.error))
   }
-  dd <- ldply(x, tmpf, .id = "grp")
+  dd <- purrr::map_dfr(x, tmpf, .id = "grp")
+
   ci.val <- -qnorm((1 - ci.level) / 2)
   transform(dd,
     ## p=2*pnorm(-abs(estimate/std.error)), ## 2-tailed p-val

@@ -20,6 +20,12 @@ r_github_packages:
 ##    packages:
 ##    - r-cran-rstan r-cran-rstanarm r-cran-stanheaders r-cran-ggplot2 r-cran-rcppeigen r-cran-bayesplot r-cran-lme4 r-cran-shinystan r-cran-survival
 
+addons:
+  apt:
+    update: true
+    packages:
+      - libv8-dev
+
 env:
   global:
     - _R_CHECK_FORCE_SUGGESTS_: false

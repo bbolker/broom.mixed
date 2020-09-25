@@ -61,7 +61,6 @@ NULL
 #'   \item{statistic}{t- or Z-statistic (\code{NA} for modes)}
 #'   \item{p.value}{P-value computed from t-statistic (may be missing/NA)}
 #'
-#' @importFrom plyr ldply rbind.fill
 #' @import dplyr
 #' @importFrom tidyr gather spread
 #' @importFrom nlme VarCorr ranef

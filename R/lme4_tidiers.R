@@ -526,12 +526,21 @@ tidy.lmList4 <- function(x, conf.int = FALSE,
     
     ss <- summary(x)$coefficients
     names(dimnames(ss)) <- c("group","cols","terms")
-    ret <- (ss
-        %>% cubelyr::as.tbl_cube()
-        %>% dplyr::as_data_frame()
-        %>% tidyr::spread(cols,".")
-        %>% rename_regex_match()
-    )
+
+    # flatten results cube
+    tmp <- list()
+    for (i in 1:dim(ss)[3]) {
+      tmp[[i]] <- ss[, , i, drop=TRUE] %>%
+                  as.data.frame %>%
+                  tibble::rownames_to_column(var = "group") %>%
+                  rename_regex_match() %>%
+                  dplyr::mutate(`terms` = dimnames(ss)$terms[i])
+    }
+    tmp <- dplyr::bind_rows(tmp)
+    tmp <- tmp[, unique(c("group", "terms"), sort(colnames(tmp)))]
+    tmp <- tmp[order(tmp$group, tmp$terms),]
+    ret <- tibble::as_tibble(tmp)
+
     if (conf.int) {
         qq <- qnorm((1+conf.level)/2)
         ret <- (ret %>%

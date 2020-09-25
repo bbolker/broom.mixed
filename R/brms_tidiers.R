@@ -255,6 +255,7 @@ tidy.brmsfit <- function(x, parameters = NA,
   out$estimate <- apply(samples, 2, pointfun)
   out$std.error <- apply(samples, 2, stdfun)
   if (conf.int) {
+
     stopifnot(length(conf.level) == 1L)
     probs <- c((1 - conf.level) / 2, 1 - (1 - conf.level) / 2)
     if (conf.method == "HPDinterval") {

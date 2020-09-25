@@ -114,6 +114,7 @@ tidy.stanreg <- function(x,
         }
 
         if (conf.int) {
+
             cifix <- switch(conf.method,
                             HPDinterval= {
                                 m <- as.matrix(x$stanfit)

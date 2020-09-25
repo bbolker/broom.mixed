@@ -114,6 +114,9 @@ tidy.stanreg <- function(x,
         }
 
         if (conf.int) {
+
+            assert_dependency("coda")
+
             cifix <- switch(conf.method,
                             HPDinterval= {
                                 m <- as.matrix(x$stanfit)

@@ -6,7 +6,6 @@
 ##' @param effect which effects should be returned?
 ##' @param conf.method method for computing confidence intervals
 ##' @param ... additional arguments passed to confint function (tmbroot, tmbprofile)
-##' @importFrom TMB sdreport tmbroot tmbprofile
 ##' @importFrom stats approx predict
 ##' @importFrom splines backSpline interpSpline
 ## FIXME: retrieving stored objects doesn't work well ...
@@ -26,9 +25,12 @@ tidy.TMB <- function(x, effect = c("fixed", "random"),
                      conf.int = FALSE,
                      conf.level = 0.95,
                      conf.method = c("wald", "uniroot", "profile"), ...) {
+
+  assert_dependency("TMB")
+
   ## R CMD check/global variables
   branch <- v <- param <- value <- zeta <- Estimate <- estimate <- std.error <- NULL
-  sdr <- sdreport(x)
+  sdr <- TMB::sdreport(x)
   retlist <- list()
   if ("fixed" %in% effect) {
     ss <- summary(sdr, select = "fixed") %>%
@@ -51,7 +53,7 @@ tidy.TMB <- function(x, effect = c("fixed", "random"),
             tt <- do.call(
                 rbind,
                 lapply(seq(nrow(ss)),
-                       tmbroot,
+                       TMB::tmbroot,
                        obj = x,
                        ...
                        )
@@ -66,7 +68,7 @@ tidy.TMB <- function(x, effect = c("fixed", "random"),
                 all_vars <- all_vars[-rnd]
             }
             prof0 <- purrr::map_dfr(seq_along(all_vars),
-                                     ~ setNames(tmbprofile(x,name=.,trace=FALSE),c("focal","value")),
+                                     ~ setNames(TMB::tmbprofile(x,name=.,trace=FALSE),c("focal","value")),
                                      .id="param")
             prof1 <- (prof0
                 %>% group_by(param)

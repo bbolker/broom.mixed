@@ -31,37 +31,37 @@ Description: Convert fitted objects from various R mixed-model packages
     provides a one-row summary of model-level statistics.
 Imports:
     broom,
+    cubelyr,
     dplyr,
-    tidyr,
-    purrr,
-    tibble,
-    nlme,
     methods,
+    nlme,
+    purrr,
     stringr,
-    coda,
-    TMB,
-    cubelyr
+    tibble,
+    tidyr
 Suggests:
+    brms,
+    coda,
+    dotwhisker,
     knitr,
     testthat,
-    ggplot2,
-    Matrix,
-    MCMCglmm,
-    lme4,
-    brms,
-    mgcv,
     gamlss,
     gamlss.data,
-    lmerTest,
-    pbkrtest,
+    ggplot2,
+    GLMMadaptive,
     glmmADMB,
     glmmTMB,
-    dotwhisker,
+    lmerTest,
+    lme4,
+    Matrix,
+    MCMCglmm,
+    mgcv,
     pander,
-    R2jags,
-    GLMMadaptive,
+    pbkrtest,
     rstan,
-    rstanarm
+    rstanarm,
+    R2jags,
+    TMB
 URL: http://github.com/bbolker/broom.mixed
 BugReports: http://github.com/bbolker/broom.mixed/issues
 License: GPL-3

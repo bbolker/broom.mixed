@@ -77,10 +77,12 @@
 ##     boxplot(M ~ Level, data = longsum)
 ##   }
 #' @importFrom stats pnorm plogis
-#' @importFrom coda mcmc
 #' @importFrom nlme fixef ranef
 predict2.MCMCglmm <- function(object, X, Z, use = c("all", "mean"),
                               type = c("lp", "response"), ...) {
+
+  assert_dependency("coda")
+
   use <- match.arg(use)
   type <- match.arg(type)
 
@@ -132,9 +134,9 @@ predict2.MCMCglmm <- function(object, X, Z, use = c("all", "mean"),
 
       q <- vector("list", length(CP) - 2)
       for (i in 2:(length(CP) - 1)) {
-        q[[i - 1]] <- mcmc(CP[[i + 1]] - CP[[i]])
+        q[[i - 1]] <- coda::mcmc(CP[[i + 1]] - CP[[i]])
       }
-      q <- c(list(mcmc(1 - Reduce(`+`, q[1:(i - 1)]))), q)
+      q <- c(list(coda::mcmc(1 - Reduce(`+`, q[1:(i - 1)]))), q)
       class(q) <- c("list", "MCMCglmmPredictedProbs")
       res <- q
     } else if (all(object$family %in% c("categorical", "multinomial"))) {
@@ -149,7 +151,7 @@ predict2.MCMCglmm <- function(object, X, Z, use = c("all", "mean"),
       stop("Function does not support response type for families beside ordinal")
     }
   } else if (type == "lp") {
-    res <- as.mcmc(res)
+    res <- coda::as.mcmc(res)
     class(res) <- c("mcmc", "MCMCglmmPredictedLP")
   }
 

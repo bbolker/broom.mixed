@@ -1,6 +1,17 @@
 ## most of these are unexported (small) functions from broom;
 ## could be removed if these were exported
 
+
+#' check if a package is available and return informative message otherwise
+#'
+#' @keywords internal
+assert_dependency <- function(library_name) {
+  if (!requireNamespace(library_name, quietly = TRUE)) {
+    stop(sprintf("Please install the %s package.", library_name))
+  }
+}
+
+
 ## https://github.com/klutometis/roxygen/issues/409
 #' @importFrom broom tidy glance augment
 #' @export

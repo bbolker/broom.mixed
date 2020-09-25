@@ -69,7 +69,6 @@
 
 #'
 #' @importFrom stats median sd
-#' @importFrom coda HPDinterval as.mcmc
 #' @export
 tidyMCMC <- function(x,
                      pars,
@@ -82,6 +81,9 @@ tidyMCMC <- function(x,
                      ess = FALSE,
                      index = FALSE,
                      ...) {
+
+  assert_dependency("coda")
+
   conf.method <- match.arg(conf.method)
 
   stan <- inherits(x, "stanfit")
@@ -119,7 +121,7 @@ tidyMCMC <- function(x,
 
     ci <- switch(conf.method,
       quantile = t(apply(ss, 2, stats::quantile, levs)),
-      HPDinterval(as.mcmc(ss), prob = conf.level)
+      coda::HPDinterval(coda::as.mcmc(ss), prob = conf.level)
     ) %>%
       as.data.frame()
 
@@ -146,7 +148,6 @@ tidyMCMC <- function(x,
 
 
 ##' @rdname mcmc_tidiers
-##' @importFrom coda as.mcmc
 ##' @export
 tidy.rjags <- function(x,
                        robust = FALSE,
@@ -154,7 +155,10 @@ tidy.rjags <- function(x,
                        conf.level = 0.95,
                        conf.method = "quantile",
                        ...) {
-  tidyMCMC(as.mcmc(x$BUGS),
+
+  assert_dependency("coda")
+
+  tidyMCMC(coda::as.mcmc(x$BUGS),
            robust = robust,
            conf.int = conf.int,
            conf.level = conf.level,
@@ -178,6 +182,9 @@ tidy.mcmc.list <- tidyMCMC
 
 ## copied from emdbook ...
 as.mcmc.bugs <- function (x) {
+
+    assert_dependency("coda")
+
     if (x$n.chains > 1) {
         z <- list()
         for (i in 1:x$n.chains) {

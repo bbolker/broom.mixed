@@ -72,7 +72,6 @@ NULL
 #' @note zero-inflation parameters (including the intercept) are reported
 #' on the logit scale
 #'
-#' @importFrom plyr ldply rbind.fill
 #' @import dplyr
 #' @importFrom tidyr gather spread
 #' @importFrom nlme VarCorr ranef

@@ -70,7 +70,6 @@
 #'   \item{statistic}{t-statistic}
 #'   \item{p.value}{P-value computed from t-statistic}
 #'
-#' @importFrom plyr ldply
 #' @importFrom nlme getVarCov intervals
 #' @import dplyr
 ## @importFrom dplyr tibble select full_join

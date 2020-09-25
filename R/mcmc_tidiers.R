@@ -82,8 +82,6 @@ tidyMCMC <- function(x,
                      index = FALSE,
                      ...) {
 
-  assert_dependency("coda")
-
   conf.method <- match.arg(conf.method)
 
   stan <- inherits(x, "stanfit")
@@ -156,8 +154,6 @@ tidy.rjags <- function(x,
                        conf.method = "quantile",
                        ...) {
 
-  assert_dependency("coda")
-
   tidyMCMC(coda::as.mcmc(x$BUGS),
            robust = robust,
            conf.int = conf.int,
@@ -182,8 +178,6 @@ tidy.mcmc.list <- tidyMCMC
 
 ## copied from emdbook ...
 as.mcmc.bugs <- function (x) {
-
-    assert_dependency("coda")
 
     if (x$n.chains > 1) {
         z <- list()

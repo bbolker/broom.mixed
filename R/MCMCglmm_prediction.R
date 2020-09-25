@@ -81,8 +81,6 @@
 predict2.MCMCglmm <- function(object, X, Z, use = c("all", "mean"),
                               type = c("lp", "response"), ...) {
 
-  assert_dependency("coda")
-
   use <- match.arg(use)
   type <- match.arg(type)
 

@@ -31,6 +31,7 @@ Description: Convert fitted objects from various R mixed-model packages
     provides a one-row summary of model-level statistics.
 Imports:
     broom,
+    coda,
     dplyr,
     methods,
     nlme,
@@ -40,7 +41,6 @@ Imports:
     tidyr
 Suggests:
     brms,
-    coda,
     dotwhisker,
     knitr,
     testthat,

@@ -1,5 +1,5 @@
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/bbolker/broom.mixed/workflows/R-CMD-check/badge.svg)](https://github.com/parksw3/fitode/actions)
+[![R-CMD-check](https://github.com/bbolker/broom.mixed/workflows/R-CMD-check/badge.svg)](https://github.com/broom.mixed/workflows/R-CMD-check/badge.svg)
 [![cran version](http://www.r-pkg.org/badges/version/broom.mixed)](https://cran.r-project.org/package=broom.mixed)
 [![downloads](http://cranlogs.r-pkg.org/badges/broom.mixed)](http://cranlogs.r-pkg.org/badges/broom.mixed)
 [![total downloads](http://cranlogs.r-pkg.org/badges/grand-total/broom.mixed)](http://cranlogs.r-pkg.org/badges/grand-total/broom.mixed)

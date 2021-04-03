@@ -6,7 +6,7 @@
 \usage{
 \method{tidy}{TMB}(
   x,
-  effect = c("fixed", "random"),
+  effects = c("fixed", "random"),
   conf.int = FALSE,
   conf.level = 0.95,
   conf.method = c("wald", "uniroot", "profile"),
@@ -17,7 +17,7 @@
 \item{x}{An object of class \code{TMB} (you may need to use
 \code{class(obj) <- "TMB"} on your results from TMB)}
 
-\item{effect}{which effects should be returned?}
+\item{effects}{which effects should be returned?}
 
 \item{conf.int}{whether to include a confidence interval}
 
@@ -33,7 +33,8 @@ Tidying methods for TMB models
 \examples{
 if (require("TMB")) {
 
-    \dontrun{runExample("simple",thisR=TRUE)
+    \dontrun{
+       runExample("simple",thisR=TRUE)
        class(obj) <- "TMB"
        tidy(obj,conf.int=TRUE,conf.method="wald")
     }

@@ -67,8 +67,16 @@ tidy.gamlss <- function(x, quick = FALSE, conf.int = FALSE, conf.level = 0.95, .
 }
 
 #' @export
-glance.gamlss <- function (x, ...) 
-{
-    ret <- tibble(df = x$df.fit)
-    finish_glance(ret, x)
+glance.gamlss <- function (x, ...) {
+    ret <- list()
+    ll <- function(x) c(logLik(x))
+    for (cc in c("ll","AIC","BIC","deviance","df.residual","nobs")) {
+        ret[[cc]] <- do.call(cc,list(x))
+    }
+    ret <- (ret
+        %>% as_tibble()
+        %>% mutate(df = x$df.fit)
+        %>% dplyr::relocate(df, .before="df.residual")
+    )
+    return(ret)
 }

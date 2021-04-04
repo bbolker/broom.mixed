@@ -296,10 +296,12 @@ has_rownames <- function(df) {
 ## previously from broom
 ## converts to tibble, adding non-trivial rownames and optionally renaming existing columns
 fix_data_frame <- function(df, newnames=NULL, newcol=".rownames") {
-    df <- as.data.frame(df)
-    if (!is.null(newnames)) df <- setNames(df,newnames)
-    if (has_rownames(df)) df <- df %>%
-                              rownames_to_column(var=newcol)
+    rn <- rownames(df) ## grab rownames *before* df conversion
     df <- as_tibble(df) ## must happen **AFTER** converting rownames
+    if (!is.null(newnames)) df <- setNames(df,newnames)
+    if (!is.null(rn)) {
+        df <- tibble(rn,df)
+        names(df)[1] <- newcol
+    }
     return(df)
 }

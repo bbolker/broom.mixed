@@ -7,7 +7,8 @@
 #' @param conf.int whether to return confidence intervals
 #' @param ... arguments passed to \code{confint.gamlss}
 #' @inheritParams lme4_tidiers
-#' 
+#'
+#' @importFrom stat na.omit
 #' @name gamlss_tidiers
 #'
 #' @template boilerplate
@@ -51,7 +52,7 @@ tidy.gamlss <- function(x, quick = FALSE, conf.int = FALSE, conf.level = 0.95, .
 
   # tidy the coefficients much as would be done for a linear model
   nn <- c("estimate", "std.error", "statistic", "p.value")
-  ret <- fix_data_frame(s, nn)
+  ret <- fix_data_frame(s, nn, newcol="term")
 
   if (conf.int) {
     cilist <- lapply(x$parameters,
@@ -60,7 +61,7 @@ tidy.gamlss <- function(x, quick = FALSE, conf.int = FALSE, conf.level = 0.95, .
     ret <- bind_cols(ret, conf.low=cimat[,1], conf.high=cimat[,2])
   }
   ## add parameter types
-  coefs <- x[paste0(x$parameters,".coefficients")]
+  coefs <- purrr::map(x[paste0(x$parameters,".coefficients")],na.omit)
   parameters <- rep(x$parameters,
                     vapply(coefs,length,1L))
   bind_cols(parameter = parameters, ret)

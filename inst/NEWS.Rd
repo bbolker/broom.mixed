@@ -10,12 +10,20 @@
       \item experimental \code{TMB} tidiers
     }
   }
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item term names are no longer "sanitized" in gamlss tidiers
+      (e.g. "(Intercept)" is not converted to "X.Intercept.")
+    }
+  }
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{lmerTest} Wald confidence intervals for \code{lmerTest}
       models now respect \code{ddf.method}
       \item \code{tidy.glmmTMB(.,effects="ran_vals")} fixed for
       \code{stringsAsFactors} changes in \code{glmmTMB} (GH #103)
+      \item \code{tidy.gamlss} now works in a wider range of cases
+      (GH #74)
     }
  } 
 }

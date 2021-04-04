@@ -29,6 +29,7 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
   })
 
   test_that("glance works on rstanarm fits", {
+    skip_on_cran()
     g1 <- glance(fit)
     g2 <- glance(fit, looic = TRUE, cores = 1, k_threshold = 0.7)
     expect_equal(colnames(g1), c("algorithm", "pss", "nobs", "sigma"))

@@ -50,8 +50,9 @@ if (require("testthat") && require("gamlss") && require("gamlss.data")) {
         expect_equal(t1[c("parameter","term")],
                      structure(list(parameter =
                                         rep(c("mu", "sigma"), c(4,3)),
-              term = rep(c("(Intercept)", "timelate", "region2", 
-                           "region3"),2)), row.names = c(NA, -7L),
+          term = c("(Intercept)", "timelate", "region2", "region3",
+                   "(Intercept)", "region2", "region3")),
+             row.names = c(NA, -7L),
               class = c("tbl_df", "tbl", "data.frame")))
     })
     m2 <- gamlss(score ~ time + region + random(ID)

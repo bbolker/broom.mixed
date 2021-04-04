@@ -300,7 +300,10 @@ fix_data_frame <- function(df, newnames=NULL, newcol="term") {
     ## must happen **AFTER** saving rownames
     df <- as_tibble(df, .name_repair="minimal") 
     if (!is.null(newnames)) df <- setNames(df,newnames)
-    if (!("term" %in% newnames) && !is.null(rn)) {
+    ## add rownames as term **if necessary**
+    if (!("term" %in% newnames) &&
+        !("term" %in% names(df)) &&
+        !is.null(rn)) {
         df <- tibble(rn,df)
         names(df)[1] <- newcol
     }

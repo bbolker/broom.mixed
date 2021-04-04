@@ -8,7 +8,7 @@
 #' @param ... arguments passed to \code{confint.gamlss}
 #' @inheritParams lme4_tidiers
 #'
-#' @importFrom stat na.omit
+#' @importFrom stats na.omit
 #' @name gamlss_tidiers
 #'
 #' @template boilerplate

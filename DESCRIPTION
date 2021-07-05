@@ -66,8 +66,8 @@ Suggests:
     R2jags,
     TMB,
     rmarkdown
-URL: http://github.com/bbolker/broom.mixed
-BugReports: http://github.com/bbolker/broom.mixed/issues
+URL: https://github.com/bbolker/broom.mixed
+BugReports: https://github.com/bbolker/broom.mixed/issues
 License: GPL-3
 RoxygenNote: 7.1.1
 Encoding: UTF-8

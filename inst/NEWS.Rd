@@ -7,13 +7,16 @@
 \section{CHANGES IN VERSION 0.2.7}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item experimental \code{TMB} tidiers
+      \item experimental \code{TMB} tidiers (the \code{TMB} package
+      does not return an object of class \code{TMB}, so users should run
+      \code{class(fit) <- "TMB"} before attempting to tidy)
     }
   }
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item term names are no longer "sanitized" in gamlss tidiers
       (e.g. "(Intercept)" is not converted to "X.Intercept.")
+      \item gamlss \code{glance} method returns \code{nobs} (GH #113)
     }
   }
   \subsection{BUG FIXES}{
@@ -24,6 +27,8 @@
       \code{stringsAsFactors} changes in \code{glmmTMB} (GH #103)
       \item \code{tidy.gamlss} now works in a wider range of cases
       (GH #74)
+      \item \code{tidy.brmsfit} works for models without group effects
+      (GH #100)
     }
  } 
 }

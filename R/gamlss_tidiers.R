@@ -20,7 +20,7 @@
 #'   \item{std.error}{standard error}
 #'   \item{statistic}{t-statistic}
 #'   \item{p.value}{two-sided p-value}
-#' 
+#'
 #' @examples
 #' if (requireNamespace("gamlss", quietly = TRUE) &&
 #'     requireNamespace("gamlss.data", quietly = TRUE)) {
@@ -67,8 +67,10 @@ tidy.gamlss <- function(x, quick = FALSE, conf.int = FALSE, conf.level = 0.95, .
   bind_cols(parameter = parameters, ret)
 }
 
+#' @importFrom stats logLik
 #' @export
 glance.gamlss <- function (x, ...) {
+    df <- NULL  ## NSE/global var checker
     ret <- list()
     ll <- function(x) c(logLik(x))
     for (cc in c("ll","AIC","BIC","deviance","df.residual","nobs")) {

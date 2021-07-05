@@ -1,9 +1,14 @@
 context("test all tidy methods return tibbles")
 verbose <- FALSE
-stopifnot(
-  require("testthat"), require("broom.mixed"), require("stringr"),
-  require("lme4"), require("glmmTMB")
-)
+
+pkgs_avail <- vapply(c("testthat", "broom.mixed", "stringr", "lme4", "glmmTMB"), require,
+                     quietly = TRUE,
+                     character.only = TRUE,
+                     FUN.VALUE = logical(1))
+
+## FIXME: _could_ copy data objects over if we wanted to check more robustly (without requiring lme4, glmmTMB)
+
+if (all(pkgs_avail)) {
 
 ## objects to SKIP (from RDA files)
 skip_objects <- list(nlme_example.rda = c("lmm2"),
@@ -13,14 +18,15 @@ skip_objects <- list(nlme_example.rda = c("lmm2"),
 
 skip_files <- c("efc.rds")
 
-## need data available for augment() methods ...
-data("sleepstudy", package = "lme4")
-data("Salamanders", package = "glmmTMB")
-efc <- readRDS(system.file("extdata","efc.rds",package="broom.mixed"))
-ex <- list.files(system.file("extdata", package = "broom.mixed"),
-  pattern = "\\.rd"
-  )
-ex <- setdiff(ex,skip_files)
+  ## need data available for augment() methods ...
+
+  data("sleepstudy", package = "lme4")
+  data("Salamanders", package = "glmmTMB")
+  efc <- readRDS(system.file("extdata","efc.rds",package="broom.mixed"))
+  ex <- list.files(system.file("extdata", package = "broom.mixed"),
+                   pattern = "\\.rd"
+                   )
+  ex <- setdiff(ex,skip_files)
 
 
 ## test tidy, augment, glance methods from lme4-tidiers.R
@@ -56,3 +62,4 @@ for (e in ex) {
         } ## loop over objects
     } ## if package available
 }
+} ## if all pkgs available

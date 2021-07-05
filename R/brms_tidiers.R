@@ -19,7 +19,7 @@
 #'     brms_crossedRE <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
 #'            iter = 500, chains = 2)
 #'  }
-#'  if (require("brms") && .Platform$OS.type!="windows") {
+#'  if (.Platform$OS.type!="windows" && require("brms")) {
 #'    ## too slow on Windows, skip (>5 seconds on r-devel-windows)
 #'    ## load stored object
 #'    load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
@@ -111,7 +111,7 @@ tidy.brmsfit <- function(x, parameters = NA,
       stop("can't tidy brms objects without brms installed")
   }
   xr <- brms::restructure(x)
-  has_ranef <- nrow(xr$ranef)>0  
+  has_ranef <- nrow(xr$ranef)>0
   if (any(grepl("_", rownames(fixef(x)))) ||
         (has_ranef && any(grepl("_", names(ranef(x)))))) {
       warning("some parameter names contain underscores: term naming may be unreliable!")
@@ -126,7 +126,7 @@ tidy.brmsfit <- function(x, parameters = NA,
       sprintf("%s(%s)", pref, paste(unlist(x), collapse = "|"))
   }
   ## NOT USED:  could use this (or something like) to
-  ##  obviate need for gsub("_","",str_extract(...)) pattern ...  
+  ##  obviate need for gsub("_","",str_extract(...)) pattern ...
   prefs_LB <- list(
       fixed = "b_", ran_vals = "r_",
       ## don't want to remove these pieces, so use look*behind*
@@ -166,7 +166,7 @@ tidy.brmsfit <- function(x, parameters = NA,
         ## t0 <- lapply(resp0,
         ##          function(x) if (length(x)==2) x[1] else x[-(length(x)-1)])
         ## t1 <- lapply(t0,
-        ##          function(x)     
+        ##          function(x)
         ##              case_when(
         ##                  x[[1]]=="b"  ~ sprintf("b%s",x[[2]]),
         ##                  x[[2]]=="sd" ~ sprintf("sd_%s__%s",x[[2]],x[[3]]),
@@ -223,7 +223,7 @@ tidy.brmsfit <- function(x, parameters = NA,
     }
     if ("ran_vals" %in% effects) {
       rterms <- grep(mkRE(prefs$ran_vals), terms, value = TRUE)
-      
+
       vals <- stringr::str_match_all(rterms, "_(.+?)\\[(.+?),(.+?)\\]")
 
       res_list$ran_vals <-

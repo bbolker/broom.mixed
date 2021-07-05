@@ -64,7 +64,8 @@ Suggests:
     rstan,
     rstanarm,
     R2jags,
-    TMB
+    TMB,
+    rmarkdown
 URL: http://github.com/bbolker/broom.mixed
 BugReports: http://github.com/bbolker/broom.mixed/issues
 License: GPL-3

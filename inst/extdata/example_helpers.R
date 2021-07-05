@@ -24,6 +24,7 @@ run_pkg <- function(pkg, e) {
 }
 
 
+## formalize via butcher??
 hack_size <- function(x, ...) {
     UseMethod("hack_size")
 }

@@ -8,7 +8,7 @@ source(system.file("extdata","example_helpers.R",package="broom.mixed"))
 ## FIXME: should disaggregate/implement a Makefile!
 ## environment variable, command-line arguments to R script?
 ## slow stuff, disable for speed
-run_brms <- TRUE
+run_brms <- FALSE
 run_stan <- FALSE
 
 run_pkg("nlme", {

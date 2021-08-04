@@ -119,10 +119,6 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
     }
 
     ran_effs <- sprintf("ran_%s", c("pars", "vals", "coefs"))
-    if (any(purrr::map_lgl(ran_effs, ~. %in% effects))) {
-      ## add group="fixed" to tidy table for fixed effects
-      ret <- mutate(ret, effect = "fixed", group = "fixed")
-    }
 
     ret_list$fixed <- ret %>%
       reorder_frame()
@@ -236,10 +232,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
 
   if ("ran_vals" %in% effects) {
     ret_list$ran_vals <-
-      ranef(x) %>%
-      tibblify("level") %>%
-      tidyr::gather(key = term, value = estimate, -level)
-    ## FIXME: group?
+      ranef(x) %>% as.data.frame()
   }
   if ("ran_coefs" %in% effects) {
     ret_list$ran_coefs <-
@@ -248,8 +241,10 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
       tidyr::gather(key = term, value = estimate, -level)
     ## FIXME: group?
   }
-
-  ret <- bind_rows(ret_list)
+  ret <- bind_rows(ret_list, .id = "effect") %>%
+      dplyr::select(any_of(c("effect", "group", "level", "term",
+                             "estimate", "std.error", "df",
+                             "statistic", "p.value", "conf.low", "conf.high")))
   return(ret)
 }
 
@@ -289,6 +284,16 @@ augment.lme <- function(x, data = x$data, newdata, ...) {
   return(tibblify(ret, var = NULL))
 }
 
+
+#' @export
+as.data.frame.ranef.lme <- function(x) {
+    melt <- function(x) purrr::map_dfr(as.list(x), ~tibble(level = rownames(x), estimate = .), .id = "term")
+    grps <- attr(x, "grpNames")
+    if (length(grps)==1) x <- list(x)
+    mm <- purrr::map(x, melt)
+    purrr::map2_dfr(.x = mm, .y = grps, ~mutate(.x, group = .y)) %>%
+        dplyr::select(group, term, level, estimate)
+}
 
 #' @rdname nlme_tidiers
 #'

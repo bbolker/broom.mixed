@@ -63,6 +63,7 @@ Suggests:
     pbkrtest,
     rstan,
     rstanarm,
+    rstantools,
     R2jags,
     TMB,
     rmarkdown

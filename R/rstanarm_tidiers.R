@@ -44,10 +44,10 @@ NULL
 
 #' @rdname rstanarm_tidiers
 #' @inheritParams brms_tidiers
-#' @param conf.level See \code{\link[rstanarm]{posterior_interval.stanreg}}.
+#' @param conf.level See \code{\link[rstantools]{posterior_interval}}.
 #' @param conf.int If \code{TRUE} columns for the lower (\code{conf.low}) and upper (\code{conf.high}) bounds of the
 #'   \code{100*prob}\% posterior uncertainty intervals are included. See
-#'   \code{\link[rstanarm]{posterior_interval.stanreg}} for details.
+#'   \code{\link[rstantools]{posterior_interval}} for details.
 #'
 #' @return
 #' When \code{effects="fixed"} (the default), \code{tidy.stanreg} returns

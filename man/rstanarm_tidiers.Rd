@@ -27,9 +27,9 @@ See the Value section for details.}
 
 \item{conf.int}{If \code{TRUE} columns for the lower (\code{conf.low}) and upper (\code{conf.high}) bounds of the
 \code{100*prob}\% posterior uncertainty intervals are included. See
-\code{\link[rstanarm]{posterior_interval.stanreg}} for details.}
+\code{\link[rstantools]{posterior_interval}} for details.}
 
-\item{conf.level}{See \code{\link[rstanarm]{posterior_interval.stanreg}}.}
+\item{conf.level}{See \code{\link[rstantools]{posterior_interval}}.}
 
 \item{conf.method}{method for computing confidence intervals
 ("quantile" or "HPDinterval")}

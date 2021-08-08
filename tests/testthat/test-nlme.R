@@ -1,6 +1,6 @@
 
 ## test tidy, augment, glance methods from nlme-tidiers.R
-stopifnot(require("testthat"), require("broom.mixed"))
+stopifnot(require("testthat"), require("broom.mixed"), require("nlme"))
 
 load(system.file("extdata", "nlme_example.rda", package = "broom.mixed",
                  mustWork=TRUE))
@@ -34,20 +34,20 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     expect_equal(
       names(td),
       c(
-        "effect", "group", "term", "estimate",
+        "effect", "term", "estimate",
         "std.error", "df", "statistic", "p.value"
       )
     )
     td_ran <- expect_warning(tidy(fm1, "ran_pars"))
     expect_is(td_ran, "tbl_df")
-    expect_equal(ncol(td_ran), 0)
+    expect_equal(ncol(td_ran), 1)
     expect_equal(nrow(td_ran), 0)
     td_fix <- tidy(fm1, "fixed")
     expect_equal(
       names(td_fix),
       c(
-        "term", "estimate",
-        "std.error", "df", "statistic", "p.value"
+          "effect", "term", "estimate",
+          "std.error", "df", "statistic", "p.value"
       )
     )
   })

@@ -286,7 +286,13 @@ augment.lme <- function(x, data = x$data, newdata, ...) {
 
 
 #' @export
-as.data.frame.ranef.lme <- function(x) {
+as.data.frame.ranef.lme <- function(x, row.names, optional, ...) {
+    group <- term <- level <- estimate <- NULL ## NSE arg checking
+    if (!missing(row.names)) stop(sQuote("row.names"),
+                                  "  argument not implemented")
+    if (!missing(optional)) stop(sQuote("optional"),
+                                 " argument not implemented")
+    if (length(list(...)>0)) warning("additional arguments ignored")
     melt <- function(x) purrr::map_dfr(as.list(x), ~tibble(level = rownames(x), estimate = .), .id = "term")
     grps <- attr(x, "grpNames")
     if (length(grps)==1) x <- list(x)

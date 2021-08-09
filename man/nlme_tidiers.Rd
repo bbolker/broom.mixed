@@ -11,7 +11,7 @@
 \usage{
 \method{tidy}{lme}(
   x,
-  effects = c("ran_pars", "fixed"),
+  effects = c("var_model", "ran_pars", "fixed"),
   scales = NULL,
   conf.int = FALSE,
   conf.level = 0.95,
@@ -30,8 +30,8 @@
 \item{x}{An object of class \code{lme}, such as those from \code{lme}
 or \code{nlme}}
 
-\item{effects}{One or more of "ran_pars", "fixed", "ran_vals", and/or
-"ran_coefs".}
+\item{effects}{One or more of "var_model", "ran_pars", "fixed", "ran_vals",
+and/or "ran_coefs".}
 
 \item{scales}{scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects.}
 
@@ -65,6 +65,9 @@ If \code{effects="fixed"}, \code{tidy} returns the columns
   \item{statistic}{t-statistic}
   \item{p.value}{P-value computed from t-statistic}
 
+If \code{effects="var_model"} (the \code{weights} argument to the model),
+\code{tidy} returns the columns defined in the help for \code{tidy.varFunc}.
+
 \code{augment} returns one row for each original observation,
 with columns (each prepended by a .) added. Included are the columns
   \item{.fitted}{predicted values}
@@ -84,7 +87,7 @@ page." }
 }
 \description{
 These methods tidy the coefficients of mixed effects models
-of the \code{lme} class from functions  of the \code{nlme} package.
+of the \code{lme} class from functions of the \code{nlme} package.
 }
 \details{
 When the modeling was performed with \code{na.action = "na.omit"}

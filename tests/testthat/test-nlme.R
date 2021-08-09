@@ -159,5 +159,98 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     expect_is(au, 'data.frame')
     expect_equal(nrow(au), nrow(Ovary))
     expect_true(all(c(".fitted", ".resid") %in% names(au)))
-  })  
+  })
+  
+  # Verify that the varFunc tidiers work ####
+  ChickWeight_arbitrary_group <-
+    ChickWeight %>%
+    mutate(
+      group_arb_n=1 + (as.integer(Chick) > median(as.integer(Chick))),
+      group_arb=c("low", "high")[group_arb_n]
+    )
+  fit <- lme(weight ~ Diet * Time, random = ~Time | Chick, data = ChickWeight)
+  fit_varident <-
+    lme(weight ~ Diet * Time, random = ~Time | Chick, data = ChickWeight_arbitrary_group, weights=varIdent(form=~1|group_arb))
+  fit_varcomb <-
+    lme(
+      weight ~ Diet * Time,
+      random = ~Time | Chick,
+      data = ChickWeight_arbitrary_group,
+      weights=
+        varComb(
+          varIdent(form=~1|group_arb),
+          varExp(form=~Time|group_arb)
+        ),
+      # This is just trying to make an object to test the model-- it's not
+      # trying to actually make a good model.
+      control=lmeControl(returnObject=TRUE)
+    )
+  test_that("varFunc tidy works with no weights argument", {
+    expect_true(sum(tidy(fit)$effect %in% "var_model") == 0)
+  })
+  test_that("varFunc tidy works with a weights argument", {
+    tidied_fit_varident <- tidy(fit_varident)
+    expect_true(sum(tidied_fit_varident$effect %in% "var_model") == 2)
+    expect_equal(
+      tidied_fit_varident$group[tidied_fit_varident$effect %in% "var_model"],
+      rep("varIdent(1 | group_arb)", 2)
+    )
+    expect_equal(
+      tidied_fit_varident$term[tidied_fit_varident$effect %in% "var_model"],
+      c("low", "high")
+    )
+  })
+  test_that("varComb tidy works", {
+    tidied_fit_varcomb <- tidy(fit_varcomb)
+    expect_true(sum(tidied_fit_varcomb$effect %in% "var_model") == 4)
+    expect_equal(
+      tidied_fit_varcomb$group[tidied_fit_varcomb$effect %in% "var_model"],
+      rep(c("varIdent(1 | group_arb)", "varExp(Time | group_arb)"), each=2)
+    )
+    expect_equal(
+      tidied_fit_varcomb$term[tidied_fit_varcomb$effect %in% "var_model"],
+      rep(c("low", "high"), 2)
+    )
+  })
+  
+  fit_varident_fixed <-
+    lme(
+      weight ~ Diet * Time,
+      random = ~Time | Chick,
+      data = ChickWeight_arbitrary_group,
+      weights=varIdent(fixed=c("low"=5), form=~1|group_arb)
+    )
+  # Two variables in fixed behave differently than one as the 'whichFix'
+  # attribute is a vector and name matching must occur
+  fit_varident_fixed_twovar <-
+    lme(
+      weight ~ Diet * Time,
+      random = ~Time | Chick,
+      data = ChickWeight_arbitrary_group,
+      weights=varIdent(fixed=c("1*low"=5), form=~1|Diet*group_arb)
+    )
+  test_that("varFunc with fixed shows the term correctly", {
+    tidied_fit_varident_fixed <- tidy(fit_varident_fixed)
+    expect_true(sum(tidied_fit_varident_fixed$effect %in% "var_model") == 2)
+    expect_equal(
+      tidied_fit_varident_fixed$group[tidied_fit_varident_fixed$effect %in% "var_model"],
+      rep("varIdent(1 | group_arb)", 2)
+    )
+    expect_equal(
+      tidied_fit_varident_fixed$term[tidied_fit_varident_fixed$effect %in% "var_model"],
+      c("high", "low ; fixed")
+    )
+  })
+  test_that("varFunc with fixed and more complex grouping shows the term correctly", {
+    tidied_fit_varident_fixed_twovar <- tidy(fit_varident_fixed_twovar)
+    expect_true(sum(tidied_fit_varident_fixed_twovar$effect %in% "var_model") == 5)
+    expect_equal(
+      tidied_fit_varident_fixed_twovar$group[tidied_fit_varident_fixed_twovar$effect %in% "var_model"],
+      rep("varIdent(1 | Diet * group_arb)", 5)
+    )
+    expect_equal(
+      tidied_fit_varident_fixed_twovar$term[tidied_fit_varident_fixed_twovar$effect %in% "var_model"],
+      c("2*low", "2*high", "3*high", "4*high", "1*low ; fixed")
+    )
+  })
 }

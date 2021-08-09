@@ -1,7 +1,7 @@
 #' Tidying methods for mixed effects models
 #'
 #' These methods tidy the coefficients of mixed effects models
-#' of the \code{lme} class from functions  of the \code{nlme} package.
+#' of the \code{lme} class from functions of the \code{nlme} package.
 #'
 #' @param x An object of class \code{lme}, such as those from \code{lme}
 #' or \code{nlme}
@@ -52,8 +52,8 @@
 #'
 #' @rdname nlme_tidiers
 #'
-#' @param effects One or more of "ran_pars", "fixed", "ran_vals", and/or
-#'   "ran_coefs".
+#' @param effects One or more of "var_model", "ran_pars", "fixed", "ran_vals",
+#'   and/or "ran_coefs".
 #'
 #' @return \code{tidy} returns one row for each estimated effect, either
 #' random or fixed depending on the \code{effects} parameter. If
@@ -70,12 +70,15 @@
 #'   \item{statistic}{t-statistic}
 #'   \item{p.value}{P-value computed from t-statistic}
 #'
+#' If \code{effects="var_model"} (the \code{weights} argument to the model),
+#' \code{tidy} returns the columns defined in the help for \code{tidy.varFunc}.
+#'
 #' @importFrom nlme getVarCov intervals
 #' @import dplyr
 ## @importFrom dplyr tibble select full_join
 #'
 #' @export
-tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
+tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
                      scales = NULL,
                      conf.int = FALSE,
                      conf.level = 0.95,
@@ -84,7 +87,7 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
   ## R CMD global var check
   lower <- upper <- NULL
 
-  effect_names <- c("ran_pars", "fixed", "ran_vals", "ran_coefs")
+  effect_names <- c("var_model", "ran_pars", "fixed", "ran_vals", "ran_coefs")
   if (length(miss <- setdiff(effects, effect_names)) > 0) {
     stop("unknown effect type ", miss)
   }
@@ -241,6 +244,12 @@ tidy.lme <- function(x, effects = c("ran_pars", "fixed"),
       tidyr::gather(key = term, value = estimate, -level)
     ## FIXME: group?
   }
+  if ("var_model" %in% effects) {
+    # x$modelStruct$varStruct will be NULL if the model does not use a
+    # varStruct, so this will return an empty tibble.  So, we don't need to test
+    # that varStruct is actually there.
+    ret_list$var_model <- tidy(x$modelStruct$varStruct)
+  }
   ret <- bind_rows(ret_list, .id = "effect") %>%
       dplyr::select(any_of(c("effect", "group", "level", "term",
                              "estimate", "std.error", "df",
@@ -373,5 +382,70 @@ augment.gls <- function(x, data = nlme::getData(x), newdata, ...) {
     newdata <- NULL
   }
   ret <- augment_columns(x, data, newdata, se.fit = NULL)
+  ret
+}
+
+# varFunc tidiers ####
+
+#' Tidy variance structure for the \code{nlme} package.
+#' 
+#' Returns a tibble with the following columns:
+#' \itemize{
+#' \item{group}{type of varFunc, along with the right hand side of the formula
+#'   in parentheses e.g. \code{"varExp(age | Sex)"}.}
+#' \item{term}{terms included in the formula of the variance model, specifically
+#'   the names of the coefficients.  If the value is fixed, it will be appended
+#'   with \code{" ; fixed"}.}
+#' \item{estimate}{estimated coefficient}
+#' }
+#'
+#' @param x An object of class \code{varFunc}, such as those used as the
+#'   \code{weights} argument from the \code{nlme} package
+#' @param ... Ignored
+#' @return If the \code{varFunc} is uninitialized or has no parameters, the
+#'   function will return an empty tibble.  Otherwise, it will return a tibble with
+#'   names described in the details section.
+#' @export
+#' @importFrom tibble tibble
+#' @importFrom stats as.formula
+tidy.varFunc <- function(x, ...) {
+  aux <- coef(x, unconstrained = FALSE, allCoef = TRUE)
+  if (length(aux) == 0) {
+    warning(
+      "Variance function structure of class", class(x)[1], 
+      "with no parameters, or uninitialized"
+    )
+    return(tibble::tibble())
+  }
+  x_formula <- stats::as.formula(x)
+  if (!is.null(x_formula)) {
+    group_text <- sprintf("%s(%s)", class(x)[1], as.character(x_formula)[2])
+  } else {
+    group_text <- class(x)[1]
+  }
+  term_text <- names(aux)
+  if (any(attr(x, "whichFix"))) {
+    # Detect fixed parameters based on name
+    mask_fixed <- term_text %in% names(attr(x, "fixed"))
+    term_text[mask_fixed] <- paste(term_text[mask_fixed], "fixed", sep=" ; ")
+  }
+  tibble::tibble(
+    #effect="var_model",
+    group=group_text,
+    term=term_text,
+    estimate=aux
+  )
+}
+
+#' @rdname tidy.varFunc
+#' @export
+tidy.varComb <- function(x, ...) {
+  # A varComb object is a named list ("A", "B", "C", ...) of varFunc objects
+  ret <-
+    dplyr::bind_rows(lapply(
+      X=x,
+      FUN=tidy,
+      ...
+    ))
   ret
 }

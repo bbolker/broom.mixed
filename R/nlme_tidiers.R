@@ -75,6 +75,7 @@
 #'
 #' @importFrom nlme getVarCov intervals
 #' @import dplyr
+#' @importFrom tidyr replace_na
 ## @importFrom dplyr tibble select full_join
 #'
 #' @export
@@ -252,8 +253,14 @@ tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
   }
   ret <- bind_rows(ret_list, .id = "effect") %>%
       dplyr::select(any_of(c("effect", "group", "level", "term",
-                             "estimate", "std.error", "df",
+                             "estimate", "estimated", "std.error", "df",
                              "statistic", "p.value", "conf.low", "conf.high")))
+  if ("estimated" %in% names(ret)) {
+    # NA in the estimated column at this point indicates that part of the mdoel
+    # was estimated, but the "estimated" column was not set in that sub-part of
+    # the tidier.
+    ret$estimated <- tidyr::replace_na(ret$estimated, TRUE)
+  }
   return(ret)
 }
 
@@ -397,6 +404,8 @@ augment.gls <- function(x, data = nlme::getData(x), newdata, ...) {
 #'   the names of the coefficients.  If the value is fixed, it will be appended
 #'   with \code{" ; fixed"}.}
 #' \item{estimate}{estimated coefficient}
+#' \item{estimated}{This column is only included if some parameters are fixed.
+#'   TRUE if the parameter is estimated and FALSE if the parameter is fixed.}
 #' }
 #'
 #' @param x An object of class \code{varFunc}, such as those used as the
@@ -405,6 +414,31 @@ augment.gls <- function(x, data = nlme::getData(x), newdata, ...) {
 #' @return If the \code{varFunc} is uninitialized or has no parameters, the
 #'   function will return an empty tibble.  Otherwise, it will return a tibble with
 #'   names described in the details section.
+#' @examples
+#' \dontrun{
+#' if (require("nlme")) {
+#' ChickWeight_arbitrary_group <- datasets::ChickWeight
+#' ChickWeight_arbitrary_group$group_arb_n <-
+#'   1 + (
+#'     as.integer(ChickWeight_arbitrary_group$Chick) >
+#'     median(as.integer(ChickWeight_arbitrary_group$Chick))
+#'   )
+#' ChickWeight_arbitrary_group$group_arb <- c("low", "high")[ChickWeight_arbitrary_group$group_arb_n]
+#' 
+#' fit_with_fixed <-
+#'   lme(
+#'     weight ~ Diet * Time,
+#'     random = ~Time | Chick,
+#'     data =ChickWeight_arbitrary_group,
+#'     weights=varIdent(fixed=c("low"=5), form=~1|group_arb)
+#'   )
+#' # Show all parameters
+#' tidy(fit_with_fixed)
+#' # Exclude fixed parameters
+#' tidy(fit_with_fixed) %>%
+#'   filter(across(any_of("estimated"), ~.x))
+#' }
+#' }
 #' @export
 #' @importFrom tibble tibble
 #' @importFrom stats as.formula
@@ -424,17 +458,19 @@ tidy.varFunc <- function(x, ...) {
     group_text <- class(x)[1]
   }
   term_text <- names(aux)
+  ret <-
+    tibble::tibble(
+      #effect="var_model",
+      group=group_text,
+      term=term_text,
+      estimate=aux
+    )
   if (any(attr(x, "whichFix"))) {
-    # Detect fixed parameters based on name
-    mask_fixed <- term_text %in% names(attr(x, "fixed"))
-    term_text[mask_fixed] <- paste(term_text[mask_fixed], "fixed", sep=" ; ")
+    # Detect fixed parameters based on name.  Name order may differ from the
+    # order in the 'whichFix' attribute, so matching must be done by name.
+    ret$estimated <- !(ret$term %in% names(attr(x, "fixed")))
   }
-  tibble::tibble(
-    #effect="var_model",
-    group=group_text,
-    term=term_text,
-    estimate=aux
-  )
+  ret
 }
 
 #' @rdname tidy.varFunc

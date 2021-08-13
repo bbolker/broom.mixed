@@ -199,6 +199,8 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
       tidied_fit_varident$term[tidied_fit_varident$effect %in% "var_model"],
       c("low", "high")
     )
+    # The "estimated" column is not added unless it is needed
+    expect_false("estimated" %in% names(tidied_fit_varident))
   })
   test_that("varComb tidy works", {
     tidied_fit_varcomb <- tidy(fit_varcomb)
@@ -237,8 +239,8 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
       rep("varIdent(1 | group_arb)", 2)
     )
     expect_equal(
-      tidied_fit_varident_fixed$term[tidied_fit_varident_fixed$effect %in% "var_model"],
-      c("high", "low ; fixed")
+      sum(tidied_fit_varident_fixed$estimated),
+      nrow(tidied_fit_varident_fixed) - 1
     )
   })
   test_that("varFunc with fixed and more complex grouping shows the term correctly", {
@@ -249,8 +251,8 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
       rep("varIdent(1 | Diet * group_arb)", 5)
     )
     expect_equal(
-      tidied_fit_varident_fixed_twovar$term[tidied_fit_varident_fixed_twovar$effect %in% "var_model"],
-      c("2*low", "2*high", "3*high", "4*high", "1*low ; fixed")
+      sum(tidied_fit_varident_fixed_twovar$estimated),
+      nrow(tidied_fit_varident_fixed_twovar) - 1
     )
   })
 }

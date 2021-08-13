@@ -29,5 +29,33 @@ Returns a tibble with the following columns:
   the names of the coefficients.  If the value is fixed, it will be appended
   with \code{" ; fixed"}.}
 \item{estimate}{estimated coefficient}
+\item{estimated}{This column is only included if some parameters are fixed.
+  TRUE if the parameter is estimated and FALSE if the parameter is fixed.}
+}
+}
+\examples{
+\dontrun{
+if (require("nlme")) {
+ChickWeight_arbitrary_group <- datasets::ChickWeight
+ChickWeight_arbitrary_group$group_arb_n <-
+  1 + (
+    as.integer(ChickWeight_arbitrary_group$Chick) >
+    median(as.integer(ChickWeight_arbitrary_group$Chick))
+  )
+ChickWeight_arbitrary_group$group_arb <- c("low", "high")[ChickWeight_arbitrary_group$group_arb_n]
+
+fit_with_fixed <-
+  lme(
+    weight ~ Diet * Time,
+    random = ~Time | Chick,
+    data =ChickWeight_arbitrary_group,
+    weights=varIdent(fixed=c("low"=5), form=~1|group_arb)
+  )
+# Show all parameters
+tidy(fit_with_fixed)
+# Exclude fixed parameters
+tidy(fit_with_fixed) \%>\%
+  filter(across(any_of("estimated"), ~.x))
+}
 }
 }

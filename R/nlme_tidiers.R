@@ -62,6 +62,9 @@
 #'   \item{level}{level within group}
 #'   \item{term}{term being estimated}
 #'   \item{estimate}{estimated coefficient}
+#'   \item{estimated}{This column is only included if some parameters are fixed.
+#'     TRUE if the residual error is estimated and FALSE if the residual error
+#'     is fixed.}
 #'
 #' If \code{effects="fixed"}, \code{tidy} returns the columns
 #'   \item{term}{fixed term being estimated}
@@ -231,6 +234,13 @@ tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
         ret <- dplyr::full_join(ret, ci, by = c("group", "term"))
       }
     } ## if not multi-level model
+    if (attr(x$modelStruct, 'fixedSigma')) {
+      mask_residual <- ret$group == "Residual"
+      if (sum(mask_residual) != 1) {
+        stop("More than one residual estimate found, please report this as a bug") # nocov
+      }
+      ret$estimated <- !mask_residual
+    }
     ret_list$ran_pars <- ret
   }
 

@@ -255,4 +255,23 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
       nrow(tidied_fit_varident_fixed_twovar) - 1
     )
   })
+  
+  # Verify that fixed sigma works ####
+  m1 <- lme(distance ~ age, random = ~age |Subject, data = Orthodont)
+  m2 <- update(m1, control = lmeControl(sigma = 1))
+  tidy_no_fixed_sigma <- tidy(m1)
+  tidy_yes_fixed_sigma <- tidy(m2)
+  test_that("fixed sigma adds an 'estimated' column correctly", {
+    expect_false("estimated" %in% names(tidy_no_fixed_sigma))
+    expect_true("estimated" %in% names(tidy_yes_fixed_sigma))
+  })
+  test_that("fixed sigma shows as fixed", {
+    expect_false(
+      tidy_yes_fixed_sigma$estimated[tidy_yes_fixed_sigma$group %in% "Residual"]
+    )
+    expect_equal(
+      sum(tidy_yes_fixed_sigma$estimated),
+      nrow(tidy_yes_fixed_sigma) - 1
+    )
+  })
 }

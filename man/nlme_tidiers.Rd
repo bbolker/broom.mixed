@@ -57,6 +57,9 @@ random or fixed depending on the \code{effects} parameter. If
   \item{level}{level within group}
   \item{term}{term being estimated}
   \item{estimate}{estimated coefficient}
+  \item{estimated}{This column is only included if some parameters are fixed.
+    TRUE if the residual error is estimated and FALSE if the residual error
+    is fixed.}
 
 If \code{effects="fixed"}, \code{tidy} returns the columns
   \item{term}{fixed term being estimated}

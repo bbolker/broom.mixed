@@ -44,7 +44,7 @@ context("lme4 models")
       nAGQ = 0
     )
     ggm <- broom::glance(gm)
-    expect_equal(names(ggm), c("sigma", "logLik", "AIC", "BIC", "deviance", "df.residual"))
+    expect_equal(names(ggm), c("nobs", "sigma", "logLik", "AIC", "BIC", "deviance", "df.residual"))
     td <- tidy(gm)
     expect_equal(
       names(td),
@@ -72,7 +72,7 @@ context("lme4 models")
       start = startvec, nAGQ = 0L
     )
     gnm <- broom::glance(nm)
-    expect_equal(names(gnm), c("sigma", "logLik", "AIC", "BIC", "deviance", "df.residual"))
+    expect_equal(names(gnm), c("nobs", "sigma", "logLik", "AIC", "BIC", "deviance", "df.residual"))
     td <- tidy(nm)
     expect_equal(
       names(td),
@@ -156,7 +156,7 @@ context("lme4 models")
 
   test_that("glance works on lme4 fits", {
     g <- broom::glance(fit)
-    expect_equal(dim(g), c(1, 6))
+    expect_equal(dim(g), c(1, 7))
   })
 
   test_that("ran_vals works", {

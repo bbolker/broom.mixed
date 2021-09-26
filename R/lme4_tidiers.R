@@ -401,6 +401,7 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
 #' @rdname lme4_tidiers
 #'
 #' @return \code{glance} returns one row with the columns
+#'   \item{nobs}{the number of observations}
 #'   \item{sigma}{the square root of the estimated residual variance}
 #'   \item{logLik}{the data's log-likelihood under the model}
 #'   \item{AIC}{the Akaike Information Criterion}

@@ -138,7 +138,8 @@ finish_glance <- function(ret = dplyr::tibble(), x) {
   }
 
   newvals <- dplyr::tibble(
-    sigma = tfun(sigma(x)),
+    nobs = tfun(stats::nobs(x)),
+    sigma = tfun(stats::sigma(x)),
     logLik = tfun(as.numeric(stats::logLik(x))),
     AIC = tfun(stats::AIC(x)),
     BIC = tfun(stats::BIC(x)),
@@ -166,7 +167,7 @@ f2 <- function(ret = data.frame(), x, skip_funs = character(0)) {
 
   stopifnot(length(ret) == 0 || nrow(ret) == 1)
 
-  funs <- c("logLik", "AIC", "BIC", "deviance", "df.residual")
+  funs <- c("nobs", "logLik", "AIC", "BIC", "deviance", "df.residual")
   funs <- setdiff(funs, skip_funs)
 
   newvals <- lapply(funs, function(f) as.numeric(tfun(get(f, "package:stats"))))

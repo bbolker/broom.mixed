@@ -100,6 +100,7 @@ are values from the response object within the model (of type
 ".offset", ".sqrtXwt", ".sqrtrwt", ".eta"}.
 
 \code{glance} returns one row with the columns
+  \item{nobs}{the number of observations}
   \item{sigma}{the square root of the estimated residual variance}
   \item{logLik}{the data's log-likelihood under the model}
   \item{AIC}{the Akaike Information Criterion}

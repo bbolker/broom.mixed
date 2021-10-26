@@ -97,7 +97,7 @@ NULL
 #' in previous versions of the package), while technically inappropriate in
 #' a Bayesian setting where "fixed" and "random" effects are not well-defined,
 #' are used for compatibility with other (frequentist) mixed model types.
-#' @note At present, the components of parameter estimates are separated by parsing the column names of \code{posterior_samples} (e.g. \code{r_patient[1,Intercept]} for the random effect on the intercept for patient 1, or \code{b_Trt1} for the fixed effect \code{Trt1}. We try to detect underscores in parameter names and warn, but detection may be imperfect.
+#' @note At present, the components of parameter estimates are separated by parsing the column names of \code{as_draws} (e.g. \code{r_patient[1,Intercept]} for the random effect on the intercept for patient 1, or \code{b_Trt1} for the fixed effect \code{Trt1}. We try to detect underscores in parameter names and warn, but detection may be imperfect.
 #' @export
 tidy.brmsfit <- function(x, parameters = NA,
                          effects = c("fixed", "ran_pars"),
@@ -145,7 +145,7 @@ tidy.brmsfit <- function(x, parameters = NA,
 
     parameters <- pref_RE
   }
-  samples <- brms::posterior_samples(x, parameters)
+  samples <- get_draws(x, parameters)
   if (is.null(samples)) {
     stop("No parameter name matches the specified pattern.",
       call. = FALSE
@@ -332,4 +332,10 @@ augment.brmsfit <- function(x, data = stats::model.frame(x), newdata = NULL,
     ret <- dplyr::bind_cols(as_tibble(newdata), ret)
   }
   return(ret)
+}
+
+## utility to replace posterior_samples
+get_draws <- function(obj, vars) {
+  ## need to unclass as_draws() to convince bind_rows to stick it together ...
+  dplyr::bind_rows(unclass(brms::as_draws(obj, vars, regex = TRUE)))
 }

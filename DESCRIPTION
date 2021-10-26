@@ -1,7 +1,7 @@
 Package: broom.mixed
 Type: Package
 Title: Tidying Methods for Mixed Models
-Version: 0.2.7.1
+Version: 0.2.8
 Authors@R: c(
     person("Ben", "Bolker", email = "bolker@mcmaster.ca",
         role = c("aut", "cre"),
@@ -23,7 +23,8 @@ Authors@R: c(
     person("Vincent", "Arel-Bundock", 
           email = "vincent.arel-bundock@umontreal.ca", 
           role = "ctb",
-      comment = c(ORCID = "0000-0003-2042-7063"))
+      comment = c(ORCID = "0000-0003-2042-7063")),
+    person("Bill", "Denney", role = "ctb")
     )
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 Description: Convert fitted objects from various R mixed-model packages
@@ -70,7 +71,6 @@ Suggests:
 URL: https://github.com/bbolker/broom.mixed
 BugReports: https://github.com/bbolker/broom.mixed/issues
 License: GPL-3
-RoxygenNote: 7.1.1
 Encoding: UTF-8
 Additional_repositories: http://bbolker.github.io/drat
 VignetteBuilder: knitr

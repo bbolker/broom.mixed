@@ -138,7 +138,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
   expect_error(augment(fit), "explicit")
 
   context("gls models")
-  
+
   test_that("basic gls tidying", {
 
       check_tidy(tidy(gls1), 3, 5,
@@ -146,8 +146,8 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
       check_tidy(tidy(gls1, conf.int=TRUE), 3, 7,
                  c("term","estimate","std.error","statistic","p.value",
                    "conf.low","conf.high"))
-    
-  })    
+
+  })
 
   test_that("basic gls augment with & without data", {
     au <- augment(gls1)
@@ -160,7 +160,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
     expect_equal(nrow(au), nrow(Ovary))
     expect_true(all(c(".fitted", ".resid") %in% names(au)))
   })
-  
+
   # Verify that the varFunc tidiers work ####
   ChickWeight_arbitrary_group <-
     ChickWeight %>%
@@ -172,7 +172,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
   fit_varident <-
     lme(weight ~ Diet * Time, random = ~Time | Chick, data = ChickWeight_arbitrary_group, weights=varIdent(form=~1|group_arb))
   fit_varcomb <-
-    lme(
+    suppressWarnings(lme(
       weight ~ Diet * Time,
       random = ~Time | Chick,
       data = ChickWeight_arbitrary_group,
@@ -184,10 +184,12 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
       # This is just trying to make an object to test the model-- it's not
       # trying to actually make a good model.
       control=lmeControl(returnObject=TRUE)
-    )
+    ))
+
   test_that("varFunc tidy works with no weights argument", {
     expect_true(sum(tidy(fit)$effect %in% "var_model") == 0)
   })
+
   test_that("varFunc tidy works with a weights argument", {
     tidied_fit_varident <- tidy(fit_varident)
     expect_true(sum(tidied_fit_varident$effect %in% "var_model") == 2)
@@ -214,7 +216,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
       rep(c("low", "high"), 2)
     )
   })
-  
+
   fit_varident_fixed <-
     lme(
       weight ~ Diet * Time,
@@ -255,7 +257,7 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
       nrow(tidied_fit_varident_fixed_twovar) - 1
     )
   })
-  
+
   # Verify that fixed sigma works ####
   m1 <- lme(distance ~ age, random = ~age |Subject, data = Orthodont)
   m2 <- update(m1, control = lmeControl(sigma = 1))

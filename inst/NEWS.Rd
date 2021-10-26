@@ -17,7 +17,7 @@
       \item improved \code{lme} tidying for random effects values
       \item \code{brms} tidiers no longer use deprecated
       \code{posterior_samples}
-      \item {glance.lme4} now returns \code{nobs}
+      \item {glance.lme4} now returns \code{nobs} (Cory Brunson)
     }
   } % user-visible changes
 } % version 0.2.8

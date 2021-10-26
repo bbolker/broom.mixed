@@ -24,7 +24,8 @@ Authors@R: c(
           email = "vincent.arel-bundock@umontreal.ca", 
           role = "ctb",
       comment = c(ORCID = "0000-0003-2042-7063")),
-    person("Bill", "Denney", role = "ctb")
+    person("Bill", "Denney", role = "ctb"),
+    person("Cory", "Brunson", role = "ctb")
     )
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 Description: Convert fitted objects from various R mixed-model packages

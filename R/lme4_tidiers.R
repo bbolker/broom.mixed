@@ -100,6 +100,7 @@ fix_ran_vals <- function(g) {
 #' @param conf.method method for computing confidence intervals (see \code{lme4::confint.merMod})
 #' @param scales scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects.
 #' @param exponentiate  whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale
+#' @param exponentiate_ran_coefs whether to exponentiate the predicted paramater values for each group
 #' @param ran_prefix a length-2 character vector specifying the strings to use as prefixes for self- (variance/standard deviation) and cross- (covariance/correlation) random effects terms
 #' @param profile pre-computed profile object, for speed when using \code{conf.method="profile"}
 #' @param ddf.method  the method for computing the degrees of freedom and t-statistics (only applicable when using the \pkg{lmerTest} package: see \code{\link[lmerTest]{summary.lmerModLmerTest}}
@@ -127,6 +128,7 @@ fix_ran_vals <- function(g) {
 tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
                         scales = NULL, ## c("sdcor","vcov",NA),
                         exponentiate = FALSE,
+                        exponentiate_ran_coefs = FALSE,
                         ran_prefix = NULL,
                         conf.int = FALSE,
                         conf.level = 0.95,
@@ -317,7 +319,18 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
       ret <- ret %>% mutate(conf.low = NA, conf.high = NA)
     }
 
+    if (exponentiate_ran_coefs) {
+      rc <- intersect("estimate", names(ret))
+      ret <- (ret %>% mutate_at(vars(rc), ~exp(.)))
+    }
+    
     ret_list$ran_coefs <- ret
+  }
+  
+  if (exponentiate_ran_coefs) {
+    if(!"ran_coefs" %in% effects) {
+      warning("Exponentiated random coefficients were specified, but random coefficients were not requested. Not returning random coefficients.")
+    }
   }
 
   ret <- (ret_list

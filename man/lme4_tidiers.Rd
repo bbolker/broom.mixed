@@ -13,6 +13,7 @@
   effects = c("ran_pars", "fixed"),
   scales = NULL,
   exponentiate = FALSE,
+  exponentiate_ran_coefs = FALSE,
   ran_prefix = NULL,
   conf.int = FALSE,
   conf.level = 0.95,
@@ -28,6 +29,7 @@
   effects = c("ran_pars", "fixed"),
   scales = NULL,
   exponentiate = FALSE,
+  exponentiate_ran_coefs = FALSE,
   ran_prefix = NULL,
   conf.int = FALSE,
   conf.level = 0.95,
@@ -51,6 +53,8 @@
 \item{scales}{scales on which to report the variables: for random effects, the choices are \sQuote{"sdcor"} (standard deviations and correlations: the default if \code{scales} is \code{NULL}) or \sQuote{"vcov"} (variances and covariances). \code{NA} means no transformation, appropriate e.g. for fixed effects.}
 
 \item{exponentiate}{whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale}
+
+\item{exponentiate_ran_coefs}{whether to exponentiate the predicted paramater values for each group}
 
 \item{ran_prefix}{a length-2 character vector specifying the strings to use as prefixes for self- (variance/standard deviation) and cross- (covariance/correlation) random effects terms}
 

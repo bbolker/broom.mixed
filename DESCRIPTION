@@ -25,7 +25,9 @@ Authors@R: c(
           role = "ctb",
       comment = c(ORCID = "0000-0003-2042-7063")),
     person("Bill", "Denney", role = "ctb"),
-    person("Cory", "Brunson", role = "ctb")
+    person("Cory", "Brunson", role = "ctb"),
+    person("Joe", "Wasserman", role = "ctb",
+        comment = c(ORCID = "0000-0002-9705-1853"))
     )
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 Description: Convert fitted objects from various R mixed-model packages
@@ -75,3 +77,4 @@ License: GPL-3
 Encoding: UTF-8
 Additional_repositories: http://bbolker.github.io/drat
 VignetteBuilder: knitr
+RoxygenNote: 7.1.1

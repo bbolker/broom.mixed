@@ -1,8 +1,11 @@
 #' Tidying methods for mixed effects models
 #'
-#' These methods tidy the coefficients of mixed effects models, particularly
-#' responses of the \code{merMod} class
+#' These methods tidy the coefficients of \code{lme4::lmer} and \code{lme4::glmer}
+#' models (i.e., \code{merMod} objects). Methods are also provided for \code{allFit}
+#' objects.
 #'
+#' @aliases glance.allFit
+#' @aliases tidy.allFit
 #' @param x An object of class \code{merMod}, such as those from \code{lmer},
 #' \code{glmer}, or \code{nlmer}
 #' @param ... Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})
@@ -551,4 +554,24 @@ tidy.lmList4 <- function(x, conf.int = FALSE,
         ## don't think reorder_cols is necessary ...?
     }
     return(ret)
+}
+
+#' @export
+tidy.allFit <- function(x, ...) {
+  bad <- purrr::map_lgl(x, is, "error")
+  purrr::map_dfr(x[!bad], tidy, ..., .id = "optimizer")
+}
+
+#' @export
+glance.allFit <- function(x, ...) {
+  bad <- purrr::map_lgl(x, is, "error")
+  if (all(bad)) stop("all models bad")
+  ## find first non-bad and fill with NA values
+  dummy <- glance(x[!bad][[1]]) %>% mutate(across(everything(), ~ NA))
+  res <- (purrr::map_dfr(x, possibly(glance, ..., otherwise = dummy),
+                         .id = "optimizer")
+    ## compute relative negative log-likelihood
+    %>% mutate(NLL_rel = ifelse(is.na(logLik), Inf, max(logLik, na.rm=TRUE) - logLik))
+  )
+  return(res)
 }

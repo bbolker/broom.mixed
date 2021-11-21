@@ -104,7 +104,7 @@ cifun <- function(x, method="Wald", ddf.method=NULL, level=0.95, ...) {
          %>% transmute(conf.low=Estimate-mult*`Std. Error`,
                        conf.high=Estimate+mult*`Std. Error`)
      )
-  }  else {  
+  }  else {
       r <- as.data.frame(confint(x, method=method, level=level, ...))
   }
   r <- (r
@@ -290,7 +290,7 @@ rename_cols <- function(x,
 }
 
 has_rownames <- function(df) {
-  return (!tibble::is_tibble(df) && 
+  return (!tibble::is_tibble(df) &&
           any(rownames(df) != as.character(seq(nrow(df)))))
 }
 
@@ -299,7 +299,7 @@ has_rownames <- function(df) {
 fix_data_frame <- function(df, newnames=NULL, newcol="term") {
     rn <- rownames(df) ## grab rownames *before* df conversion
     ## must happen **AFTER** saving rownames
-    df <- as_tibble(df, .name_repair="minimal") 
+    df <- as_tibble(df, .name_repair="minimal")
     if (!is.null(newnames)) df <- setNames(df,newnames)
     ## add rownames as term **if necessary**
     if (!("term" %in% newnames) &&

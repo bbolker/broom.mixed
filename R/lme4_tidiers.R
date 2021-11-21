@@ -180,7 +180,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
       ret <- stats::coef(ss) %>%
           data.frame(check.names = FALSE) %>%
           rename_regex_match()
-      
+
     if (debug) {
       cat("output from coef(summary(x)):\n")
       print(coef(ss))
@@ -276,7 +276,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     )
 
     ## these are in 'lower.tri' order, need to make sure this
-    ## is matched in as.data.frame() below 
+    ## is matched in as.data.frame() below
     if (conf.int) {
         ciran <- cifun(p, parm = "theta_", method = conf.method, level = conf.level, ...)
         ret <- data.frame(ret, ciran, stringsAsFactors = FALSE)
@@ -389,7 +389,7 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
   ## remove too-long fields and empty fields
   n_vals <- vapply(cols,length,1L)
   min_n <- min(n_vals[n_vals>0])
-  
+
   cols <- dplyr::bind_cols(cols[n_vals==min_n])
 
   cols <- insert_NAs(cols, ret)
@@ -485,7 +485,7 @@ augment.ranef.mer <- function(x,
     cols <- 1:(dim(pv)[1])
     se <- unlist(lapply(cols, function(i) sqrt(pv[i, i, ])))
     ## n.b.: depends on explicit column-major ordering of se/melt
-    zzz <- zz %>% 
+    zzz <- zz %>%
            tidyr::pivot_longer(-level, values_to = "estimate", names_to = "variable") %>%
            dplyr::arrange(variable, level)
     zzz <- cbind(zzz, qq = qq, std.error = se)
@@ -527,7 +527,7 @@ tidy.lmList4 <- function(x, conf.int = FALSE,
                          conf.level = 0.95, ...) {
 
     cols <- estimate <- std.error <- NULL ## R CMD check false positives
-    
+
     ss <- summary(x)$coefficients
     names(dimnames(ss)) <- c("group","cols","terms")
 

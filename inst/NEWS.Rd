@@ -9,7 +9,10 @@
     \itemize{
       \item \code{lme} tidier gets functionality for information about
       variance models (use \code{effects = "var_model"}) (Bill Denney)
-      \item support for models with fixed sigma values in \code{lme} tidier (Bill Denney)
+      \item support for models with fixed sigma values in \code{lme}
+      tidier (Bill Denney)
+      \item added \code{tidy} and \code{glance} methods for
+      \code{allFit} objects from the \code{lme4} package
     }
   }
   \subsection{USER-VISIBLE CHANGES}{

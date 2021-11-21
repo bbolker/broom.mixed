@@ -311,3 +311,17 @@ fix_data_frame <- function(df, newnames=NULL, newcol="term") {
     return(df)
 }
 
+##' Show all method/class combinations currently provided by the broom.mixed package
+##' @export
+show_methods <- function() {
+  res <- (tibble(fun = ls(getNamespace("broom.mixed")))
+    %>% filter(grepl("^(tidy|glance|augment)\\.", fun))
+    %>% separate(fun, into = c("method", "class"), sep = "\\.", extra = "merge")
+    %>% mutate(provided = TRUE)
+    %>% complete(method, class, fill = list(provided = FALSE))
+    %>% pivot_wider(names_from = method, values_from = provided)
+    ## reorder
+    %>% select(tidy, glance, augment)
+  )
+  return(res)
+}

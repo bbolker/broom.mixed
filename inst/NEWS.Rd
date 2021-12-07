@@ -13,6 +13,8 @@
       tidier (Bill Denney)
       \item added \code{tidy} and \code{glance} methods for
       \code{allFit} objects from the \code{lme4} package
+      \item \code{get_methods()} function returns a table of all
+      available tidy/glance/augment methods
     }
   }
   \subsection{USER-VISIBLE CHANGES}{

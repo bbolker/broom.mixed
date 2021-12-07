@@ -1,7 +1,6 @@
 ## most of these are unexported (small) functions from broom;
 ## could be removed if these were exported
 
-
 #' check if a package is available and return informative message otherwise
 #'
 #' @keywords internal
@@ -311,9 +310,14 @@ fix_data_frame <- function(df, newnames=NULL, newcol="term") {
     return(df)
 }
 
-##' Show all method/class combinations currently provided by the broom.mixed package
+##' Retrieve all method/class combinations currently provided by the broom.mixed package
+##' @examples print(get_methods(), n = Inf)
+##' @importFrom tidyr complete pivot_wider separate
 ##' @export
-show_methods <- function() {
+get_methods <- function() {
+  ## TO DO: include associated package? not necessarily easy to find
+  ## the package associated with a class ... (can look for print method
+  ## with getAnywhere(), but would need package loaded ...)
   res <- (tibble(fun = ls(getNamespace("broom.mixed")))
     %>% filter(grepl("^(tidy|glance|augment)\\.", fun))
     %>% separate(fun, into = c("method", "class"), sep = "\\.", extra = "merge")
@@ -321,7 +325,9 @@ show_methods <- function() {
     %>% complete(method, class, fill = list(provided = FALSE))
     %>% pivot_wider(names_from = method, values_from = provided)
     ## reorder
-    %>% select(tidy, glance, augment)
+    %>% dplyr::select(class, tidy, glance, augment)
   )
+  class(res) <- c("show_methods", class(res))
   return(res)
 }
+

@@ -31,6 +31,9 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
 
   ## R CMD check/global variables
   branch <- v <- param <- value <- zeta <- Estimate <- estimate <- std.error <- NULL
+
+  conf.method <- match.arg(conf.method)
+
   sdr <- TMB::sdreport(x)
   retlist <- list()
   if ("fixed" %in% effects) {

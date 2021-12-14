@@ -1,7 +1,6 @@
 ## most of these are unexported (small) functions from broom;
 ## could be removed if these were exported
 
-
 #' check if a package is available and return informative message otherwise
 #'
 #' @keywords internal
@@ -104,7 +103,7 @@ cifun <- function(x, method="Wald", ddf.method=NULL, level=0.95, ...) {
          %>% transmute(conf.low=Estimate-mult*`Std. Error`,
                        conf.high=Estimate+mult*`Std. Error`)
      )
-  }  else {  
+  }  else {
       r <- as.data.frame(confint(x, method=method, level=level, ...))
   }
   r <- (r
@@ -138,7 +137,8 @@ finish_glance <- function(ret = dplyr::tibble(), x) {
   }
 
   newvals <- dplyr::tibble(
-    sigma = tfun(sigma(x)),
+    nobs = tfun(stats::nobs(x)),
+    sigma = tfun(stats::sigma(x)),
     logLik = tfun(as.numeric(stats::logLik(x))),
     AIC = tfun(stats::AIC(x)),
     BIC = tfun(stats::BIC(x)),
@@ -166,7 +166,7 @@ f2 <- function(ret = data.frame(), x, skip_funs = character(0)) {
 
   stopifnot(length(ret) == 0 || nrow(ret) == 1)
 
-  funs <- c("logLik", "AIC", "BIC", "deviance", "df.residual")
+  funs <- c("nobs", "logLik", "AIC", "BIC", "deviance", "df.residual")
   funs <- setdiff(funs, skip_funs)
 
   newvals <- lapply(funs, function(f) as.numeric(tfun(get(f, "package:stats"))))
@@ -289,7 +289,7 @@ rename_cols <- function(x,
 }
 
 has_rownames <- function(df) {
-  return (!tibble::is_tibble(df) && 
+  return (!tibble::is_tibble(df) &&
           any(rownames(df) != as.character(seq(nrow(df)))))
 }
 
@@ -298,7 +298,7 @@ has_rownames <- function(df) {
 fix_data_frame <- function(df, newnames=NULL, newcol="term") {
     rn <- rownames(df) ## grab rownames *before* df conversion
     ## must happen **AFTER** saving rownames
-    df <- as_tibble(df, .name_repair="minimal") 
+    df <- as_tibble(df, .name_repair="minimal")
     if (!is.null(newnames)) df <- setNames(df,newnames)
     ## add rownames as term **if necessary**
     if (!("term" %in% newnames) &&
@@ -308,5 +308,26 @@ fix_data_frame <- function(df, newnames=NULL, newcol="term") {
         names(df)[1] <- newcol
     }
     return(df)
+}
+
+##' Retrieve all method/class combinations currently provided by the broom.mixed package
+##' @examples print(get_methods(), n = Inf)
+##' @importFrom tidyr complete pivot_wider separate
+##' @export
+get_methods <- function() {
+  ## TO DO: include associated package? not necessarily easy to find
+  ## the package associated with a class ... (can look for print method
+  ## with getAnywhere(), but would need package loaded ...)
+  res <- (tibble(fun = ls(getNamespace("broom.mixed")))
+    %>% filter(grepl("^(tidy|glance|augment)\\.", fun))
+    %>% separate(fun, into = c("method", "class"), sep = "\\.", extra = "merge")
+    %>% mutate(provided = TRUE)
+    %>% complete(method, class, fill = list(provided = FALSE))
+    %>% pivot_wider(names_from = method, values_from = provided)
+    ## reorder
+    %>% dplyr::select(class, tidy, glance, augment)
+  )
+  class(res) <- c("show_methods", class(res))
+  return(res)
 }
 

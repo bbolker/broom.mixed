@@ -4,7 +4,30 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
-\section{CHANGES IN VERSION 0.2.7}{
+\section{CHANGES IN VERSION 0.2.8}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{lme} tidier gets functionality for information about
+      variance models (use \code{effects = "var_model"}) (Bill Denney)
+      \item support for models with fixed sigma values in \code{lme}
+      tidier (Bill Denney)
+      \item added \code{tidy} and \code{glance} methods for
+      \code{allFit} objects from the \code{lme4} package
+      \item \code{get_methods()} function returns a table of all
+      available tidy/glance/augment methods
+    }
+  }
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item improved \code{lme} tidying for random effects values
+      \item \code{brms} tidiers no longer use deprecated
+      \code{posterior_samples}
+      \item {glance.lme4} now returns \code{nobs} (Cory Brunson)
+    }
+  } % user-visible changes
+} % version 0.2.8
+
+\section{CHANGES IN VERSION 0.2.7 (2021-07-07)}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item experimental \code{TMB} tidiers (the \code{TMB} package

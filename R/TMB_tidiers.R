@@ -49,7 +49,7 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
         all_vars <- all_vars[-rnd]
     }
     if (conf.int) {
-        if (tolower(conf.method == "wald")) {
+        if (tolower(conf.method) == "wald") {
             qval <- qnorm((1 + conf.level) / 2)
             ss <- mutate(ss,
                          conf.low = estimate - qval * std.error,

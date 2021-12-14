@@ -29,6 +29,7 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
 
   assert_dependency("TMB")
 
+  ## FIXME: implement CIs/profiling/etc. for random effects (and error out on a stub in the meantime)
   ## R CMD check/global variables
   branch <- v <- param <- value <- zeta <- Estimate <- estimate <- std.error <- NULL
 
@@ -42,7 +43,11 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
       ## FIXME: disambiguate repeated variable names better
       ## i.e. beta.1, beta.2 instead of beta, beta.1 ...
       tibble::rownames_to_column("term") %>%
-      rename(estimate = Estimate, std.error = "Std. Error")
+        rename(estimate = Estimate, std.error = "Std. Error")
+    all_vars <- names(x$env$last.par.best)
+    if (!is.null(rnd <- x$env$random)) {
+        all_vars <- all_vars[-rnd]
+    }
     if (conf.int) {
         if (tolower(conf.method == "wald")) {
             qval <- qnorm((1 + conf.level) / 2)
@@ -56,7 +61,7 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
             ## do.call(rbind,...) because bind_rows needs named list
             tt <- do.call(
                 rbind,
-                lapply(seq(nrow(ss)),
+                lapply(seq_along(all_vars),
                        TMB::tmbroot,
                        obj = x,
                        ...
@@ -67,10 +72,7 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
         } else if (conf.method == "profile") {
             ## FIXME: allow parm specs
             ## FIXME: repeated var names?
-            all_vars <- names(x$env$last.par.best)
-            if (!is.null(rnd <- x$env$random)) {
-                all_vars <- all_vars[-rnd]
-            }
+            ## FIXME: tracing/quietly/etc?
             prof0 <- purrr::map_dfr(seq_along(all_vars),
                                      ~ setNames(TMB::tmbprofile(x,name=.,trace=FALSE),c("focal","value")),
                                      .id="param")
@@ -94,14 +96,22 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
                 }
                 return(res)
             }
-            tt <- prof1 %>% group_by(param, branch) %>% unique() %>% summarise(v=interp_fun(.data))
+            ttd <- (prof1
+                %>% group_by(param, branch)
+                %>% distinct()
+                %>% summarise(v=interp_fun(.data), .groups="drop")
+            )
+            tt <- (ttd %>% full_join(with(ttd,crossing(param, branch)),
+                                     by = c("param", "branch"))
+                %>% arrange(branch, param)
+            )
             ss$conf.low <- filter(tt, branch=="lwr") %>% pull(v)
             ss$conf.high <- filter(tt, branch=="upr") %>% pull(v)
         } else {
             stop(sprintf("conf.method=%s not implemented", conf.method))
         }
     } ## if conf.int
-  }
+  } ## if 'fixed'
   retlist$fixed <- ss
   ret <- dplyr::bind_rows(retlist, .id = "type")
   ## FIXME: add statistic (mean/stderr)

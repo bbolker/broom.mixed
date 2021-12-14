@@ -101,7 +101,7 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
                 %>% distinct()
                 %>% summarise(v=interp_fun(.data), .groups="drop")
             )
-            tt <- (ttd %>% full_join(with(ttd,crossing(param, branch)),
+            tt <- (ttd %>% full_join(with(ttd, tidyr::crossing(param, branch)),
                                      by = c("param", "branch"))
                 %>% arrange(branch, param)
             )

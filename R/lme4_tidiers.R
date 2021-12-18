@@ -568,7 +568,7 @@ glance.allFit <- function(x, ...) {
   if (all(bad)) stop("all models bad")
   ## find first non-bad and fill with NA values
   dummy <- glance(x[!bad][[1]]) %>% mutate(across(everything(), ~ NA))
-  res <- (purrr::map_dfr(x, possibly(glance, ..., otherwise = dummy),
+  res <- (purrr::map_dfr(x, purrr::possibly(glance, ..., otherwise = dummy),
                          .id = "optimizer")
     ## compute relative negative log-likelihood
     %>% mutate(NLL_rel = ifelse(is.na(logLik), Inf, max(logLik, na.rm=TRUE) - logLik))

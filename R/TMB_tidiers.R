@@ -8,6 +8,8 @@
 ##' @param ... additional arguments passed to confint function (tmbroot, tmbprofile)
 ##' @importFrom stats approx predict
 ##' @importFrom splines backSpline interpSpline
+##' @importFrom furrr future_map_dfr
+##' @importFrom forcats fct_inorder
 ## FIXME: retrieving stored objects doesn't work well ...
 ## but we also don't want to try compiling as part of example!
 ##' @examples
@@ -58,17 +60,11 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
         } else if (conf.method == "uniroot") {
             ## FIXME: allow parm specs
             ## FIXME: avoid calling sdreport again inside tmbroot?
-            ## do.call(rbind,...) because bind_rows needs named list
-            tt <- do.call(
-                rbind,
-                lapply(seq_along(all_vars),
-                       TMB::tmbroot,
-                       obj = x,
-                       ...
-                       )
-            )
-            ss$conf.low <- tt[, "lwr"]
-            ss$conf.high <- tt[, "upr"]
+            tt <- furrr::future_map_dfr(seq_along(all_vars),
+                                  ~ TMB::tmbroot(x, ...))
+            ss <- mutate(ss,
+                         conf.low = tt[["lwr"]],
+                         conf.high = tt[["upr"]])
         } else if (conf.method == "profile") {
             ## FIXME: allow parm specs
             ## FIXME: repeated var names?

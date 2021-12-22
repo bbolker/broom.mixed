@@ -73,10 +73,11 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
             ## FIXME: allow parm specs
             ## FIXME: repeated var names?
             ## FIXME: tracing/quietly/etc?
-            prof0 <- purrr::map_dfr(seq_along(all_vars),
-                                     ~ setNames(TMB::tmbprofile(x,name=.,trace=FALSE),c("focal","value")),
+            prof0 <- furrr::future_map_dfr(seq_along(all_vars),
+                                     ~ TMB::tmbprofile(x,name=.,trace=FALSE) %>% setNames(c("focal","value")),
                                      .id="param")
             prof1 <- (prof0
+                %>% mutate(across(param, forcats::fct_inorder)) ## keep order consistent below!
                 %>% group_by(param)
                 %>% mutate(zeta=sqrt(2*(value-min(value))),
                            branch=ifelse(cumsum(zeta==0)<1, "lwr", "upr"))
@@ -113,6 +114,7 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
     } ## if conf.int
   } ## if 'fixed'
   retlist$fixed <- ss
+  ## FIXME: find a way to join rather than bind rows? (ordering fragility)
   ret <- dplyr::bind_rows(retlist, .id = "type")
   ## FIXME: add statistic (mean/stderr)
   ##   and p-value (2*pnorm(abs(statistic),lower.tail=FALSE))

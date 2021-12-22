@@ -317,7 +317,8 @@ fix_data_frame <- function(df, newnames=NULL, newcol="term") {
 get_methods <- function() {
   ## TO DO: include associated package? not necessarily easy to find
   ## the package associated with a class ... (can look for print method
-  ## with getAnywhere(), but would need package loaded ...)
+    ## with getAnywhere(), but would need package loaded ...)
+  fun <- method <- provided <- NULL ## NSE/code checking false positive
   res <- (tibble(fun = ls(getNamespace("broom.mixed")))
     %>% filter(grepl("^(tidy|glance|augment)\\.", fun))
     %>% separate(fun, into = c("method", "class"), sep = "\\.", extra = "merge")

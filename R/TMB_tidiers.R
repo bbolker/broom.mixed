@@ -70,7 +70,8 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
             ## FIXME: repeated var names?
             ## FIXME: tracing/quietly/etc?
             prof0 <- furrr::future_map_dfr(seq_along(all_vars),
-                                     ~ TMB::tmbprofile(x,name=.,trace=FALSE) %>% setNames(c("focal","value")),
+                                           ~ (TMB::tmbprofile(x,name=.,trace=FALSE)
+                                               %>% setNames(c("focal","value"))),
                                      .id="param")
             prof1 <- (prof0
                 %>% mutate(across(param, forcats::fct_inorder)) ## keep order consistent below!
@@ -87,7 +88,12 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
                     error=function(e)e)
                 if (inherits(bakspl, "error")) {
                     bad_prof_flag <<- TRUE  ## set value globally
-                    res <- approx(dd$zeta, dd$focal, xout=critval)$y
+                    ## may fail (if not at least two non-NA values ...)
+                    res <- try(approx(dd$zeta, dd$focal, xout=critval)$y,
+                               silent = TRUE)
+                    if (inherits(res, "try-error")) {
+                        res <- NA_real_
+                    }
                 } else {
                     res <- predict(bakspl, critval)$y
                 }

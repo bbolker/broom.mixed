@@ -562,7 +562,8 @@ tidy.allFit <- function(x, ...) {
   purrr::map_dfr(x[!bad], tidy, ..., .id = "optimizer")
 }
 
-#' @export
+##' @importFrom purrr possibly
+##' @export
 glance.allFit <- function(x, ...) {
   bad <- purrr::map_lgl(x, is, "error")
   if (all(bad)) stop("all models bad")

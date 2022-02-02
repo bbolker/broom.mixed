@@ -315,6 +315,7 @@ fix_data_frame <- function(df, newnames=NULL, newcol="term") {
 ##' @importFrom tidyr complete pivot_wider separate
 ##' @export
 get_methods <- function() {
+  fun <- method <- provided <- NULL ## NSE code check
   ## TO DO: include associated package? not necessarily easy to find
   ## the package associated with a class ... (can look for print method
   ## with getAnywhere(), but would need package loaded ...)

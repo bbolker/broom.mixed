@@ -11,4 +11,6 @@ misc/*
 (^|/)\.+.*
 run_examples
 revdep/
+revdep
 ^\.github$
+

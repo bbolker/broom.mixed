@@ -333,3 +333,17 @@ get_methods <- function() {
   return(res)
 }
 
+## action: message, warning, stop
+## copied from glmmTMB (use ellipsis::check_dots_used() instead?)
+check_dots <- function(..., .ignore = NULL, .action="stop") {
+    L <- list(...)
+    if (length(.ignore)>0) {
+        L <- L[!names(L) %in% .ignore]
+    }
+    if (length(L)>0) {
+        FUN <- get(.action)
+        FUN("unknown arguments: ",
+            paste(names(L), collapse=","))
+    }
+    return(NULL)
+}

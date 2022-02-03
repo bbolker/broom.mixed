@@ -16,6 +16,7 @@
   conf.level = 0.95,
   conf.method = c("quantile", "HPDinterval"),
   fix.intercept = TRUE,
+  exponentiate = FALSE,
   ...
 )
 
@@ -53,6 +54,8 @@ Only used if \code{conf.int = TRUE}.}
 
 \item{fix.intercept}{rename "Intercept" parameter to "(Intercept)", to match
 behaviour of other model types?}
+
+\item{exponentiate}{whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale}
 
 \item{...}{Extra arguments, not used}
 

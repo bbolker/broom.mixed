@@ -109,6 +109,9 @@ tidy.brmsfit <- function(x, parameters = NA,
                          exponentiate = FALSE,
                          ...) {
 
+  check_dots(...)
+
+  std.error <- NULL ## NSE/code check
   if (!requireNamespace("brms", quietly=TRUE)) {
       stop("can't tidy brms objects without brms installed")
   }

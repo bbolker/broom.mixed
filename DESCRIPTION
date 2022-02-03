@@ -1,7 +1,7 @@
 Package: broom.mixed
 Type: Package
 Title: Tidying Methods for Mixed Models
-Version: 0.2.8
+Version: 0.2.9.2
 Authors@R: c(
     person("Ben", "Bolker", email = "bolker@mcmaster.ca",
         role = c("aut", "cre"),
@@ -39,12 +39,14 @@ Imports:
     broom,
     coda,
     dplyr,
+    forcats,
     methods,
     nlme,
     purrr,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    furrr
 Suggests:
     brms,
     dotwhisker,

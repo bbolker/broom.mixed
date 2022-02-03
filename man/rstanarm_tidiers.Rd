@@ -35,7 +35,7 @@ See the Value section for details.}
 ("quantile" or "HPDinterval")}
 
 \item{...}{For \code{glance}, if \code{looic=TRUE}, optional arguments to
-\code{\link[rstanarm]{loo.stanreg}}.}
+\code{\link[rstan]{loo.stanfit}}.}
 
 \item{looic}{Should the LOO Information Criterion (and related info) be
 included? See \code{\link[rstan]{loo.stanfit}} for details. (This
@@ -86,8 +86,9 @@ SD, R^2, and log(fit_ratio), etc.
   \item{p_loo}{The effective number of parameters.}
 }
 \description{
-These methods tidy the estimates from \code{\link[rstanarm]{stanreg-objects}}
-(fitted model objects from the \pkg{rstanarm} package) into a summary.
+These methods tidy the estimates from \code{rstanarm} fits
+(\code{stan_glm}, \code{stan_glmer}, etc.)
+into a summary.
 }
 \examples{
 

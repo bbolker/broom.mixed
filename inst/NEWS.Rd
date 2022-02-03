@@ -4,6 +4,13 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
+\section{CHANGES IN VERSION 0.2.9}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item improved profile robustness in TMB tidiers
+    }
+  }
+}
 \section{CHANGES IN VERSION 0.2.8}{
   \subsection{NEW FEATURES}{
     \itemize{

@@ -56,6 +56,7 @@ NULL
 #'   than mean and standard deviation, to derive point estimates and uncertainty
 #' @param conf.int If \code{TRUE} columns for the lower (\code{conf.low})
 #' and upper bounds (\code{conf.high}) of posterior uncertainty intervals are included.
+#' @param exponentiate  whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale
 #' @param conf.level Defines the range of the posterior uncertainty conf.int,
 #'  such that \code{100 * conf.level}\% of the parameter's posterior distributio
 #'  lies within the corresponding interval.
@@ -105,6 +106,7 @@ tidy.brmsfit <- function(x, parameters = NA,
                          conf.level = 0.95,
                          conf.method = c("quantile", "HPDinterval"),
                          fix.intercept = TRUE,
+                         exponentiate = FALSE,
                          ...) {
 
   if (!requireNamespace("brms", quietly=TRUE)) {
@@ -271,6 +273,14 @@ tidy.brmsfit <- function(x, parameters = NA,
                                     ## ??? is this possible in brms models
                                     grepl("^disp",out$term) ~ "disp",
                                     TRUE ~ "cond")
+
+  if (exponentiate) {
+    vv <- c("estimate", "conf.low", "conf.high")
+    out <- (out
+      %>% mutate(across(contains(vv)), exp)
+      %>% mutate(across(std.error, ~ . * estimate))
+    )
+  }
 
   out$term <- stringr::str_remove(out$term,mkRE(prefs[["components"]],
                                                 LB=TRUE))

@@ -211,12 +211,11 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     if (exponentiate) {
       vv <- intersect(c("estimate", "conf.low", "conf.high"), names(ret))
       ret <- (ret
-      %>%
-        mutate_at(vars(vv), ~exp(.))
-        %>%
-        mutate(std.error = std.error * estimate)
+        %>% mutate_at(vars(vv), ~exp(.))
+        %>% mutate(across(std.error, ~ . * estimate))
       )
     }
+
 
     ret_list$fixed <- reorder_frame(ret)
   }

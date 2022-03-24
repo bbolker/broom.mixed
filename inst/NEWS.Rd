@@ -4,14 +4,12 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
-\section{CHANGES IN VERSION 0.2.9}{
+\section{CHANGES IN VERSION 0.2.9.2}{
   \subsection{BUG FIXES}{
     \itemize{
       \item improved profile robustness in TMB tidiers
     }
-  }
-}
-\section{CHANGES IN VERSION 0.2.8}{
+  } % bug fixes
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{lme} tidier gets functionality for information about
@@ -23,7 +21,7 @@
       \item \code{get_methods()} function returns a table of all
       available tidy/glance/augment methods
     }
-  }
+  } % new features
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item improved \code{lme} tidying for random effects values

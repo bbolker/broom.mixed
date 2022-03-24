@@ -2,11 +2,23 @@ stopifnot(require("testthat"), require("broom.mixed"))
 context("glmmTMB models")
 ## source("helper-checkers.R") ## done automatically in test workflow
 
-if (require(glmmTMB, quietly = TRUE)) {
-  load(system.file("extdata", "glmmTMB_example.rda",
+if (require(glmmTMB, quietly = TRUE)
+    ## do we need all this?
+    ## &&
+    ## checkDepPackageVersion(dep_pkg = "TMB",
+    ##                        this_pkg = "glmmTMB",
+    ##                        warn = FALSE) &&
+    ## checkDepPackageVersion(dep_pkg = "Matrix",
+    ##                        this_pkg = "TMB",
+    ##                        warn = FALSE)
+    ) {
+  L <- load(system.file("extdata", "glmmTMB_example.rda",
     package = "broom.mixed",
     mustWork = TRUE
-  ))
+    ))
+  for (obj in L) {
+    assign(obj, glmmTMB::up2date(get(obj)))
+  }
 
   test_that("components included for zi models", {
     td <- tidy(zipm3)

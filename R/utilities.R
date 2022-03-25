@@ -343,7 +343,7 @@ check_dots <- function(..., .ignore = NULL, .action="stop") {
     if (length(L)>0) {
         FUN <- get(.action)
         FUN("unknown arguments: ",
-            paste(names(L), collapse=","))
+            paste(names(L), collapse=", "))
     }
     return(NULL)
 }

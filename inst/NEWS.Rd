@@ -4,7 +4,12 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
-\section{CHANGES IN VERSION 0.2.9.2}{
+\section{CHANGES IN VERSION 0.2.9.4}{
+  \itemize{
+    \item minor changes only; test tweaks for CRAN compatibility
+  }
+}
+\section{CHANGES IN VERSION 0.2.9.3}{
   \subsection{BUG FIXES}{
     \itemize{
       \item improved profile robustness in TMB tidiers
@@ -28,6 +33,7 @@
       \item \code{brms} tidiers no longer use deprecated
       \code{posterior_samples}
       \item {glance.lme4} now returns \code{nobs} (Cory Brunson)
+      \item some tidiers are less permissive about unused arguments passed via \code{...}
     }
   } % user-visible changes
 } % version 0.2.8

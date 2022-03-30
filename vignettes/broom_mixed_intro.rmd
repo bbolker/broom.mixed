@@ -15,9 +15,6 @@ library(knitr)
 
 # Introduction
 
-**UNDER CONSTRUCTION**
-
-
 `broom.mixed` is a spinoff of the [broom package](https://CRAN.R-project.org/package=broom). The goal of `broom` is to bring the modeling process into a "tidy"(TM) workflow, in particular by providing standardized verbs that provide information on
 
 - `tidy`: estimates, standard errors, confidence intervals, etc.
@@ -65,9 +62,9 @@ There are many, many things one might want to do with a fitted model, and `broom
      - `tidy(fitted_model) %>% tidyr::unite(term, group, term)` will create a new `term` column that's the combination of the `group` and `term` columns (which will disambiguate random-effect terms from different grouping variables); `unite(term, component, term)` will disambiguate conditional and zero-inflation parameters. The code below shows a slightly more complicated (but prettier) approach. (Some sort of `disambiguate_terms()` function could be added in a future version of the package ...)
 
 ```{r dwplot1,message=FALSE,warning=FALSE}
-library("dplyr")
-library("tidyr")
-library("broom.mixed")
+library(dplyr)
+library(tidyr)
+library(broom.mixed)
 if (require("brms") && require("dotwhisker") && require("ggplot2")) {
     L <- load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
     gg0 <- (tidy(brms_crossedRE)
@@ -83,8 +80,16 @@ if (require("brms") && require("dotwhisker") && require("ggplot2")) {
 
 # Capabilities
 
-```{r results="asis",echo=FALSE, message=FALSE}
-cc <- read.csv(system.file("capabilities.csv",package="broom.mixed"))
+Automatically retrieve table of available methods:
+
+```{r get_methods}
+get_methods()
+```
+
+Manually compiled list of capabilities (possibly out of date):
+
+```{r capabilities, results="asis",echo=FALSE, message=FALSE}
+cc <- read.csv(system.file("capabilities.csv", package="broom.mixed"))
 if (require("pander")) {
     pander::pander(cc,split.tables=Inf)
 }

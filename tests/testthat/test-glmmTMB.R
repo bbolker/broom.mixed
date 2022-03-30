@@ -95,9 +95,8 @@ if (require(glmmTMB, quietly = TRUE)
           tidy(m1, conf.int=TRUE)[,c("estimate", "conf.low","conf.high")]))
       ## this test is not reliable ... not sure what else to test?
       ## expect_equal(unname(res), c(-0.196,0.196), tolerance=1e-4)
-      expect_equal(unname(glance(m1)[,c(1,3)]),
-                   unname(tibble(100L, 98L)))
+      expect_equal(unname(glance(m1)[,c("nobs","df.residual")]),
+                   unname(tibble::tibble(100L, 98L)))
   })
 
 } ## if require(glmmTMB)
-

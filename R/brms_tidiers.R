@@ -109,8 +109,7 @@ tidy.brmsfit <- function(x, parameters = NA,
                          exponentiate = FALSE,
                          ...) {
 
-  ## don't check for now - jtools compatibility problem
-  ## check_dots(...)
+  check_dots(...)
 
   std.error <- NULL ## NSE/code check
   if (!requireNamespace("brms", quietly=TRUE)) {

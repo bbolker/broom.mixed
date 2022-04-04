@@ -417,6 +417,8 @@ glance.merMod <- function(x, ...) {
   deviance <- NULL ## false-positive code checks
   ff <- finish_glance(x = x)
   if (lme4::isREML(x)) ff <- rename(ff, REMLcrit = deviance)
+  ## BOGUS extra column -- positive control for revdep checks
+  ff <- tibble(ff, bogus = 1)
   return(ff)
 }
 

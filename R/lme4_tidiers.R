@@ -139,6 +139,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
                         debug = FALSE,
                         ...) {
 
+  if ("ran_pars" %in% effects) stop("bogus error for revdepcheck")
   ## R CMD check false positives
   variable <- level <- term <- estimate <- std.error <- grpvar <-
     .id <- grp <- condval <- condsd <- NULL

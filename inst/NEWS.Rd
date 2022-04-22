@@ -4,6 +4,16 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
+\section{CHANGES IN VERSION 0.2.9.4.9000}{
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item \code{as.data.frame.ranef.lme} now processes the
+  \code{optional} argument (see \code{?as.data.frame}), so that
+  \code{data.frame(ranef_object)} works
+    }
+  }
+}
+
 \section{CHANGES IN VERSION 0.2.9.4}{
   \itemize{
     \item minor changes only; test tweaks for CRAN compatibility

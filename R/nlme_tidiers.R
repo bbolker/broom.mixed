@@ -315,6 +315,10 @@ augment.lme <- function(x, data = x$data, newdata, ...) {
 #' @export
 as.data.frame.ranef.lme <- function(x, row.names, optional=TRUE,
                                     stringsAsFactors = FALSE, ...) {
+  where <- NULL
+  ## see https://github.com/r-lib/tidyselect/issues/201
+  ## this is better than utils::globalVariables() which is global ...
+
     group <- term <- level <- estimate <- NULL ## NSE arg checking
     if (!missing(row.names)) stop(sQuote("row.names"),
                                   "  argument not implemented")

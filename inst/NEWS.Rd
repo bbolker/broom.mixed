@@ -4,22 +4,22 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
-\section{CHANGES IN VERSION 0.2.9.4.9000}{
+\section{CHANGES IN VERSION 0.2.9.5}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item \code{as.data.frame.ranef.lme} now processes the
   \code{optional} argument (see \code{?as.data.frame}), so that
   \code{data.frame(ranef_object)} works
     }
-  }
+  } % user-visible changes
 }
 
-\section{CHANGES IN VERSION 0.2.9.4}{
+\section{CHANGES IN VERSION 0.2.9.4 (2022-03-28)}{
   \itemize{
     \item minor changes only; test tweaks for CRAN compatibility
   }
 }
-\section{CHANGES IN VERSION 0.2.9.3}{
+\section{CHANGES IN VERSION 0.2.9.3 (2021-07-07)}{
   \subsection{BUG FIXES}{
     \itemize{
       \item improved profile robustness in TMB tidiers

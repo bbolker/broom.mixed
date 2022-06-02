@@ -23,4 +23,4 @@ The mailing list has more people who know about using mixed models in R; CrossVa
 
 Please do **not** cross-post, i.e. ask the same question in more than one forum, unless it's suggested that you have posted in the wrong place, or unless you receive total silence in one forum. In the latter case it may be better to send a reminder/"bump" message to the original forum; in any case you should mention in your new message where/when you've previously asked the question.
 
-![](pix/Work-Lego-Males-Legomaennchen-Return-Workers-568039.jpg) (https://www.maxpixel.net)
+![](man/figures/Work-Lego-Males-Legomaennchen-Return-Workers-568039.jpg) (https://www.maxpixel.net)

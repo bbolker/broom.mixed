@@ -12,20 +12,24 @@
 #' @return All tidying methods return a \code{data.frame} without rownames. The
 #'   structure depends on the method chosen.
 #'
-#' @name mediate_tidiers
+#' @name mediation_tidiers
 #'
 #' @examples
 #' if (require("lme4") && require("mediation")) {
 #'     ## Borrowed from \code{help(mediation::mediate)}:
-#'     ## Varying intercept for mediator 
-#'     mod_m <- glmer(job_dich ~ treat + econ_hard + (1 | educ), 
-#'                    family = binomial(link = "probit"), data = jobs)
-#'     ## Varying intercept and slope for outcome
-#'     mod_y <- glmer(work1 ~ treat + job_dich + econ_hard + (1 + treat | occp),
-#'                    family = binomial(link = "probit"), data = jobs)
-#'     ## Output based on mediator group ("educ")
-#'     mod_med <- mediate(mod_m, mod_y, treat = "treat", 
-#'                        mediator = "job_dich", sims=50, group.out="educ")
+#'     \dontrun{
+#'         ## Varying intercept for mediator 
+#'         mod_m <- glmer(job_dich ~ treat + econ_hard + (1 | educ), 
+#'                        family = binomial(link = "probit"), data = jobs)
+#'         ## Varying intercept and slope for outcome
+#'         mod_y <- glmer(work1 ~ treat + job_dich + econ_hard + (1 + treat | occp),
+#'                        family = binomial(link = "probit"), data = jobs)
+#'         ## Output based on mediator group ("educ")
+#'         mod_med <- mediate(mod_m, mod_y, treat = "treat", 
+#'                            mediator = "job_dich", sims=50, group.out="educ")
+#'     }
+#'     ## Load stored objects
+#'     load(system.file("extdata", "mediation_example.rda", package="broom.mixed"))
 #'     ## Tidy outputs
 #'     tidy(mod_m)
 #'     tidy(mod_y)
@@ -33,7 +37,7 @@
 #' }
 NULL
 
-#' @rdname mediate_tidiers
+#' @rdname mediation_tidiers
 #'
 #' @param conf.int whether to include a confidence interval
 #' @param conf.level confidence level for CI

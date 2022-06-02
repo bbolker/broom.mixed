@@ -3,11 +3,6 @@ stopifnot(require("testthat"), require("broom.mixed"))
 ## test tidy method from mediation_tidiers.R
 
 if (require(lme4, quietly = TRUE) && require(mediation, quietly = TRUE)) {
-  load(system.file("extdata", "mediation_example.rda",
-                   package = "broom.mixed",
-                   mustWork = TRUE
-  ))
-  
   context("mediation models")
   
   d <- CO2

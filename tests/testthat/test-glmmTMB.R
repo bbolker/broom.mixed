@@ -100,7 +100,7 @@ if (require(glmmTMB, quietly = TRUE)
   })
 
   test_that("confint with multiple REs", {
-      if (requireNamespace("lme4")) {
+      if (packageVersion("glmmTMB") > "1.1.3" && requireNamespace("lme4")) {
           dd <- expand.grid(r = 1:10, a = factor(1:2), b = factor(1:3),
                             f = factor(1:5), g = factor(1:6))
         dd$y <- simulate(

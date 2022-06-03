@@ -1,7 +1,7 @@
 Package: broom.mixed
 Type: Package
 Title: Tidying Methods for Mixed Models
-Version: 0.2.8
+Version: 0.2.9.5
 Authors@R: c(
     person("Ben", "Bolker", email = "bolker@mcmaster.ca",
         role = c("aut", "cre"),
@@ -41,12 +41,14 @@ Imports:
     broom,
     coda,
     dplyr,
+    forcats,
     methods,
     nlme,
     purrr,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    furrr
 Suggests:
     brms,
     dotwhisker,
@@ -62,6 +64,7 @@ Suggests:
     lme4,
     Matrix,
     MCMCglmm,
+    mediation,
     mgcv,
     pander,
     pbkrtest,
@@ -77,4 +80,3 @@ License: GPL-3
 Encoding: UTF-8
 Additional_repositories: http://bbolker.github.io/drat
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1

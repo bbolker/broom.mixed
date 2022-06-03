@@ -2,6 +2,8 @@
 % Please edit documentation in R/lme4_tidiers.R
 \name{lme4_tidiers}
 \alias{lme4_tidiers}
+\alias{glance.allFit}
+\alias{tidy.allFit}
 \alias{tidy.merMod}
 \alias{tidy.rlmerMod}
 \alias{augment.merMod}
@@ -112,8 +114,9 @@ are values from the response object within the model (of type
   \item{deviance}{deviance}
 }
 \description{
-These methods tidy the coefficients of mixed effects models, particularly
-responses of the \code{merMod} class
+These methods tidy the coefficients of \code{lme4::lmer} and \code{lme4::glmer}
+models (i.e., \code{merMod} objects). Methods are also provided for \code{allFit}
+objects.
 }
 \details{
 When the modeling was performed with \code{na.action = "na.omit"}

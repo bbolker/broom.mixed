@@ -11,4 +11,10 @@ misc/*
 (^|/)\.+.*
 run_examples
 revdep/
+revdep
 ^\.github$
+pix/
+
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

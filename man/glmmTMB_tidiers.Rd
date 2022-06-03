@@ -99,14 +99,27 @@ zero-inflation parameters (including the intercept) are reported
 on the logit scale
 }
 \examples{
-if (require("glmmTMB") && require("lme4")) {
+if (require("glmmTMB") && require("lme4")
+    ## &&
+    ## make sure package versions are OK
+    ## checkDepPackageVersion(dep_pkg = "TMB",
+    ##                       this_pkg = "glmmTMB",
+    ##                        warn = FALSE) &&
+    ## checkDepPackageVersion(dep_pkg = "Matrix",
+    ##                       this_pkg = "TMB",
+    ##                      warn = FALSE)
+)
+{
     data("sleepstudy",package="lme4")
     ## original model:
     \dontrun{
         lmm1 <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
     }
     ## load stored object
-    load(system.file("extdata","glmmTMB_example.rda",package="broom.mixed"))
+    L <- load(system.file("extdata","glmmTMB_example.rda",package="broom.mixed"))
+    for (obj in L) {
+       assign(obj, glmmTMB::up2date(get(obj)))
+    }
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, effects = "fixed", conf.int=TRUE)

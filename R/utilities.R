@@ -1,7 +1,6 @@
 ## most of these are unexported (small) functions from broom;
 ## could be removed if these were exported
 
-
 #' check if a package is available and return informative message otherwise
 #'
 #' @keywords internal
@@ -104,7 +103,7 @@ cifun <- function(x, method="Wald", ddf.method=NULL, level=0.95, ...) {
          %>% transmute(conf.low=Estimate-mult*`Std. Error`,
                        conf.high=Estimate+mult*`Std. Error`)
      )
-  }  else {  
+  }  else {
       r <- as.data.frame(confint(x, method=method, level=level, ...))
   }
   r <- (r
@@ -290,7 +289,7 @@ rename_cols <- function(x,
 }
 
 has_rownames <- function(df) {
-  return (!tibble::is_tibble(df) && 
+  return (!tibble::is_tibble(df) &&
           any(rownames(df) != as.character(seq(nrow(df)))))
 }
 
@@ -299,7 +298,7 @@ has_rownames <- function(df) {
 fix_data_frame <- function(df, newnames=NULL, newcol="term") {
     rn <- rownames(df) ## grab rownames *before* df conversion
     ## must happen **AFTER** saving rownames
-    df <- as_tibble(df, .name_repair="minimal") 
+    df <- as_tibble(df, .name_repair="minimal")
     if (!is.null(newnames)) df <- setNames(df,newnames)
     ## add rownames as term **if necessary**
     if (!("term" %in% newnames) &&
@@ -311,3 +310,80 @@ fix_data_frame <- function(df, newnames=NULL, newcol="term") {
     return(df)
 }
 
+##' Retrieve all method/class combinations currently provided by the broom.mixed package
+##' @examples print(get_methods(), n = Inf)
+##' @importFrom tidyr complete pivot_wider separate
+##' @export
+get_methods <- function() {
+  fun <- method <- provided <- NULL ## NSE code check
+  ## TO DO: include associated package? not necessarily easy to find
+  ## the package associated with a class ... (can look for print method
+    ## with getAnywhere(), but would need package loaded ...)
+  fun <- method <- provided <- NULL ## NSE/code checking false positive
+  res <- (tibble(fun = ls(getNamespace("broom.mixed")))
+    %>% filter(grepl("^(tidy|glance|augment)\\.", fun))
+    %>% separate(fun, into = c("method", "class"), sep = "\\.", extra = "merge")
+    %>% mutate(provided = TRUE)
+    %>% complete(method, class, fill = list(provided = FALSE))
+    %>% pivot_wider(names_from = method, values_from = provided)
+    ## reorder
+    %>% dplyr::select(class, tidy, glance, augment)
+  )
+  class(res) <- c("show_methods", class(res))
+  return(res)
+}
+
+## action: message, warning, stop
+## copied from glmmTMB (use ellipsis::check_dots_used() instead?)
+check_dots <- function(..., .ignore = NULL, .action="stop") {
+    L <- list(...)
+    if (length(.ignore)>0) {
+        L <- L[!names(L) %in% .ignore]
+    }
+    if (length(L)>0) {
+        FUN <- get(.action)
+        FUN("unknown arguments: ",
+            paste(names(L), collapse=", "))
+    }
+    return(NULL)
+}
+
+## copied from glmmTMB
+## don't need to export
+# Check for version mismatch in dependent binary packages
+# @param dep_pkg upstream package
+# @param this_pkg downstream package
+# @param write_file (logical) write version file and quit?
+# @param warn give warning?
+# @return logical: TRUE if the binary versions match
+#' @importFrom utils packageVersion
+checkDepPackageVersion <- function(dep_pkg = "TMB",
+                                   this_pkg = "glmmTMB",
+                                   write_file = FALSE,
+                                   warn = TRUE) {
+    cur_dep_version <- as.character(packageVersion(dep_pkg))
+    fn <- sprintf("%s-version", dep_pkg)
+    if (write_file) {
+        cat(sprintf("current %s version=%s: writing file\n", dep_pkg, cur_dep_version))
+        writeLines(cur_dep_version, con = fn)
+        return(cur_dep_version)
+    }
+    fn <- system.file(fn, package=this_pkg)
+    built_dep_version <- scan(file=fn, what=character(), quiet=TRUE)
+    result_ok <- identical(built_dep_version, cur_dep_version)
+    if(warn && !result_ok) {
+        warning(
+            "Package version inconsistency detected.\n",
+            sprintf("%s was built with %s version %s",
+                    this_pkg, dep_pkg, built_dep_version),
+            "\n",
+            sprintf("Current %s version is %s",
+                    dep_pkg, cur_dep_version),
+            "\n",
+            sprintf("Please re-install %s from source ", this_pkg),
+            "or restore original ",
+            sQuote(dep_pkg), " package (see '?reinstalling' for more information)"
+        )
+    }
+    return(result_ok)
+}

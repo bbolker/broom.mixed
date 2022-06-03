@@ -311,20 +311,33 @@ augment.lme <- function(x, data = x$data, newdata, ...) {
 }
 
 
+#' @importFrom dplyr across mutate
 #' @export
-as.data.frame.ranef.lme <- function(x, row.names, optional, ...) {
+as.data.frame.ranef.lme <- function(x, row.names, optional=TRUE,
+                                    stringsAsFactors = FALSE, ...) {
+  where <- NULL
+  ## see https://github.com/r-lib/tidyselect/issues/201
+  ## this is better than utils::globalVariables() which is global ...
+
     group <- term <- level <- estimate <- NULL ## NSE arg checking
     if (!missing(row.names)) stop(sQuote("row.names"),
                                   "  argument not implemented")
-    if (!missing(optional)) stop(sQuote("optional"),
-                                 " argument not implemented")
     if (length(list(...)>0)) warning("additional arguments ignored")
-    melt <- function(x) purrr::map_dfr(as.list(x), ~tibble(level = rownames(x), estimate = .), .id = "term")
+    ## see ?as.data.frame: optional==FALSE corresponds to check.names==TRUE
+    ## "check_unique" is the tibble default, "universal" behaves like
+    ##  check.names == TRUE
+    name_repair <- if (optional) "check_unique" else "universal"
+    melt <- function(x) purrr::map_dfr(as.list(x),
+                 ~tibble(level = rownames(x), estimate = .), .id = "term")
     grps <- attr(x, "grpNames")
     if (length(grps)==1) x <- list(x)
     mm <- purrr::map(x, melt)
-    purrr::map2_dfr(.x = mm, .y = grps, ~mutate(.x, group = .y)) %>%
-        dplyr::select(group, term, level, estimate)
+    res <- purrr::map2_dfr(.x = mm, .y = grps, ~mutate(.x, group = .y)) %>%
+      dplyr::select(group, term, level, estimate)
+    if (stringsAsFactors) {
+      res <- res %>% dplyr::mutate(across(where(is.character), as.factor))
+    }
+    return(res)
 }
 
 #' @rdname nlme_tidiers
@@ -405,7 +418,7 @@ augment.gls <- function(x, data = nlme::getData(x), newdata, ...) {
 # varFunc tidiers ####
 
 #' Tidy variance structure for the \code{nlme} package.
-#' 
+#'
 #' Returns a tibble with the following columns:
 #' \itemize{
 #' \item{group}{type of varFunc, along with the right hand side of the formula
@@ -434,7 +447,7 @@ augment.gls <- function(x, data = nlme::getData(x), newdata, ...) {
 #'     median(as.integer(ChickWeight_arbitrary_group$Chick))
 #'   )
 #' ChickWeight_arbitrary_group$group_arb <- c("low", "high")[ChickWeight_arbitrary_group$group_arb_n]
-#' 
+#'
 #' fit_with_fixed <-
 #'   lme(
 #'     weight ~ Diet * Time,
@@ -456,7 +469,7 @@ tidy.varFunc <- function(x, ...) {
   aux <- coef(x, unconstrained = FALSE, allCoef = TRUE)
   if (length(aux) == 0) {
     warning(
-      "Variance function structure of class", class(x)[1], 
+      "Variance function structure of class", class(x)[1],
       "with no parameters, or uninitialized"
     )
     return(tibble::tibble())

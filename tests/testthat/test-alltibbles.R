@@ -22,7 +22,7 @@ skip_files <- c("efc.rds")
 
   data("sleepstudy", package = "lme4")
   data("Salamanders", package = "glmmTMB")
-  efc <- readRDS(system.file("extdata","efc.rds",package="broom.mixed"))
+  efc <- readRDS(system.file("extdata", "efc.rds", package="broom.mixed"))
   ex <- list.files(system.file("extdata", package = "broom.mixed"),
                    pattern = "\\.rd"
                    )
@@ -34,7 +34,7 @@ skip_files <- c("efc.rds")
 for (e in ex) {
     p <- stringr::str_extract(e, "^[^_]+")
     ## cat(": ",p,"\n")
-    if (require(p,character.only=TRUE)) {
+    if (require(p, quietly = TRUE, character.only=TRUE)) {
         f <- system.file("extdata", e, package = "broom.mixed")
         fn <- stringr::str_extract(f, "[^/]+$")
         if (verbose) cat(fn, "\n")
@@ -45,6 +45,9 @@ for (e in ex) {
             ## rda file
             L <- load(f)
             x <- mget(setdiff(L, skip_objects[[fn]]))
+            if (p == "glmmTMB") {
+               x <- lapply(x, glmmTMB::up2date)
+            }
         }
         for (z in x) {
             testf <- function(fn_str, obj) {

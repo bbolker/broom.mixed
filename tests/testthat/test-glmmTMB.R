@@ -2,11 +2,23 @@ stopifnot(require("testthat"), require("broom.mixed"))
 context("glmmTMB models")
 ## source("helper-checkers.R") ## done automatically in test workflow
 
-if (require(glmmTMB, quietly = TRUE)) {
-  load(system.file("extdata", "glmmTMB_example.rda",
+if (require(glmmTMB, quietly = TRUE)
+    ## do we need all this?
+    ## &&
+    ## checkDepPackageVersion(dep_pkg = "TMB",
+    ##                        this_pkg = "glmmTMB",
+    ##                        warn = FALSE) &&
+    ## checkDepPackageVersion(dep_pkg = "Matrix",
+    ##                        this_pkg = "TMB",
+    ##                        warn = FALSE)
+    ) {
+  L <- load(system.file("extdata", "glmmTMB_example.rda",
     package = "broom.mixed",
     mustWork = TRUE
-  ))
+    ))
+  for (obj in L) {
+    assign(obj, glmmTMB::up2date(get(obj)))
+  }
 
   test_that("components included for zi models", {
     td <- tidy(zipm3)
@@ -83,9 +95,31 @@ if (require(glmmTMB, quietly = TRUE)) {
           tidy(m1, conf.int=TRUE)[,c("estimate", "conf.low","conf.high")]))
       ## this test is not reliable ... not sure what else to test?
       ## expect_equal(unname(res), c(-0.196,0.196), tolerance=1e-4)
-      expect_equal(unname(glance(m1)[,c(1,3)]),
-                   unname(tibble(100L, 98L)))
+      expect_equal(unname(glance(m1)[,c("nobs","df.residual")]),
+                   unname(tibble::tibble(100L, 98L)))
   })
 
-} ## if require(glmmTMB)
+  test_that("confint with multiple REs", {
+      if (requireNamespace("lme4")) {
+          dd <- expand.grid(r = 1:10, a = factor(1:2), b = factor(1:3),
+                            f = factor(1:5), g = factor(1:6))
+        dd$y <- simulate(
+            seed = 101,
+            ~ 1 + (a|f) + (b|g),
+            newdata = dd,
+            newparams = list(beta = 1,
+                             theta = rep(1,9),
+                             sigma = 1),
+            family = gaussian)[[1]]
+          res <- glmmTMB(y~ 1 + (a+0|f) + (b+0|g), data = dd)
+          td <- tidy(res, conf.int = TRUE)
+          check_tidy(
+              td, 11, 10,
+              c("effect", "component", "group", "term", "estimate", "std.error", 
+                "statistic", "p.value", "conf.low", "conf.high"))
+          } ## require lme4 (for simulate)
+  }
+  )
 
+
+} ## if require(glmmTMB)

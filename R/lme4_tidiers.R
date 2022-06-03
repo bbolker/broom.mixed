@@ -1,8 +1,11 @@
 #' Tidying methods for mixed effects models
 #'
-#' These methods tidy the coefficients of mixed effects models, particularly
-#' responses of the \code{merMod} class
+#' These methods tidy the coefficients of \code{lme4::lmer} and \code{lme4::glmer}
+#' models (i.e., \code{merMod} objects). Methods are also provided for \code{allFit}
+#' objects.
 #'
+#' @aliases glance.allFit
+#' @aliases tidy.allFit
 #' @param x An object of class \code{merMod}, such as those from \code{lmer},
 #' \code{glmer}, or \code{nlmer}
 #' @param ... Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})
@@ -179,7 +182,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
       ret <- stats::coef(ss) %>%
           data.frame(check.names = FALSE) %>%
           rename_regex_match()
-      
+
     if (debug) {
       cat("output from coef(summary(x)):\n")
       print(coef(ss))
@@ -210,12 +213,11 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     if (exponentiate) {
       vv <- intersect(c("estimate", "conf.low", "conf.high"), names(ret))
       ret <- (ret
-      %>%
-        mutate_at(vars(vv), ~exp(.))
-        %>%
-        mutate(std.error = std.error * estimate)
+        %>% mutate_at(vars(vv), ~exp(.))
+        %>% mutate(across(std.error, ~ . * estimate))
       )
     }
+
 
     ret_list$fixed <- reorder_frame(ret)
   }
@@ -275,7 +277,7 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     )
 
     ## these are in 'lower.tri' order, need to make sure this
-    ## is matched in as.data.frame() below 
+    ## is matched in as.data.frame() below
     if (conf.int) {
         ciran <- cifun(p, parm = "theta_", method = conf.method, level = conf.level, ...)
         ret <- data.frame(ret, ciran, stringsAsFactors = FALSE)
@@ -399,7 +401,7 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
   ## remove too-long fields and empty fields
   n_vals <- vapply(cols,length,1L)
   min_n <- min(n_vals[n_vals>0])
-  
+
   cols <- dplyr::bind_cols(cols[n_vals==min_n])
 
   cols <- insert_NAs(cols, ret)
@@ -495,7 +497,7 @@ augment.ranef.mer <- function(x,
     cols <- 1:(dim(pv)[1])
     se <- unlist(lapply(cols, function(i) sqrt(pv[i, i, ])))
     ## n.b.: depends on explicit column-major ordering of se/melt
-    zzz <- zz %>% 
+    zzz <- zz %>%
            tidyr::pivot_longer(-level, values_to = "estimate", names_to = "variable") %>%
            dplyr::arrange(variable, level)
     zzz <- cbind(zzz, qq = qq, std.error = se)
@@ -537,7 +539,7 @@ tidy.lmList4 <- function(x, conf.int = FALSE,
                          conf.level = 0.95, ...) {
 
     cols <- estimate <- std.error <- NULL ## R CMD check false positives
-    
+
     ss <- summary(x)$coefficients
     names(dimnames(ss)) <- c("group","cols","terms")
 
@@ -564,4 +566,25 @@ tidy.lmList4 <- function(x, conf.int = FALSE,
         ## don't think reorder_cols is necessary ...?
     }
     return(ret)
+}
+
+#' @export
+tidy.allFit <- function(x, ...) {
+  bad <- purrr::map_lgl(x, is, "error")
+  purrr::map_dfr(x[!bad], tidy, ..., .id = "optimizer")
+}
+
+##' @importFrom purrr possibly
+##' @export
+glance.allFit <- function(x, ...) {
+  bad <- purrr::map_lgl(x, is, "error")
+  if (all(bad)) stop("all models bad")
+  ## find first non-bad and fill with NA values
+  dummy <- glance(x[!bad][[1]]) %>% mutate(across(everything(), ~ NA))
+  res <- (purrr::map_dfr(x, purrr::possibly(glance, ..., otherwise = dummy),
+                         .id = "optimizer")
+    ## compute relative negative log-likelihood
+    %>% mutate(NLL_rel = ifelse(is.na(logLik), Inf, max(logLik, na.rm=TRUE) - logLik))
+  )
+  return(res)
 }

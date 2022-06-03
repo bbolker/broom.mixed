@@ -4,20 +4,46 @@
 \title{broom.mixed News}
 \encoding{UTF-8}
 
-\section{CHANGES IN VERSION 0.2.8}{
+\section{CHANGES IN VERSION 0.2.9.5}{
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item \code{as.data.frame.ranef.lme} now processes the
+  \code{optional} argument (see \code{?as.data.frame}), so that
+  \code{data.frame(ranef_object)} works
+    }
+  } % user-visible changes
+}
+
+\section{CHANGES IN VERSION 0.2.9.4 (2022-03-28)}{
+  \itemize{
+    \item minor changes only; test tweaks for CRAN compatibility
+  }
+}
+\section{CHANGES IN VERSION 0.2.9.3 (2021-07-07)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item improved profile robustness in TMB tidiers
+    }
+  } % bug fixes
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{lme} tidier gets functionality for information about
       variance models (use \code{effects = "var_model"}) (Bill Denney)
-      \item support for models with fixed sigma values in \code{lme} tidier (Bill Denney)
+      \item support for models with fixed sigma values in \code{lme}
+      tidier (Bill Denney)
+      \item added \code{tidy} and \code{glance} methods for
+      \code{allFit} objects from the \code{lme4} package
+      \item \code{get_methods()} function returns a table of all
+      available tidy/glance/augment methods
     }
-  }
+  } % new features
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item improved \code{lme} tidying for random effects values
       \item \code{brms} tidiers no longer use deprecated
       \code{posterior_samples}
       \item {glance.lme4} now returns \code{nobs} (Cory Brunson)
+      \item some tidiers are less permissive about unused arguments passed via \code{...}
     }
   } % user-visible changes
 } % version 0.2.8

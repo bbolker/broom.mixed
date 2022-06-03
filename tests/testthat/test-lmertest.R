@@ -2,7 +2,7 @@ stopifnot(require("testthat"), require("broom.mixed"))
 ## test lmerTest
 
 if (require(lmerTest, quietly = TRUE)) {
-  test_that("testing lmerTest p-values behind Douglas Bates' back", {
+  test_that("testing lmerTest p-values", {
     lmm1 <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
     td <- tidy(lmm1, "fixed")
     expect_equal(td$df, c(17, 17), tolerance=1e-3)
@@ -18,7 +18,7 @@ if (require(lmerTest, quietly = TRUE)) {
         td_kr <- tidy(lmm1, "fixed", ddf.method="Kenward-Roger")
         expect_equal(td_kr$df, c(17,17), tol=1e-4)
     }
-    
+
     td_nodf <- tidy(lmm1, "fixed", ddf.method="lme4")
     check_tidy(td_nodf, 2, 5, c("effect", "term", "std.error", "statistic"))
   })

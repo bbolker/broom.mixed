@@ -1,5 +1,6 @@
 library(broom.mixed)
-if (require("testthat") && require("gamlss") && require("gamlss.data")) {
+if (require("testthat") && require("gamlss", quietly = TRUE) &&
+    require("gamlss.data", quietly = TRUE)) {
     data(abdom, package="gamlss.data")
     gamlss1 <- gamlss(
         y ~ pb(x),

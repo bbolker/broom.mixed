@@ -16,6 +16,7 @@
   conf.level = 0.95,
   conf.method = c("quantile", "HPDinterval"),
   fix.intercept = TRUE,
+  exponentiate = FALSE,
   ...
 )
 
@@ -53,6 +54,8 @@ Only used if \code{conf.int = TRUE}.}
 
 \item{fix.intercept}{rename "Intercept" parameter to "(Intercept)", to match
 behaviour of other model types?}
+
+\item{exponentiate}{whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale}
 
 \item{...}{Extra arguments, not used}
 
@@ -105,7 +108,7 @@ in previous versions of the package), while technically inappropriate in
 a Bayesian setting where "fixed" and "random" effects are not well-defined,
 are used for compatibility with other (frequentist) mixed model types.
 
-At present, the components of parameter estimates are separated by parsing the column names of \code{posterior_samples} (e.g. \code{r_patient[1,Intercept]} for the random effect on the intercept for patient 1, or \code{b_Trt1} for the fixed effect \code{Trt1}. We try to detect underscores in parameter names and warn, but detection may be imperfect.
+At present, the components of parameter estimates are separated by parsing the column names of \code{as_draws} (e.g. \code{r_patient[1,Intercept]} for the random effect on the intercept for patient 1, or \code{b_Trt1} for the fixed effect \code{Trt1}. We try to detect underscores in parameter names and warn, but detection may be imperfect.
 }
 \examples{
  ## original model

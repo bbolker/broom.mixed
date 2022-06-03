@@ -34,7 +34,7 @@ skip_files <- c("efc.rds")
 for (e in ex) {
     p <- stringr::str_extract(e, "^[^_]+")
     ## cat(": ",p,"\n")
-    if (require(p, character.only=TRUE)) {
+    if (require(p, quietly = TRUE, character.only=TRUE)) {
         f <- system.file("extdata", e, package = "broom.mixed")
         fn <- stringr::str_extract(f, "[^/]+$")
         if (verbose) cat(fn, "\n")

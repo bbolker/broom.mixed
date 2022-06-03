@@ -99,4 +99,27 @@ if (require(glmmTMB, quietly = TRUE)
                    unname(tibble::tibble(100L, 98L)))
   })
 
+  test_that("confint with multiple REs", {
+      if (requireNamespace("lme4")) {
+          dd <- expand.grid(r = 1:10, a = factor(1:2), b = factor(1:3),
+                            f = factor(1:5), g = factor(1:6))
+        dd$y <- simulate(
+            seed = 101,
+            ~ 1 + (a|f) + (b|g),
+            newdata = dd,
+            newparams = list(beta = 1,
+                             theta = rep(1,9),
+                             sigma = 1),
+            family = gaussian)[[1]]
+          res <- glmmTMB(y~ 1 + (a+0|f) + (b+0|g), data = dd)
+          td <- tidy(res, conf.int = TRUE)
+          check_tidy(
+              td, 11, 10,
+              c("effect", "component", "group", "term", "estimate", "std.error", 
+                "statistic", "p.value", "conf.low", "conf.high"))
+          } ## require lme4 (for simulate)
+  }
+  )
+
+
 } ## if require(glmmTMB)

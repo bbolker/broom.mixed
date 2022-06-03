@@ -219,6 +219,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
     ## DRY! refactor glmmTMB/lme4 tidiers
 
     ## don't try to assign as rowname (non-unique anyway),
+    ## FIXME - now unique: use more directly?
     ## make it directly into a term column
     if (nrow(ret)>0) {
         ret[["term"]] <- apply(ret[c("var1", "var2")], 1,
@@ -246,16 +247,24 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
         if (utils::packageVersion("glmmTMB")<="0.2.2.0") {
              thpar <- which(names(x$obj$par)=="theta")
         }
-        ciran <- (confint(x,
+        ciran_t <- confint(x,
                           ## for next glmmTMB (> 0.2.3) can be "theta_",
                           parm = thpar,
                           method = conf.method,
                           level = conf.level,
                           estimate = FALSE,
                           ...
-      )
-      %>% as_tibble()
-      %>% setNames(c("conf.low", "conf.high"))
+                          )
+        ciran_s <- confint(x,
+                          parm = "sigma",
+                          method = conf.method,
+                          level = conf.level,
+                          estimate = FALSE,
+                          ...
+                          )
+      ciran <-  (rbind(ciran_t, ciran_s)
+          %>% as_tibble()
+          %>% setNames(c("conf.low", "conf.high"))
       )
       ret <- bind_cols(ret, ciran)
     }

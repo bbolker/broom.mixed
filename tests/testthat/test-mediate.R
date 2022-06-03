@@ -5,6 +5,10 @@ stopifnot(require("testthat"), require("broom.mixed"))
 if (require(lme4, quietly = TRUE) && require(mediation, quietly = TRUE)) {
   context("mediation models")
   
+  if ("lmerTest" %in% (.packages())) {
+    detach("package:lmerTest", unload = TRUE, character.only = TRUE)
+  }
+  
   d <- CO2
   colnames(d) <- c("id", "loc", "tx", "x", "y")
   d$tx <- as.integer(d$tx) - 1L

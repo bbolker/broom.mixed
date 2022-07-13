@@ -273,6 +273,8 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
           %>% as_tibble()
           %>% setNames(c("conf.low", "conf.high"))
       )
+      ## HACK: make sure that sigma is/is not included consistently??
+      ciran <- ciran[1:nrow(ret),]
       ret <- bind_cols(ret, ciran)
     }
     ret_list$ran_pars <- ret

@@ -174,7 +174,7 @@ context("lme4 models")
     td3 <- tidy(lmm0, conf.int = TRUE, conf.method = "Wald", effects = "fixed")
     expect_equal(td3$term, c("(Intercept)", "Days"))
   })
-}
+
 
 test_that("tidy respects conf.level", {
      tmpf <- function(cl=0.95) {
@@ -212,3 +212,4 @@ test_that("conf intervals for ranef in correct order", {
     cor_vals <- t1[t1$term=="cor__(Intercept).Days",]
     expect_true(cor_vals$conf.low>(-1) && cor_vals$conf.high<1)
 })
+}

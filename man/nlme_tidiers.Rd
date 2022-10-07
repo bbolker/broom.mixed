@@ -115,6 +115,7 @@ if (require("nlme") && require("lme4")) {
     tidy(lmm1)
     tidy(lmm1, effects = "fixed")
     tidy(lmm1, conf.int = TRUE)
+    tidy(lmm1, conf.int = TRUE, conf.level = 0.8)
     tidy(lmm1, effects = "ran_pars")
     tidy(lmm1, effects = "ran_vals")
     tidy(lmm1, effects = "ran_coefs")

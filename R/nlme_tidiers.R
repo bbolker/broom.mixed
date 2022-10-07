@@ -26,6 +26,7 @@
 #'     tidy(lmm1)
 #'     tidy(lmm1, effects = "fixed")
 #'     tidy(lmm1, conf.int = TRUE)
+#'     tidy(lmm1, conf.int = TRUE, conf.level = 0.8)
 #'     tidy(lmm1, effects = "ran_pars")
 #'     tidy(lmm1, effects = "ran_vals")
 #'     tidy(lmm1, effects = "ran_coefs")
@@ -117,7 +118,7 @@ tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
       rename_regex_match() %>%
       tibblify("term")
     if (conf.int) {
-      cifix <- intervals(x, which = "fixed")[["fixed"]] %>%
+      cifix <- intervals(x, level = conf.level, which = "fixed")[["fixed"]] %>%
         data.frame() %>%
         dplyr::select(lower, upper) %>%
         setNames(c("conf.low", "conf.high")) %>%
@@ -202,7 +203,7 @@ tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
       )
 
       if (conf.int) {
-        ii <- intervals(x, which = "var-cov")$reStruct
+        ii <- intervals(x, level = conf.level, which = "var-cov")$reStruct
         trfun <- function(z) {
           nm <- rownames(z)
           nm <- sub(

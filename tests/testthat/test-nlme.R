@@ -21,6 +21,26 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
         "std.error", "df", "statistic", "p.value"
       )
     )
+    td_ci <- tidy(fit, conf.int = TRUE)
+    expect_equal(
+      names(td_ci),
+      c(
+          "effect", "group", "term", "estimate",
+          "std.error", "df", "statistic", "p.value",
+          "conf.low", "conf.high"
+      )
+    )
+    expect_equal(nrow(td_ci), 12)
+    td_ci_95 <- tidy(fit, conf.int = TRUE, conf.level = 0.95)
+    td_ci_25 <- tidy(fit, conf.int = TRUE, conf.level = 0.25)
+    cols_ci <- c("conf.low", "conf.high")
+    cols_other <- names(td_ci_95)[!names(td_ci_95) %in% cols_ci]
+    expect_identical(td_ci_95[, cols_other], td_ci_25[, cols_other])
+    # FIXME: remove [1:11] subsetting in the two lines below once conf.int for
+    # ran_pars Residual is implemented (see "FIXME: also do confint on
+    # residual" in source file R/nlme_tidiers.R).
+    expect_true(all(td_ci_95[["conf.low"]][1:11] < td_ci_25[["conf.low"]][1:11]))
+    expect_true(all(td_ci_95[["conf.high"]][1:11] > td_ci_25[["conf.high"]][1:11]))
   })
 
   test_that("tidy works on non-linear fits", {
@@ -50,6 +70,22 @@ if (suppressPackageStartupMessages(require(nlme, quietly = TRUE))) {
           "std.error", "df", "statistic", "p.value"
       )
     )
+    td_ci <- tidy(fm1, "fixed", conf.int = TRUE)
+    expect_equal(
+      names(td_ci),
+      c(
+          "effect", "term", "estimate",
+          "std.error", "df", "statistic", "p.value",
+          "conf.low", "conf.high"
+      )
+    )
+    td_ci_95 <- tidy(fm1, "fixed", conf.int = TRUE, conf.level = 0.95)
+    td_ci_25 <- tidy(fm1, "fixed", conf.int = TRUE, conf.level = 0.25)
+    cols_ci <- c("conf.low", "conf.high")
+    cols_other <- names(td_ci_95)[!names(td_ci_95) %in% cols_ci]
+    expect_identical(td_ci_95[, cols_other], td_ci_25[, cols_other])
+    expect_true(all(td_ci_95[["conf.low"]] < td_ci_25[["conf.low"]]))
+    expect_true(all(td_ci_95[["conf.high"]] > td_ci_25[["conf.high"]]))
   })
 
   test_that("augment works on lme fits with or without data", {

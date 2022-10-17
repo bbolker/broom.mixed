@@ -232,6 +232,8 @@ tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
           ci$conf.low <- ci$conf.high <- NA
         }
         ## FIXME: also do confint on residual
+        ## (Once FIXED, also FIX the test "tidy works on nlme/lme fits" in test
+        ## file tests/testthat/test-nlme.R, see FIXME note in the test itself).
         ret <- dplyr::full_join(ret, ci, by = c("group", "term"))
       }
     } ## if not multi-level model

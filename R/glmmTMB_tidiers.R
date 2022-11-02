@@ -103,12 +103,17 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
                          exponentiate = FALSE,
                          ...) {
 
-    safe_confint <- function(...) {
+    safe_confint <- function(..., component = NULL) {
         args <- list(...)
         if (packageVersion("glmmTMB") >= "1.1.4") {
             args <- c(args, list(include_mapped = TRUE))
         }
-        do.call(confint, args)
+        res <- do.call(confint, args)
+        if (!is.null(component)) {
+            re <- sprintf("^(%s)", paste(component, collapse = "|"))
+            res <- res[grepl(re, rownames(res)),]
+        }
+        return(res)
     }
     ## FIXME:  cleanup
     ##   - avoid (as.)data.frame
@@ -260,7 +265,8 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
                           method = conf.method,
                           level = conf.level,
                           estimate = FALSE,
-                          ...
+                          ...,
+                          component = component
                           )
         ciran_s <- safe_confint(x,
                           parm = "sigma",

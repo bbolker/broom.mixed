@@ -120,6 +120,18 @@ if (require(glmmTMB, quietly = TRUE)
           } ## require lme4 (for simulate)
   }
   )
-
-
+  if (requireNamespace("lme4")) {
+      ## GH #136
+      data("sleepstudy", package = "lme4")
+      ## FIXME: speed up by storing this?
+      ## warning because using bogus example
+      suppressWarnings(fm3ZIP <-
+                           glmmTMB(round(Reaction) ~ Days + (1|Subject), family=poisson,
+                                   ziformula=~(1|Subject),
+                                   data = sleepstudy))
+      t1 <- tidy(fm3ZIP, conf.int = TRUE, component = "cond", effect = "ran_pars")
+      t2 <- tidy(fm3ZIP, conf.int = TRUE, effect = "ran_pars")
+      expect_identical(nrow(t1), 1L)
+      expect_identical(nrow(t2), 2L)
+  } ## if requireNamespace("lme4")
 } ## if require(glmmTMB)

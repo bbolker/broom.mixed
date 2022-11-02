@@ -5,6 +5,15 @@
 \encoding{UTF-8}
 
 \section{CHANGES IN VERSION 0.2.9.5}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item bug fixed for \code{glmmTMB} tidying with
+      \code{conf.int=TRUE},
+      random effects in multiple model components,
+      subset of components requested in tidy output
+      (GH #136, Daniel Sjoberg)
+    }
+  }
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item \code{as.data.frame.ranef.lme} now processes the

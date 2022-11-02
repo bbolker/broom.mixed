@@ -103,14 +103,14 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
                          exponentiate = FALSE,
                          ...) {
 
-    safe_confint <- function(..., component = NULL) {
+    safe_confint <- function(..., s_component = NULL) {
         args <- list(...)
         if (packageVersion("glmmTMB") >= "1.1.4") {
             args <- c(args, list(include_mapped = TRUE))
         }
         res <- do.call(confint, args)
-        if (!is.null(component)) {
-            re <- sprintf("^(%s)", paste(component, collapse = "|"))
+        if (!is.null(s_component)) {
+            re <- sprintf("^(%s)", paste(s_component, collapse = "|"))
             res <- res[grepl(re, rownames(res)),]
         }
         return(res)
@@ -266,7 +266,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
                           level = conf.level,
                           estimate = FALSE,
                           ...,
-                          component = component
+                          s_component = component
                           )
         ciran_s <- safe_confint(x,
                           parm = "sigma",

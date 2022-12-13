@@ -2,7 +2,7 @@
 stopifnot(require("testthat"), require("broom.mixed"), require("broom"))
 
 if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
-  fit <<- readRDS(system.file("extdata", "rstanarm_example.rds", package = "broom.mixed"))
+  load(system.file("extdata", "rstanarm_example.rda", package = "broom.mixed"))
   ## fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
   ## iter = 200, chains = 2)
 
@@ -22,10 +22,13 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
   })
 
   test_that("conf.int works on rstanarm fits", {
-    td1 <- tidy(fit, conf.int = TRUE, prob = 0.8)
-    td2 <- tidy(fit, effects = "ran_vals", conf.int = TRUE, prob = 0.5)
+    td1 <- tidy(fit, conf.int = TRUE, conf.level = 0.8)
+    td2 <- tidy(fit, effects = "ran_vals", conf.int = TRUE, conf.level = 0.5)
+    td3 <- tidy(fit, conf.int = TRUE, conf.level = 0.95)
     nms <- c("level", "group", "term", "estimate", "std.error", "conf.low", "conf.high")
     expect_equal(colnames(td2), nms)
+    expect_true(all(td3$conf.low < td1$conf.low))
+    expect_true(all(td3$conf.high > td1$conf.high))
   })
 
   test_that("glance works on rstanarm fits", {
@@ -35,4 +38,14 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
     expect_equal(colnames(g1), c("algorithm", "pss", "nobs", "sigma"))
     expect_equal(colnames(g2), c(colnames(g1), "looic", "elpd_loo", "p_loo"))
   })
+
+  test_that("exponentiation", {
+      td1 <- tidy(fit2, conf.int = TRUE)
+      td1e <- tidy(fit2, conf.int = TRUE, exponentiate = TRUE)
+      expect_equal(td1e$estimate, exp(td1$estimate))
+      expect_equal(td1e$conf.low, exp(td1$conf.low))
+      expect_equal(td1e$conf.high, exp(td1$conf.high))
+      expect_equal(td1e$std.error, exp(td1$estimate)*td1$std.error)
+  })
+  
 } ## rstanarm available

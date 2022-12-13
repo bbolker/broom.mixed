@@ -12,6 +12,7 @@
   conf.int = FALSE,
   conf.level = 0.9,
   conf.method = c("quantile", "HPDinterval"),
+  exponentiate = FALSE,
   ...
 )
 
@@ -33,6 +34,8 @@ See the Value section for details.}
 
 \item{conf.method}{method for computing confidence intervals
 ("quantile" or "HPDinterval")}
+
+\item{exponentiate}{whether to exponentiate the fixed-effect coefficient estimates and confidence intervals (common for logistic regression); if \code{TRUE}, also scales the standard errors by the exponentiated coefficient, transforming them to the new scale}
 
 \item{...}{For \code{glance}, if \code{looic=TRUE}, optional arguments to
 \code{\link[rstan]{loo.stanfit}}.}
@@ -94,16 +97,28 @@ into a summary.
 
 if (require("rstanarm")) {
 \dontrun{
-#'     ## original model
-    fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
-                      iter = 300, chains = 2)
+#'     ## original models
+  fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
+                      iter = 500, chains = 2)
+  fit2 <- stan_glmer((mpg>20) ~ wt + (1 | cyl) + (1 + wt | gear),
+                    data = mtcars,
+                    family = binomial,
+                    iter = 500, chains = 2
   }
 ## load example data
-fit <- readRDS(system.file("extdata", "rstanarm_example.rds", package="broom.mixed"))
+  load(system.file("extdata", "rstanarm_example.rda", package="broom.mixed"))
 
   # non-varying ("population") parameters
-  tidy(fit, conf.int = TRUE, prob = 0.5)
-  tidy(fit, conf.int = TRUE, conf.method = "HPDinterval", prob = 0.5)
+  tidy(fit, conf.int = TRUE, conf.level = 0.5)
+  tidy(fit, conf.int = TRUE, conf.method = "HPDinterval", conf.level = 0.5)
+
+  #  exponentiating (in this case, from log-odds to odds ratios)
+  (tidy(fit2, conf.int = TRUE, conf.level = 0.5)
+          |> dplyr::filter(term != "(Intercept)")
+  )
+  (tidy(fit2, conf.int = TRUE, conf.level = 0.5, exponentiate = TRUE)
+          |> dplyr::filter(term != "(Intercept)")
+  )
 
   # hierarchical sd & correlation parameters
   tidy(fit, effects = "ran_pars")

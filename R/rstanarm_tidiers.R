@@ -17,17 +17,29 @@
 #'
 #' if (require("rstanarm")) {
 #' \dontrun{
-#' #'     ## original model
-#'     fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
-#'                       iter = 300, chains = 2)
+#' #'     ## original models
+#'   fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
+#'                       iter = 500, chains = 2)
+#'   fit2 <- stan_glmer((mpg>20) ~ wt + (1 | cyl) + (1 + wt | gear),
+#'                     data = mtcars,
+#'                     family = binomial,
+#'                     iter = 500, chains = 2
 #'   }
 #' ## load example data
-#' fit <- readRDS(system.file("extdata", "rstanarm_example.rds", package="broom.mixed"))
+#'   load(system.file("extdata", "rstanarm_example.rda", package="broom.mixed"))
 #'
 #'   # non-varying ("population") parameters
-#'   tidy(fit, conf.int = TRUE, prob = 0.5)
-#'   tidy(fit, conf.int = TRUE, conf.method = "HPDinterval", prob = 0.5)
+#'   tidy(fit, conf.int = TRUE, conf.level = 0.5)
+#'   tidy(fit, conf.int = TRUE, conf.method = "HPDinterval", conf.level = 0.5)
 #'
+#'   #  exponentiating (in this case, from log-odds to odds ratios)
+#'   (tidy(fit2, conf.int = TRUE, conf.level = 0.5)
+#'           |> dplyr::filter(term != "(Intercept)")
+#'   )
+#'   (tidy(fit2, conf.int = TRUE, conf.level = 0.5, exponentiate = TRUE)
+#'           |> dplyr::filter(term != "(Intercept)")
+#'   )
+#' 
 #'   # hierarchical sd & correlation parameters
 #'   tidy(fit, effects = "ran_pars")
 #'
@@ -80,8 +92,11 @@ tidy.stanreg <- function(x,
                          conf.int = FALSE,
                          conf.level = 0.9,
                          conf.method=c("quantile","HPDinterval"),
+                         exponentiate = FALSE,
                          ...) {
+    check_dots(...)
     conf.method <- match.arg(conf.method)
+    std.error <- estimate <- NULL ## fool code checker/NSE
     effects <-
         match.arg(effects,
                   several.ok = TRUE,
@@ -203,6 +218,13 @@ tidy.stanreg <- function(x,
         trm <- double_splitter(nms, " ", 1, "[", 2)
         vv <- data.frame(lev, grp, trm, vv)
         ret_list$ran_vals <- fix_data_frame(vv, newnames = nn, newcol="term")
+    }
+
+    if (exponentiate) {
+        ret_list$non_ran_vals <- (ret_list$non_ran_vals
+            %>% mutate(across(any_of(c("estimate", "conf.low", "conf.high")), exp))
+            %>% mutate(std.error = std.error * estimate)
+        )
     }
 
     return(dplyr::bind_rows(ret_list))

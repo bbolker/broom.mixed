@@ -5,6 +5,12 @@
 \encoding{UTF-8}
 
 \section{CHANGES IN VERSION 0.2.9.5}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{stanreg} tidier gains \code{exponentiate} argument
+      (wish of GH #122)
+    } % itemize
+  } % new features
   \subsection{BUG FIXES}{
     \itemize{
       \item bug fixed for \code{glmmTMB} tidying with
@@ -13,7 +19,7 @@
       subset of components requested in tidy output
       (GH #136, Daniel Sjoberg)
     }
-  }
+  } % bug fixes
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item \code{as.data.frame.ranef.lme} now processes the

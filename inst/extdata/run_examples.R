@@ -154,10 +154,17 @@ if (FALSE) {
 
 run_pkg("rstanarm", {
   fit <- stan_glmer(mpg ~ wt + (1 | cyl) + (1 + wt | gear),
-    data = mtcars,
-    iter = 100, chains = 2
-  )
-  save_file(hack_size(fit), pkg = pkg, type = "rds")
+                    data = mtcars,
+                    iter = 500, chains = 2
+                    )
+  fit2 <- stan_glmer((mpg>20) ~ wt + (1 | cyl) + (1 + wt | gear),
+                     data = mtcars,
+                     family = binomial,
+                     iter = 500, chains = 2
+                     )
+  fit <- hack_size(fit)
+  fit2 <- hack_size(fit2)
+  save_file("fit", "fit2", pkg = pkg, type = "rda")
 })
 
 

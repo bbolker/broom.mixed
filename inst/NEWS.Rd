@@ -25,6 +25,7 @@
       \item \code{as.data.frame.ranef.lme} now processes the
   \code{optional} argument (see \code{?as.data.frame}), so that
   \code{data.frame(ranef_object)} works
+  \item \code{stanreg} tidier now checks for spurious values in \code{...}
     }
   } % user-visible changes
 }

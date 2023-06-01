@@ -352,3 +352,204 @@ get_draws <- function(obj, vars) {
   ## need to unclass as_draws() to convince bind_rows to stick it together ...
   dplyr::bind_rows(unclass(brms::as_draws(obj, vars, regex = TRUE)))
 }
+
+
+tidy.brmsfit2 <- function(x, parameters = NA,
+                          effects = c("fixed", "ran_pars"),
+                          robust = FALSE, conf.int = TRUE,
+                          conf.level = 0.95,
+                          conf.method = c("quantile", "HPDinterval"),
+                          fix.intercept = TRUE,
+                          exponentiate = FALSE,
+                          ...) {
+
+  check_dots(...)
+
+  std.error <- NULL ## NSE/code check
+  if (!requireNamespace("brms", quietly=TRUE)) {
+      stop("can't tidy brms objects without brms installed")
+  }
+  xr <- brms::restructure(x)
+  has_ranef <- nrow(xr$ranef)>0
+  if (any(grepl("_", rownames(fixef(x)))) ||
+        (has_ranef && any(grepl("_", names(ranef(x)))))) {
+      warning("some parameter names contain underscores: term naming may be unreliable!")
+  }
+  use_effects <- anyNA(parameters)
+  conf.method <- match.arg(conf.method)
+  is.multiresp <- length(x$formula$forms)>1
+  ## make regular expression from a list of prefixes
+  mkRE <- function(x,LB=FALSE) {
+      pref <- "(^|_)"
+      if (LB) pref <- sprintf("(?<=%s)",pref)
+      sprintf("%s(%s)", pref, paste(unlist(x), collapse = "|"))
+  }
+  ## NOT USED:  could use this (or something like) to
+  ##  obviate need for gsub("_","",str_extract(...)) pattern ...
+  prefs_LB <- list(
+      fixed = "b_", ran_vals = "r_",
+      ## don't want to remove these pieces, so use look*behind*
+      ran_pars =   sprintf("(?<=(%s))", c("sd_", "cor_", "sigma")),
+      components = sprintf("(?<=%s)", c("zi_","disp_"))
+    )
+    prefs <- list(
+      fixed = "b_", ran_vals = "r_",
+      ## no lookahead (doesn't work with grep[l])
+      ran_pars = c("sd_", "cor_", "sigma"),
+      components = c("zi_", "disp_")
+    )
+    pref_RE <- mkRE(prefs[effects])
+  if (use_effects) {
+    ## prefixes distinguishing fixed, random effects
+
+    parameters <- pref_RE
+  }
+  samples <- get_draws(x, parameters)
+  if (is.null(samples)) {
+    stop("No parameter name matches the specified pattern.",
+      call. = FALSE
+    )
+  }
+  terms <- names(samples)
+  if (use_effects) {
+      if (is.multiresp) {
+        if ("ran_pars" %in% effects && any(grepl("^sd",terms))) {
+           warning("ran_pars response/group tidying for multi-response models is currently incorrect")
+        }
+        ## FIXME: unfinished attempt to fix GH #39
+        ## extract response component from terms
+        ## resp0 <- strsplit(terms, "_+")
+        ## resp1 <- sapply(resp0,
+        ##          function(x) if (length(x)==2) x[2] else x[length(x)-1])
+        ## ## put the pieces back together
+        ## t0 <- lapply(resp0,
+        ##          function(x) if (length(x)==2) x[1] else x[-(length(x)-1)])
+        ## t1 <- lapply(t0,
+        ##          function(x)
+        ##              case_when(
+        ##                  x[[1]]=="b"  ~ sprintf("b%s",x[[2]]),
+        ##                  x[[2]]=="sd" ~ sprintf("sd_%s__%s",x[[2]],x[[3]]),
+        ##                  x[[3]]=="cor" ~ sprintf("cor_%s_%s_%s_%s",
+        ##                                          x[[2]],x[[3]],x[[4]],x[[5]])
+        ##              ))
+        ## resp0 <- stringr::str_extract_all(terms, "_[^_]+")
+        ## resp1 <- lapply(resp0, gsub, pattern= "^_", replacement="")
+        response <- gsub("^_","",stringr::str_extract(terms,"_[^_]+"))
+        terms <- sub("_[^_]+","",terms)
+    }
+    res_list <- list()
+    fixed.only <- identical(effects, "fixed")
+    if ("fixed" %in% effects) {
+      ## empty tibble: NA columns will be filled in as appropriate
+      nfixed <- sum(grepl(prefs[["fixed"]], terms))
+      res_list$fixed <- as_tibble(matrix(nrow = nfixed, ncol = 0))
+    }
+    grpfun <- function(x) {
+        if (grepl("sigma",x[[1]])) "Residual" else x[[2]]
+    }
+    if ("ran_pars" %in% effects) {
+      rterms <- grep(mkRE(prefs$ran_pars), terms, value = TRUE)
+      ss <- strsplit(rterms, "__")
+      pp <- "^(cor|sd)(?=(_))"
+      nodash <- function(x) gsub("^_", "", x)
+      ##  split the first term (cor/sd) into tag + group
+      ss2 <- lapply(
+        ss,
+        function(x) {
+          if (!is.na(pref <- stringr::str_extract(x[1], pp))) {
+            return(c(pref, nodash(stringr::str_remove(x[1], pp)), x[-1]))
+          }
+          return(x)
+        }
+      )
+      sep <- getOption("broom.mixed.sep1")
+      termfun <- function(x) {
+        if (grepl("^sigma",x[[1]])) {
+            paste("sd", "Observation", sep = sep)
+        } else {
+            ## re-attach remaining terms
+            paste(x[[1]],
+                  paste(x[3:length(x)], collapse = "."),
+                  sep = sep
+          )
+        }
+      }
+      res_list$ran_pars <-
+        dplyr::tibble(
+          group = sapply(ss2, grpfun),
+          term = sapply(ss2, termfun)
+        )
+    }
+    if ("ran_vals" %in% effects) {
+      rterms <- grep(mkRE(prefs$ran_vals), terms, value = TRUE)
+
+      vals <- stringr::str_match_all(rterms, "_(.+?)\\[(.+?),(.+?)\\]")
+
+      res_list$ran_vals <-
+        dplyr::tibble(
+          group = purrr::map_chr(vals, function (v) { v[[2]] }),
+          term = purrr::map_chr(vals, function (v) { v[[4]] }),
+          level = purrr::map_chr(vals, function (v) { v[[3]] })
+        )
+
+    }
+    out <- dplyr::bind_rows(res_list, .id = "effect")
+    v <- if (fixed.only) seq(nrow(out)) else is.na(out$term)
+    newterms <- stringr::str_remove(terms[v], mkRE(prefs[c("fixed")]))
+    if (fixed.only) {
+      out$term <- newterms
+    } else {
+      out$term[v] <- newterms
+    }
+    if (is.multiresp) {
+        out$response <- response
+    }
+    ## prefixes already removed for ran_vals; don't remove for ran_pars
+  } else {
+    ## if !use_effects
+    out <- dplyr::tibble(term = names(samples))
+  }
+  pointfun <- if (robust) stats::median else base::mean
+  stdfun <- if (robust) stats::mad else stats::sd
+  out$estimate <- apply(samples, 2, pointfun)
+  out$std.error <- apply(samples, 2, stdfun)
+  if (conf.int) {
+
+    stopifnot(length(conf.level) == 1L)
+    probs <- c((1 - conf.level) / 2, 1 - (1 - conf.level) / 2)
+    if (conf.method == "HPDinterval") {
+        cc <- coda::HPDinterval(coda::as.mcmc(samples), prob=conf.level)
+    } else {
+        cc <- t(apply(samples, 2, stats::quantile, probs = probs))
+    }
+    out$conf.low <- cc[,1]
+    out$conf.high <- cc[,2]
+  }
+  ## figure out component
+  out$component <- dplyr::case_when(grepl("(^|_)zi",out$term) ~ "zi",
+                                    ## ??? is this possible in brms models
+                                    grepl("^disp",out$term) ~ "disp",
+                                    TRUE ~ "cond")
+
+  if (exponentiate) {
+    vv <- c("estimate", "conf.low", "conf.high")
+    out <- (out
+      %>% mutate(across(contains(vv), exp))
+      %>% mutate(across(std.error, ~ . * estimate))
+    )
+  }
+
+  out$term <- stringr::str_remove(out$term,mkRE(prefs[["components"]],
+                                                LB=TRUE))
+  if (fix.intercept) {
+      ## use lookahead/lookbehind: replace Intercept with word boundary
+      ## or underscore before/after by (Intercept) - without removing
+      ## underscores!
+      out$term <- stringr::str_replace(out$term,
+                                        "(?<=(\\b|_))Intercept(?=(\\b|_))",
+                                        "(Intercept)")
+  }
+  out <- reorder_cols(out)
+  return(out)
+}
+

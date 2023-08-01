@@ -43,7 +43,7 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
 # not sure why this isn't picked up from DESCRIPTION?
-          extra-repositories: glmmTMB/.github/workflows/
+          extra-repositories: http://bbolker.github.io/drat
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true

@@ -18,3 +18,6 @@ pix/
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+inst/extdata/8schools.rds
+inst/extdata/m1-*
+inst/extdata/m2-*

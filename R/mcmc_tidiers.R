@@ -99,7 +99,7 @@ tidyMCMC <- function(x,
     ss <- ss[, pars]
   }
 
-  m <- if (robust) colMeans(ss) else apply(ss, 2, median)
+  m <- if (robust) apply(ss, 2, median) else colMeans(ss)
 
   stdfun <- if (robust) stats::mad else stats::sd
   ret <- dplyr::tibble(

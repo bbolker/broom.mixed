@@ -553,7 +553,7 @@ tidy.lmList4 <- function(x, conf.int = FALSE,
                   dplyr::mutate(`terms` = dimnames(ss)$terms[i])
     }
     tmp <- dplyr::bind_rows(tmp)
-    tmp <- tmp[, unique(c("group", "terms"), sort(colnames(tmp)))]
+    tmp <- tmp[, unique(c("group", "terms", sort(colnames(tmp))))]
     tmp <- tmp[order(tmp$group, tmp$terms),]
     ret <- tibble::as_tibble(tmp)
 

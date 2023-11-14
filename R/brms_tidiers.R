@@ -280,7 +280,7 @@ tidy.brmsfit <- function(x, parameters = NA,
   if (exponentiate) {
     vv <- c("estimate", "conf.low", "conf.high")
     out <- (out
-      %>% mutate(across(contains(vv)), exp)
+      %>% mutate(across(contains(vv), exp))
       %>% mutate(across(std.error, ~ . * estimate))
     )
   }

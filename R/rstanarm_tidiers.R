@@ -76,7 +76,7 @@ NULL
 #'
 #' @export
 tidy.stanreg <- function(x,
-                         effects = "fixed",
+                         effects = c("fixed", "ran_pars"),
                          conf.int = FALSE,
                          conf.level = 0.9,
                          conf.method=c("quantile","HPDinterval"),

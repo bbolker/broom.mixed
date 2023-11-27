@@ -17,4 +17,6 @@ if (require(brms, quietly = TRUE) && require(rstanarm, quietly=TRUE)) {
   ## GH #101
   gg <- glance(brms_noran)
   expect_equal(names(gg),c("algorithm","pss","nobs","sigma"))
+
+  expect_error(suppressWarnings(tidy(brms_multi, effects = "junk")))
 }

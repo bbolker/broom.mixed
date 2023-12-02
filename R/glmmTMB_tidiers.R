@@ -105,7 +105,10 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
 
     safe_confint <- function(...) {
         args <- list(...)
-        if (packageVersion("glmmTMB") >= "1.1.4") {
+        pkgver <- packageVersion("glmmTMB")
+        if (pkgver >= "1.1.8") {
+            args <- c(args, list(include_nonest = TRUE))
+        } else if (pkgver >= "1.1.4") {
             args <- c(args, list(include_mapped = TRUE))
         }
         do.call(confint, args)

@@ -8,10 +8,22 @@
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item \code{as.data.frame.ranef.lme} now processes the
-  \code{optional} argument (see \code{?as.data.frame}), so that
-  \code{data.frame(ranef_object)} works
+      \code{optional} argument (see \code{?as.data.frame}), so that
+      \code{data.frame(ranef_object)} works
+      \item add \code{"ran_pars"} to default effects for \code{rstanarm}
+      tidiers
+      \item add experimental tidier for \code{glmm} package
     }
   } % user-visible changes
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{glmmTMB} tidier updated for argument name
+      change (\code{include_mapped} to \code{include_nonest})
+      in \code{confint.glmmTMB} in version 1.1.8
+      \item fix \code{exponentiate} bug for \code{brms} tidiers
+      \item fix \code{lmList4} tidier bug
+    }
+    
 }
 
 \section{CHANGES IN VERSION 0.2.9.4 (2022-03-28)}{

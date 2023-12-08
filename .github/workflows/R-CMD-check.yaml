@@ -52,6 +52,7 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
+          upgrade: 'TRUE'
 
       - name: Install texlive etc.
         if: runner.os == 'Linux'

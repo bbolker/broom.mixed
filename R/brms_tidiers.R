@@ -303,13 +303,9 @@ tidy.brmsfit <- function(x, parameters = NA,
 #' @importFrom stats quantile
 #' @export
 sigma.brmsfit <- function (object, ...)  {
-    if (!("sigma" %in% names(object$fit)))
+    if (!("sigma" %in% brms::variables(object)))
         return(1)
-    if (!requireNamespace("rstanarm")) {
-        warning("need to install rstanarm to use extract sigma from brms fits")
-        return(NA)
-    }
-    stats::quantile(as.data.frame(object$fit)[["sigma"]], probs=0.5)
+    stats::quantile(brms::as_draws_array(object, "sigma"), probs=0.5)
 }
 
 #' @rdname brms_tidiers

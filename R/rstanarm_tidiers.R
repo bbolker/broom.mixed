@@ -278,10 +278,10 @@ glance_stan <- function(x, looic = FALSE, ..., type) {
 
     if (algo != "optimizing") {
         pss <- sim$n_save
-        if (algo == "sampling") {
-            pss <- sum(pss - sim$warmup2)
+        if (algo %in% c("sample", "sampling")) {
+            pss <- pss - sim$warmup2
         }
-        ret <- dplyr::mutate(ret, pss = pss)
+        ret <- dplyr::mutate(ret, pss = sum(pss))
     }
 
     ret <- mutate(ret, nobs = stats::nobs(x))

@@ -137,14 +137,14 @@ tidy.brmsfit <- function(x, parameters = NA,
       ## don't want to remove these pieces, so use look*behind*
       ran_pars =   sprintf("(?<=(%s))", c("sd_", "cor_", "sigma")),
       components = sprintf("(?<=%s)", c("zi_","disp_"))
-    )
-    prefs <- list(
+  )
+  prefs <- list(
       fixed = "b_", ran_vals = "r_",
       ## no lookahead (doesn't work with grep[l])
       ran_pars = c("sd_", "cor_", "sigma"),
       components = c("zi_", "disp_")
-    )
-    pref_RE <- mkRE(prefs[effects])
+  )
+  pref_RE <- mkRE(prefs[effects])
   if (use_effects) {
     ## prefixes distinguishing fixed, random effects
 
@@ -240,6 +240,14 @@ tidy.brmsfit <- function(x, parameters = NA,
 
     }
     out <- dplyr::bind_rows(res_list, .id = "effect")
+    # In the case where nrow(res_list$fixed) > 0 but nrow(res_list$ran_pars) == 0,
+    # the out object needs to be fixed a bit (replace columns with unexpected
+    # lists of NULL by expected vectors of NA).
+    for (col in c("group", "term")) {
+      if (is.list(out[[col]]) && all(sapply(out[[col]], is.null))) {
+        out[[col]] <- rep(NA, nrow(out))
+      }
+    }
     v <- if (fixed.only) seq(nrow(out)) else is.na(out$term)
     newterms <- stringr::str_remove(terms[v], mkRE(prefs[c("fixed")]))
     if (fixed.only) {

@@ -102,9 +102,10 @@ NULL
 #' @export
 tidy.brmsfit <- function(x, parameters = NA,
                          effects = c("fixed", "ran_pars"),
-                         robust = FALSE, conf.int = TRUE,
-                         conf.level = 0.95,
+                         robust = FALSE,
+                         conf.int = TRUE, conf.level = 0.95,
                          conf.method = c("quantile", "HPDinterval"),
+                         rhat = FALSE, ess = FALSE,
                          fix.intercept = TRUE,
                          exponentiate = FALSE,
                          ...) {
@@ -150,13 +151,14 @@ tidy.brmsfit <- function(x, parameters = NA,
 
     parameters <- pref_RE
   }
-  samples <- get_draws(x, parameters)
-  if (is.null(samples)) {
+  samples_perchain <- brms::as_draws_array(x, parameters, regex = TRUE)
+  if (is.null(samples_perchain)) {
     stop("No parameter name matches the specified pattern.",
       call. = FALSE
     )
   }
-  terms <- names(samples)
+  samples <- brms::as_draws_matrix(samples_perchain)
+  terms <- colnames(samples)
   if (use_effects) {
       if (is.multiresp) {
         if ("ran_pars" %in% effects && any(grepl("^sd",terms))) {
@@ -253,7 +255,7 @@ tidy.brmsfit <- function(x, parameters = NA,
     ## prefixes already removed for ran_vals; don't remove for ran_pars
   } else {
     ## if !use_effects
-    out <- dplyr::tibble(term = names(samples))
+    out <- dplyr::tibble(term = terms)
   }
   pointfun <- if (robust) stats::median else base::mean
   stdfun <- if (robust) stats::mad else stats::sd
@@ -270,6 +272,15 @@ tidy.brmsfit <- function(x, parameters = NA,
     }
     out$conf.low <- cc[,1]
     out$conf.high <- cc[,2]
+  }
+  if (rhat) {
+    out$rhat <- brms::rhat(samples_perchain)
+  }
+  if (ess) {
+    if (!requireNamespace("posterior", quietly=TRUE)) {
+        stop("ess calculation for brmsfit objects requires posterior package")
+    }
+    out$ess <- posterior::ess_basic(samples_perchain)
   }
   ## figure out component
   out$component <- dplyr::case_when(grepl("(^|_)zi",out$term) ~ "zi",
@@ -343,18 +354,13 @@ augment.brmsfit <- function(x, data = stats::model.frame(x), newdata = NULL,
   return(ret)
 }
 
-## utility to replace posterior_samples
-get_draws <- function(obj, vars) {
-  ## need to unclass as_draws() to convince bind_rows to stick it together ...
-  dplyr::bind_rows(unclass(brms::as_draws(obj, vars, regex = TRUE)))
-}
-
 
 tidy.brmsfit2 <- function(x, parameters = NA,
                           effects = c("fixed", "ran_pars"),
-                          robust = FALSE, conf.int = TRUE,
-                          conf.level = 0.95,
+                          robust = FALSE,
+                          conf.int = TRUE, conf.level = 0.95,
                           conf.method = c("quantile", "HPDinterval"),
+                          rhat = FALSE, ess = FALSE,
                           fix.intercept = TRUE,
                           exponentiate = FALSE,
                           ...) {
@@ -400,13 +406,14 @@ tidy.brmsfit2 <- function(x, parameters = NA,
 
     parameters <- pref_RE
   }
-  samples <- get_draws(x, parameters)
-  if (is.null(samples)) {
+  samples_perchain <- brms::as_draws_array(x, parameters, regex = TRUE)
+  if (is.null(samples_perchain)) {
     stop("No parameter name matches the specified pattern.",
       call. = FALSE
     )
   }
-  terms <- names(samples)
+  samples <- brms::as_draws_matrix(samples_perchain)
+  terms <- colnames(samples)
   if (use_effects) {
       if (is.multiresp) {
         if ("ran_pars" %in% effects && any(grepl("^sd",terms))) {
@@ -503,7 +510,7 @@ tidy.brmsfit2 <- function(x, parameters = NA,
     ## prefixes already removed for ran_vals; don't remove for ran_pars
   } else {
     ## if !use_effects
-    out <- dplyr::tibble(term = names(samples))
+    out <- dplyr::tibble(term = terms)
   }
   pointfun <- if (robust) stats::median else base::mean
   stdfun <- if (robust) stats::mad else stats::sd
@@ -520,6 +527,15 @@ tidy.brmsfit2 <- function(x, parameters = NA,
     }
     out$conf.low <- cc[,1]
     out$conf.high <- cc[,2]
+  }
+  if (rhat) {
+    out$rhat <- brms::rhat(samples_perchain)
+  }
+  if (ess) {
+    if (!requireNamespace("posterior", quietly=TRUE)) {
+        stop("ess calculation for brmsfit2 objects requires posterior package")
+    }
+    out$ess <- posterior::ess_basic(samples_perchain)
   }
   ## figure out component
   out$component <- dplyr::case_when(grepl("(^|_)zi",out$term) ~ "zi",

@@ -30,6 +30,10 @@
 #'    tidy(fit, effects = "fixed", conf.method="HPDinterval")
 #'    tidy(fit, effects = "ran_vals")
 #'    tidy(fit, effects = "ran_pars", robust = TRUE)
+#'    tidy(fit, effects = "ran_pars", rhat = TRUE)
+#'    if (require("posterior")) {
+#'      tidy(fit, effects = "ran_pars", ess = TRUE)
+#'    }
 #'    # glance method
 #'    glance(fit)
 #'    ## this example will give a warning that it should be run with
@@ -63,6 +67,10 @@ NULL
 #'  Only used if \code{conf.int = TRUE}.
 #' @param conf.method method for computing confidence intervals
 #' ("quantile" or "HPDinterval")
+#' @param rhat whether to calculate the *Rhat* convergence metric
+#' (\code{FALSE} by default)
+#' @param ess whether to calculate the *effective sample size* (ESS) convergence metric
+#' (\code{FALSE} by default)
 #' @param fix.intercept rename "Intercept" parameter to "(Intercept)", to match
 #' behaviour of other model types?
 #' @param looic Should the LOO Information Criterion (and related info) be

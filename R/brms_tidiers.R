@@ -30,9 +30,8 @@
 #'    tidy(fit, effects = "fixed", conf.method="HPDinterval")
 #'    tidy(fit, effects = "ran_vals")
 #'    tidy(fit, effects = "ran_pars", robust = TRUE)
-#'    tidy(fit, effects = "ran_pars", rhat = TRUE)
 #'    if (require("posterior")) {
-#'      tidy(fit, effects = "ran_pars", ess = TRUE)
+#'      tidy(fit, effects = "ran_pars", rhat = TRUE, ess = TRUE)
 #'    }
 #'    # glance method
 #'    glance(fit)
@@ -281,14 +280,19 @@ tidy.brmsfit <- function(x, parameters = NA,
     out$conf.low <- cc[,1]
     out$conf.high <- cc[,2]
   }
+  posterior_metrics <- c()
   if (rhat) {
-    out$rhat <- brms::rhat(samples_perchain)
+    posterior_metrics <- c(posterior_metrics, rhat = "rhat")
   }
   if (ess) {
+    posterior_metrics <- c(posterior_metrics, ess = "ess_basic")
+  }
+  if (length(posterior_metrics) > 0) {
     if (!requireNamespace("posterior", quietly=TRUE)) {
-        stop("ess calculation for brmsfit objects requires posterior package")
+        stop(paste0(paste0(names(posterior_metrics), collapse=", "),
+             " calculation for brmsfit objects requires posterior package"))
     }
-    out$ess <- posterior::ess_basic(samples_perchain)
+    out[names(posterior_metrics)] <- posterior::summarise_draws(samples_perchain, posterior_metrics)[names(posterior_metrics)]
   }
   ## figure out component
   out$component <- dplyr::case_when(grepl("(^|_)zi",out$term) ~ "zi",
@@ -536,14 +540,19 @@ tidy.brmsfit2 <- function(x, parameters = NA,
     out$conf.low <- cc[,1]
     out$conf.high <- cc[,2]
   }
+  posterior_metrics <- c()
   if (rhat) {
-    out$rhat <- brms::rhat(samples_perchain)
+    posterior_metrics <- c(posterior_metrics, rhat = "rhat")
   }
   if (ess) {
+    posterior_metrics <- c(posterior_metrics, ess = "ess_basic")
+  }
+  if (length(posterior_metrics) > 0) {
     if (!requireNamespace("posterior", quietly=TRUE)) {
-        stop("ess calculation for brmsfit2 objects requires posterior package")
+        stop(paste0(paste0(names(posterior_metrics), collapse=", "),
+             " calculation for brmsfit objects requires posterior package"))
     }
-    out$ess <- posterior::ess_basic(samples_perchain)
+    out[names(posterior_metrics)] <- posterior::summarise_draws(samples_perchain, posterior_metrics)[names(posterior_metrics)]
   }
   ## figure out component
   out$component <- dplyr::case_when(grepl("(^|_)zi",out$term) ~ "zi",

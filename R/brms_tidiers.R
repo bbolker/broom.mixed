@@ -282,10 +282,10 @@ tidy.brmsfit <- function(x, parameters = NA,
   }
   posterior_metrics <- c()
   if (rhat) {
-    posterior_metrics <- c(posterior_metrics, rhat = "rhat")
+    posterior_metrics <- c(posterior_metrics, rhat = posterior::rhat)
   }
   if (ess) {
-    posterior_metrics <- c(posterior_metrics, ess = "ess_basic")
+    posterior_metrics <- c(posterior_metrics, ess = posterior::ess_basic)
   }
   if (length(posterior_metrics) > 0) {
     if (!requireNamespace("posterior", quietly=TRUE)) {

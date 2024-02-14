@@ -15,6 +15,8 @@
   conf.int = TRUE,
   conf.level = 0.95,
   conf.method = c("quantile", "HPDinterval"),
+  rhat = FALSE,
+  ess = FALSE,
   fix.intercept = TRUE,
   exponentiate = FALSE,
   ...
@@ -51,6 +53,12 @@ Only used if \code{conf.int = TRUE}.}
 
 \item{conf.method}{method for computing confidence intervals
 ("quantile" or "HPDinterval")}
+
+\item{rhat}{whether to calculate the *Rhat* convergence metric
+(\code{FALSE} by default)}
+
+\item{ess}{whether to calculate the *effective sample size* (ESS) convergence metric
+(\code{FALSE} by default)}
 
 \item{fix.intercept}{rename "Intercept" parameter to "(Intercept)", to match
 behaviour of other model types?}
@@ -127,6 +135,9 @@ At present, the components of parameter estimates are separated by parsing the c
    tidy(fit, effects = "fixed", conf.method="HPDinterval")
    tidy(fit, effects = "ran_vals")
    tidy(fit, effects = "ran_pars", robust = TRUE)
+   if (require("posterior")) {
+     tidy(fit, effects = "ran_pars", rhat = TRUE, ess = TRUE)
+   }
    # glance method
    glance(fit)
    ## this example will give a warning that it should be run with

@@ -159,7 +159,7 @@ tidy.brmsfit <- function(x, parameters = NA,
     parameters <- pref_RE
   }
   samples_perchain <- brms::as_draws_array(x, parameters, regex = TRUE)
-  if (is.null(samples_perchain)) {
+  if (is.null(samples_perchain) || posterior::nvariables(samples_perchain) == 0) {
     stop("No parameter name matches the specified pattern.",
       call. = FALSE
     )

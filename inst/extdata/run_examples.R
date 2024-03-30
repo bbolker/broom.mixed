@@ -220,8 +220,20 @@ if (run_brms) {
                    iter=200)
     brms_RE <- hack_size(brms_RE)
 
+    # Example taken from ?brms::brm
+    ## Probit regression using the binomial family
+    ntrials <- sample(1:10, 100, TRUE)
+    success <- rbinom(100, size = ntrials, prob = 0.4)
+    x <- rnorm(100)
+    data4 <- data.frame(ntrials, success, x)
+    fit4 <- brm(success | trials(ntrials) ~ x, data = data4,
+                family = binomial("probit"))
+    brms_brm_fit4 <- hack_size(fit4)
+
+
     save_file(brms_crossedRE, brms_zip, brms_multi, brms_noran,
-              brms_multi_RE, brms_RE, pkg = pkg, type = "rda")
+              brms_multi_RE, brms_RE, brms_brm_fit4,
+              pkg = pkg, type = "rda")
   })
 }
 

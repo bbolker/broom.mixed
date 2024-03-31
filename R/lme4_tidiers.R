@@ -74,14 +74,14 @@
 NULL
 
 #' @export
-confint.rlmerMod <- function(x, parm,
+confint.rlmerMod <- function(object, parm, level,
                              method = "Wald", ...) {
-  cc <- class(x)
-  class(x) <- "merMod"
+  cc <- class(object)
+  class(object) <- "merMod"
   if (method != "Wald") {
     warning("only Wald method implemented for rlmerMod objects")
   }
-  return(confint(x, parm = parm, method = "Wald", ...))
+  return(confint(object, parm = parm, level = level, method = "Wald", ...))
 }
 
 ## FIXME: relatively trivial/only used in one place, could

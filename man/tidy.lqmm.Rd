@@ -9,6 +9,16 @@
 
 \method{glance}{lqmm}(x, ...)
 }
+\arguments{
+\item{x}{An object of class \code{merMod}, such as those from \code{lmer},
+\code{glmer}, or \code{nlmer}}
+
+\item{conf.int}{whether to include a confidence interval}
+
+\item{conf.level}{confidence level for CI}
+
+\item{...}{Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})}
+}
 \description{
 These methods, suggested by
 David Luke Thiessen on \href{https://stackoverflow.com/questions/72514230/is-it-possible-to-use-lqmm-with-a-mira-object}{Stack Exchange}, provide support for linear quantile mixed models. They have not been carefully tested - please

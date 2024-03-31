@@ -124,8 +124,8 @@ At present, the components of parameter estimates are separated by parsing the c
     brms_crossedRE <- brm(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
            iter = 500, chains = 2)
  }
- if (.Platform$OS.type!="windows" && require("brms")) {
-   ## too slow on Windows, skip (>5 seconds on r-devel-windows)
+ \donttest{
+   ## too slow for CRAN (>5 seconds)
    ## load stored object
    load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
 

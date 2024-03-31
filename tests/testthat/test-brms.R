@@ -1,4 +1,3 @@
-
 stopifnot(require("testthat"), require("broom.mixed"))
 
 if (require(brms, quietly = TRUE) && require(rstanarm, quietly=TRUE)) {
@@ -6,8 +5,6 @@ if (require(brms, quietly = TRUE) && require(rstanarm, quietly=TRUE)) {
     package = "broom.mixed",
     mustWork = TRUE
     ))
-
-  context("brms models")
 
   ## GH #87
   tt <- suppressWarnings(tidy(brms_multi,conf.int=TRUE))

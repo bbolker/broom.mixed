@@ -423,7 +423,7 @@ augment.gls <- function(x, data = nlme::getData(x), newdata, ...) {
 #' Tidy variance structure for the \code{nlme} package.
 #'
 #' Returns a tibble with the following columns:
-#' \itemize{
+#' \describe{
 #' \item{group}{type of varFunc, along with the right hand side of the formula
 #'   in parentheses e.g. \code{"varExp(age | Sex)"}.}
 #' \item{term}{terms included in the formula of the variance model, specifically

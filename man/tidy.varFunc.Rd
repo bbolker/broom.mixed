@@ -22,7 +22,7 @@ If the \code{varFunc} is uninitialized or has no parameters, the
 }
 \description{
 Returns a tibble with the following columns:
-\itemize{
+\describe{
 \item{group}{type of varFunc, along with the right hand side of the formula
   in parentheses e.g. \code{"varExp(age | Sex)"}.}
 \item{term}{terms included in the formula of the variance model, specifically

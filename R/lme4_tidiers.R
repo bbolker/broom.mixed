@@ -73,6 +73,7 @@
 #' }
 NULL
 
+#' @export
 confint.rlmerMod <- function(x, parm,
                              method = "Wald", ...) {
   cc <- class(x)

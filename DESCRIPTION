@@ -27,7 +27,9 @@ Authors@R: c(
     person("Bill", "Denney", role = "ctb"),
     person("Cory", "Brunson", role = "ctb"),
     person("Joe", "Wasserman", role = "ctb",
-        comment = c(ORCID = "0000-0002-9705-1853"))
+        comment = c(ORCID = "0000-0002-9705-1853")),
+    person("Alexey", "Stukalov", role = "ctb"),
+    person("Matthieu", "Bruneaux", role = "ctb")
     )
 Maintainer: Ben Bolker <bolker@mcmaster.ca>
 Description: Convert fitted objects from various R mixed-model packages

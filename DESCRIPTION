@@ -66,6 +66,7 @@ Suggests:
     MCMCglmm,
     mediation,
     mgcv,
+    ordinal,
     pander,
     pbkrtest,
     rstan,

@@ -27,12 +27,15 @@ predict.all.clmm <- function(object, newdata, ...) {
 #' \code{ordinal} package) lives in the \code{broom} package.
 #'
 #' @importFrom tibble tibble
+#' @importFrom stats model.frame
 #' @export
-augment.clmm <- function(...,
-                         data = stats::model.frame(x), newdata, ...) {
-
-    if (!missing(newdata)) data <- newdata
+augment.clmm <- function( x,
+       data = model.frame(x),
+       ...) {
     
+    if (!missing(newdata)) data <- newdata
+
+    ## STUB
 }
 
 if (FALSE) {

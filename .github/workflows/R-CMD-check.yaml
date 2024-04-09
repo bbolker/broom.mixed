@@ -42,12 +42,12 @@ jobs:
           extra-repositories: http://bbolker.github.io/drat
           use-public-rspm: true
       - uses: r-lib/actions/setup-pandoc@v2
-        - uses: r-lib/actions/setup-r-dependencies@v2
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
           upgrade: 'TRUE'
-        - name: Install texlive etc.
+    - name: Install texlive etc.
         if: runner.os == 'Linux'
         run: sudo apt-get install texlive texlive-science texlive-latex-extra texlive-bibtex-extra
 

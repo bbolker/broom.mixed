@@ -27,12 +27,14 @@ predict_all_clmm <- function(object, newdata, ...) {
 #' the \code{tidy} method for \code{clmm} objects (from the
 #' \code{ordinal} package) lives in the \code{broom} package.
 #'
+#' @inheritParams lme4_tidiers
 #' @importFrom tibble tibble
 #' @importFrom stats model.frame
 #' @export
 augment.clmm <- function( x,
-       data = model.frame(x),
-       ...) {
+                         data = model.frame(x),
+                         newdata,
+                         ...) {
     
     if (!missing(newdata)) data <- newdata
 

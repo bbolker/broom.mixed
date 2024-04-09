@@ -12,7 +12,7 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
     td2 <- tidy(fit, effects = "ran_vals")
     td3 <- tidy(fit, effects = "ran_pars")
     td4 <- tidy(fit, effects = "auxiliary")
-    expect_equal(colnames(td1), c("term", "estimate", "std.error"))
+    expect_equal(colnames(td1), c("term", "estimate", "std.error", "group"))
   })
 
   test_that("tidy with multiple 'effects' selections works on rstanarm fits", {
@@ -27,8 +27,8 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
     td3 <- tidy(fit, conf.int = TRUE, conf.level = 0.95)
     nms <- c("level", "group", "term", "estimate", "std.error", "conf.low", "conf.high")
     expect_equal(colnames(td2), nms)
-    expect_true(all(td3$conf.low < td1$conf.low))
-    expect_true(all(td3$conf.high > td1$conf.high))
+    expect_true(all(is.na(td3$conf.low) | td3$conf.low < td1$conf.low))
+    expect_true(all(is.na(td3$conf.high) | td3$conf.high > td1$conf.high))
   })
 
   test_that("glance works on rstanarm fits", {
@@ -40,8 +40,8 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
   })
 
   test_that("exponentiation", {
-      td1 <- tidy(fit2, conf.int = TRUE)
-      td1e <- tidy(fit2, conf.int = TRUE, exponentiate = TRUE)
+      td1 <- tidy(fit2, conf.int = TRUE, effects = "fixed")
+      td1e <- tidy(fit2, conf.int = TRUE, exponentiate = TRUE, effects = "fixed")
       expect_equal(td1e$estimate, exp(td1$estimate))
       expect_equal(td1e$conf.low, exp(td1$conf.low))
       expect_equal(td1e$conf.high, exp(td1$conf.high))

@@ -68,6 +68,7 @@ Suggests:
     MCMCglmm,
     mediation,
     mgcv,
+    ordinal,
     pander,
     pbkrtest,
     posterior,
@@ -84,3 +85,4 @@ Encoding: UTF-8
 Additional_repositories: http://bbolker.github.io/drat
 VignetteBuilder: knitr
 RoxygenNote: 7.3.1
+

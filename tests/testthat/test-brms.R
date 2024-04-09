@@ -15,6 +15,7 @@ if (require(brms, quietly = TRUE) && require(rstanarm, quietly=TRUE)) {
   gg <- glance(brms_noran)
   expect_equal(names(gg),c("algorithm","pss","nobs","sigma"))
 
+
   ## Check the descriptive columns of tidy summaries
   ### brms_RE
   expected <- tibble::tribble(
@@ -46,4 +47,6 @@ if (require(brms, quietly = TRUE) && require(rstanarm, quietly=TRUE)) {
   observed <- suppressWarnings(tidy(brms_brm_fit4))
   expect_equal(observed[, 1:4], expected)
 
+
+  expect_error(suppressWarnings(tidy(brms_multi, effects = "junk")))
 }

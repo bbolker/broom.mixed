@@ -105,9 +105,12 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
 
     safe_confint <- function(..., s_component = NULL) {
         args <- list(...)
-        if (packageVersion("glmmTMB") >= "1.1.4" && conf.method != "tmbroot") {
-            ## FIXME: check/make tmbroot handle nonest properly?
+        pkgver <- packageVersion("glmmTMB")
+        if (pkgver >= "1.1.8") {
             args <- c(args, list(include_nonest = TRUE))
+        } else if (pkgver >= "1.1.4" && conf.method != "tmbroot") {
+            ## FIXME: check/make tmbroot handle nonest properly?
+            args <- c(args, list(include_mapped = TRUE))
         }
         res <- do.call(confint, args)
         if (!is.null(s_component)) {

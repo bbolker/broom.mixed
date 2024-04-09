@@ -1,3 +1,4 @@
+#' @export
 predict.clmm <- function(object, ...) {
     ## hack clmm object so it looks sufficiently like a clm[m]2 object
     ##  for the predict.clm2 method to work ...
@@ -10,7 +11,7 @@ predict.clmm <- function(object, ...) {
 
 ## predict values for every level in an ordinal response
 ## copied/modified from 
-predict.all.clmm <- function(object, newdata, ...) {
+predict_all_clmm <- function(object, newdata, ...) {
     respvar <- attr(object$terms, "response")
     mf <- model.frame(object)
     nlev <- length(levels(mf[[respvar]]))
@@ -36,7 +37,16 @@ augment.clmm <- function( x,
     if (!missing(newdata)) data <- newdata
 
     ## STUB
+    ## call predict_all_clmm
+    ## generate mean predictions via
+    ##  sweep([pred matrix], MARGIN = 2, FUN = "*", STATS = seq(ncol[pred matrix])) |> rowMeans
+    ## get std dev similarly (sqrt(rowMeans(sweep with (1:n)^2)))
+    ## residuals, pearson residuals?
 }
+
+## simulate method will look like this:
+## pred_matrix <- predict_all_clmm()
+## apply(pred_matrix, 1, \(p) rmultinom(1, size = 1, prob = p))
 
 if (FALSE) {
     library(ordinal)
@@ -45,7 +55,7 @@ if (FALSE) {
     fmm2 <- clmm2(rating ~ temp + contact, random = judge, data = wine)
 
     
-    mm <- predict.all.clmm(fmm1)
+    mm <- predict_all_clmm(fmm1)
     stopifnot(all.equal(predict(fmm1), predict(fmm2),
                         tolerance  = 1e-6))
 

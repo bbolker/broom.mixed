@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-r
+      - uses: r-lib/actions/setup-r
         with:
           extra-repositories: http://bbolker.github.io/drat
       - uses: r-lib/actions/setup-pandoc@v2

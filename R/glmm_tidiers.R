@@ -2,9 +2,7 @@
 ##' @importFrom stats vcov
 ##' @export
 tidy.glmm <- function(x, effects = "fixed", ...) {
-
     check_dots(...)
-
     estimate <- std.error <- statistic <- p.value <- NULL ## avoid check warnings for NSE
     fix_nm <- names(coef(x))
     ran_nm <- x$varcomps.names

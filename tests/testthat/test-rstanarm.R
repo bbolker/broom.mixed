@@ -4,7 +4,7 @@ stopifnot(require("testthat"), require("broom.mixed"), require("broom"))
 if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
   load(system.file("extdata", "rstanarm_example.rda", package = "broom.mixed"))
   ## fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
-  ## iter = 200, chains = 2)
+  ##   iter = 200, chains = 2)
 
   context("rstanarm tidiers")
   test_that("tidy works on rstanarm fits", {
@@ -27,6 +27,7 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
     td3 <- tidy(fit, conf.int = TRUE, conf.level = 0.95)
     nms <- c("level", "group", "term", "estimate", "std.error", "conf.low", "conf.high")
     expect_equal(colnames(td2), nms)
+    ## FIXME: why NA values in std.error/conf.low/conf.high here?
     expect_true(all(is.na(td3$conf.low) | td3$conf.low < td1$conf.low))
     expect_true(all(is.na(td3$conf.high) | td3$conf.high > td1$conf.high))
   })

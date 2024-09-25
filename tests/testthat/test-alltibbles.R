@@ -8,6 +8,12 @@ pkgs_avail <- vapply(c("testthat", "broom.mixed", "stringr", "lme4", "glmmTMB"),
 
 ## FIXME: _could_ copy data objects over if we wanted to check more robustly (without requiring lme4, glmmTMB)
 
+## harmless if rstan not available; if it is available, should (?)
+##  resolve issues with brms use of rstan methods ...
+## see thread at https://stat.ethz.ch/pipermail/r-package-devel/2024q3/011097.html
+## for gory details
+require("rstan")
+
 if (all(pkgs_avail)) {
 
 ## objects to SKIP (from RDA files)

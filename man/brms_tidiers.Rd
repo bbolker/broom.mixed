@@ -127,17 +127,21 @@ At present, the components of parameter estimates are separated by parsing the c
  \donttest{
    ## too slow for CRAN (>5 seconds)
    ## load stored object
-   load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
+   if (require("rstan") && require("brms")) {
+      load(system.file("extdata", "brms_example.rda", package="broom.mixed"))
 
-   fit <- brms_crossedRE
-   tidy(fit)
-   tidy(fit, parameters = "^sd_", conf.int = FALSE)
-   tidy(fit, effects = "fixed", conf.method="HPDinterval")
-   tidy(fit, effects = "ran_vals")
-   tidy(fit, effects = "ran_pars", robust = TRUE)
-   if (require("posterior")) {
-     tidy(fit, effects = "ran_pars", rhat = TRUE, ess = TRUE)
+      fit <- brms_crossedRE
+      tidy(fit)
+      tidy(fit, parameters = "^sd_", conf.int = FALSE)
+      tidy(fit, effects = "fixed", conf.method="HPDinterval")
+      tidy(fit, effects = "ran_vals")
+      tidy(fit, effects = "ran_pars", robust = TRUE)
+      if (require("posterior")) {
+      tidy(fit, effects = "ran_pars", rhat = TRUE, ess = TRUE)
+   
    }
+   }
+   if (require("rstan") && require("brms")) {
    # glance method
    glance(fit)
    ## this example will give a warning that it should be run with
@@ -145,6 +149,7 @@ At present, the components of parameter estimates are separated by parsing the c
    ## because the \code{fit} object has been stripped down to save space
    suppressWarnings(glance(fit, looic = TRUE, cores = 1))
    head(augment(fit))
+  }
 }
 
 }

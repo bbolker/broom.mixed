@@ -4,7 +4,18 @@
 \alias{augment.clmm}
 \title{name ordinal_tidiers}
 \usage{
-\method{augment}{clmm}(x, data = model.frame(x), ...)
+\method{augment}{clmm}(x, data = model.frame(x), newdata, ...)
+}
+\arguments{
+\item{x}{An object of class \code{merMod}, such as those from \code{lmer},
+\code{glmer}, or \code{nlmer}}
+
+\item{data}{original data this was fitted on; if not given this will
+attempt to be reconstructed}
+
+\item{newdata}{new data to be used for prediction; optional}
+
+\item{...}{Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})}
 }
 \description{
 the \code{tidy} method for \code{clmm} objects (from the

@@ -97,6 +97,7 @@ tidy.stanreg <- function(x,
     check_dots(...)
     conf.method <- match.arg(conf.method)
     std.error <- estimate <- NULL ## fool code checker/NSE
+    miss_effects <- missing(effects)
     effects <-
         match.arg(effects,
                   several.ok = TRUE,
@@ -105,10 +106,10 @@ tidy.stanreg <- function(x,
                       "ran_pars", "auxiliary"
                   )
                   )
-    if (any(effects %in% c("ran_vals", "ran_pars"))) {
-        if (!inherits(x, "lmerMod")) {
-            stop("Model does not have varying ('ran_vals') or hierarchical ('ran_pars') effects.")
-        }
+    no_ranef <- !inherits(x, "lmerMod")
+    if (miss_effects && no_ranef) effects <- setdiff(effects, c("ran_vals", "ran_pars"))
+    if (!miss_effects && no_ranef && any(effects %in% c("ran_vals", "ran_pars"))) {
+        stop("Model does not have varying ('ran_vals') or hierarchical ('ran_pars') effects.")
     }
 
     nn <- c("estimate", "std.error")

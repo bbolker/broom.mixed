@@ -94,7 +94,8 @@ tidy.stanreg <- function(x,
                          conf.method=c("quantile","HPDinterval"),
                          exponentiate = FALSE,
                          ...) {
-    check_dots(...)
+    ## ignore 'parametric', which may be passed by mice:::summary.mira()
+    check_dots(..., .ignore = "parametric")
     conf.method <- match.arg(conf.method)
     std.error <- estimate <- NULL ## fool code checker/NSE
     miss_effects <- missing(effects)

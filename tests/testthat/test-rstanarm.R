@@ -48,5 +48,19 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
       expect_equal(td1e$conf.high, exp(td1$conf.high))
       expect_equal(td1e$std.error, exp(td1$estimate)*td1$std.error)
   })
-  
+
+  ## GH 153
+  if (requireNamespace("mice", quietly = TRUE)) {
+      test_that("mice imputed data", {
+          data(nhanes)
+          imp <- mice(nhanes, m = 3, print = FALSE)
+          suppressWarnings(
+              capture.output(ms <- with(imp,
+                                        stan_glm(age ~ bmi + chl)))
+          )
+          expect_is(summary(pool(ms)), "mipo.summary")
+      })
+  }
+
 } ## rstanarm available
+

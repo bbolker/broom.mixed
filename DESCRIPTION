@@ -68,6 +68,7 @@ Suggests:
     MCMCglmm,
     mediation,
     mgcv,
+    mice,
     ordinal,
     pander,
     pbkrtest,

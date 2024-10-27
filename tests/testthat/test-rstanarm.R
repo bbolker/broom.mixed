@@ -52,13 +52,13 @@ if (suppressPackageStartupMessages(require(rstanarm, quietly = TRUE))) {
   ## GH 153
   if (requireNamespace("mice", quietly = TRUE)) {
       test_that("mice imputed data", {
-          data(nhanes)
-          imp <- mice(nhanes, m = 3, print = FALSE)
+          data(nhanes, package = "mice")
+          imp <- mice::mice(nhanes, m = 3, print = FALSE)
           suppressWarnings(
               capture.output(ms <- with(imp,
                                         stan_glm(age ~ bmi + chl)))
           )
-          expect_is(summary(pool(ms)), "mipo.summary")
+          expect_is(summary(mice::pool(ms)), "mipo.summary")
       })
   }
 

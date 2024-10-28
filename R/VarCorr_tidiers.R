@@ -19,7 +19,7 @@ tidy.VarCorr.lme <- function(
     
     if(inherits(object, "VarCorr.lme")) {
         ## Need to convert nlme object to a proper tibble
-        object <- convert_VarCorr.MerMod_to_VarCorr.lme(object)
+        object <- convert_VarCorr.lme(object)
     } 
     
     if (conf.int) {
@@ -94,12 +94,12 @@ tidy.VarCorr.lme <- function(
                                         # 4 Residual NA          NA    655.   25.6  
 
 
-#' This function converts VarCorr on a nlme object to a tibble form of an lme4 object
+#' This function converts VarCorr on a nlme object to a tibble
 #' i.e. VarCorr.merMod -> tibble of VarCorr.lme
 #' @noRd
 #' @param object  A variance-correlation component of nlme::lme object. 
-#' @return The tibble version of VarCorr.lme object from lme4 package.
-convert_VarCorr.MerMod_to_VarCorr.lme <- function(object){
+#' @return A useful (?) tibble
+convert_VarCorr.lme <- function(object){
     A <- as.matrix(object)
     row.residual <- stringr::str_which("Residual", rownames(A))
     

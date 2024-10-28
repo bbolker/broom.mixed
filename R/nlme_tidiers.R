@@ -142,101 +142,15 @@ tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
     if (!rscale %in% c("sdcor", "vcov")) {
       stop(sprintf("unrecognized ran_pars scale %s", sQuote(rscale)))
     }
-    grplen <- attr(x$modelStruct$reStruct, "plen")
-    multilevel <- (length(grplen) > 1)
     nonlin <- inherits(x, "nlme")
 
-    if (multilevel || nonlin) {
-      warning(
-        "ran_pars not yet implemented for ",
-        if (multilevel) {
-          "multiple levels of nesting"
-        } else {
-          "nonlinear models"
-        }
-      )
-      ret <- dplyr::tibble()
+    if (nonlin) {
+        warning("ran_pars not yet implemented for nonlinear models")
+        ret <- dplyr::tibble()
     } else {
-      vc <- nlme::getVarCov(x)
-      ran_prefix <- switch(rscale,
-        vcov = c("var", "cov"),
-        sdcor = c("sd", "cor")
-      )
-      ## construct appropriate sd/cor names from dimnames
-      nmvec <- outer(
-        colnames(vc), rownames(vc),
-        function(x, y) {
-          ifelse(x == y,
-            sprintf(
-              "%s_%s",
-              ran_prefix[1],
-              x
-            ),
-            sprintf(
-              "%s_%s.%s",
-              ran_prefix[2],
-              x, y
-            )
-          )
-        }
-      )
-      lwrtri <- function(x) {
-        x[lower.tri(x, diag = TRUE)]
-      }
-      nmvec <- c(
-        lwrtri(nmvec),
-        sprintf("%s_%s", ran_prefix[1], "Observation")
-      )
-      grpnames <- c(rep(names(grplen), grplen), "Residual")
-      if (rscale == "vcov") {
-        vals <- c(lwrtri(vc), sigma(x)^2)
-      } else {
-        vals <- cov2cor(vc)
-        diag(vals) <- sqrt(diag(vc))
-        vals <- c(lwrtri(vals), sigma(x))
-      }
-      ret <- dplyr::tibble(
-        effect = "ran_pars",
-        group = grpnames,
-        term = c(nmvec),
-        estimate = c(vals)
-      )
+        ret <- tidy.varcov(x, rscale = rscale, conf.int = conf.int, conf.level = conf.level)
 
-      if (conf.int) {
-        ii <- intervals(x, level = conf.level, which = "var-cov")$reStruct
-        trfun <- function(z) {
-          nm <- rownames(z)
-          nm <- sub(
-            "\\(", "_",
-            sub(
-              ")$", "",
-              sub(",", ".", nm)
-            )
-          )
-          ## ugh, swap order of vars in cor term
-          corterms <- grepl("^cor", nm)
-          re <- "_([^\\.]+)\\.(.+)$"
-          nm[corterms] <-
-            sub(re, "_\\2.\\1", nm[corterms],
-              perl = TRUE
-            )
-          return(dplyr::tibble(
-            term = nm, conf.low = z[, "lower"],
-            conf.high = z[, "upper"]
-          ))
-        }
-        ci <- dplyr::bind_rows(lapply(ii, trfun), .id = "group")
-        if (rscale != "sdcor") {
-          ## FIXME: transform/recompute from scratch
-          warning("confidence intervals for ran pars only available on sdcor scale")
-          ci$conf.low <- ci$conf.high <- NA
-        }
-        ## FIXME: also do confint on residual
-        ## (Once FIXED, also FIX the test "tidy works on nlme/lme fits" in test
-        ## file tests/testthat/test-nlme.R, see FIXME note in the test itself).
-        ret <- dplyr::full_join(ret, ci, by = c("group", "term"))
-      }
-    } ## if not multi-level model
+    }
     if (attr(x$modelStruct, 'fixedSigma')) {
       mask_residual <- ret$group == "Residual"
       if (sum(mask_residual) != 1) {
@@ -511,3 +425,88 @@ tidy.varComb <- function(x, ...) {
     ))
   ret
 }
+
+tidy.varcov <- function(x, rscale = "sdcor", conf.int = TRUE, conf.level = 0.95, ...) {
+    browser()
+    vc <- nlme::getVarCov(x)
+    grplen <- attr(x$modelStruct$reStruct, "plen")
+    ran_prefix <- switch(rscale,
+        vcov = c("var", "cov"),
+        sdcor = c("sd", "cor")
+      )
+      ## construct appropriate sd/cor names from dimnames
+      nmvec <- outer(
+        colnames(vc), rownames(vc),
+        function(x, y) {
+          ifelse(x == y,
+            sprintf(
+              "%s_%s",
+              ran_prefix[1],
+              x
+            ),
+            sprintf(
+              "%s_%s.%s",
+              ran_prefix[2],
+              x, y
+            )
+          )
+        }
+      )
+      lwrtri <- function(x) {
+        x[lower.tri(x, diag = TRUE)]
+      }
+      nmvec <- c(
+        lwrtri(nmvec),
+        sprintf("%s_%s", ran_prefix[1], "Observation")
+      )
+      grpnames <- c(rep(names(grplen), grplen), "Residual")
+      if (rscale == "vcov") {
+        vals <- c(lwrtri(vc), sigma(x)^2)
+      } else {
+        vals <- cov2cor(vc)
+        diag(vals) <- sqrt(diag(vc))
+        vals <- c(lwrtri(vals), sigma(x))
+      }
+      ret <- dplyr::tibble(
+        effect = "ran_pars",
+        group = grpnames,
+        term = c(nmvec),
+        estimate = c(vals)
+        )
+    if (conf.int) {
+        ii <- intervals(x, level = conf.level, which = "var-cov")$reStruct
+        trfun <- function(z) {
+          nm <- rownames(z)
+          nm <- sub(
+            "\\(", "_",
+            sub(
+              ")$", "",
+              sub(",", ".", nm)
+            )
+          )
+          ## ugh, swap order of vars in cor term
+          corterms <- grepl("^cor", nm)
+          re <- "_([^\\.]+)\\.(.+)$"
+          nm[corterms] <-
+            sub(re, "_\\2.\\1", nm[corterms],
+              perl = TRUE
+            )
+          return(dplyr::tibble(
+            term = nm, conf.low = z[, "lower"],
+            conf.high = z[, "upper"]
+          ))
+        }
+        ci <- dplyr::bind_rows(lapply(ii, trfun), .id = "group")
+        if (rscale != "sdcor") {
+          ## FIXME: transform/recompute from scratch
+          warning("confidence intervals for ran pars only available on sdcor scale")
+          ci$conf.low <- ci$conf.high <- NA
+        }
+        ## FIXME: also do confint on residual
+        ## (Once FIXED, also FIX the test "tidy works on nlme/lme fits" in test
+        ## file tests/testthat/test-nlme.R, see FIXME note in the test itself).
+        ret <- dplyr::full_join(ret, ci, by = c("group", "term"))
+    } ## if conf.int  
+    return(ret)
+}
+

@@ -2,7 +2,6 @@ if (requireNamespace("lme4", quietly = TRUE) &&
     requireNamespace("nlme", quietly=TRUE)) {
     library(lme4)
     library(nlme)
-    devtools::load_all()
     data("sleepstudy", package="lme4")
     lmm.nlme <- lme(Reaction ~ Days, random=~ Days|Subject, sleepstudy)
                                         # > VarCorr(lmm.nlme)
@@ -22,6 +21,6 @@ if (requireNamespace("lme4", quietly = TRUE) &&
                       random = list(Subject = ~ Days, Group = ~ 1),
                       data = sleepstudy2
                       )
-    tidy(lmm2)
+    ## tidy(lmm2)
     
 }

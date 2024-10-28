@@ -4,18 +4,18 @@
 \alias{tidy.VarCorr.lme}
 \title{Tidying VarCorr of Mixed Effect Models}
 \usage{
-\method{tidy}{VarCorr.lme}(
-  object,
-  scales = c("sdcor", "vcov"),
-  conf.int = FALSE,
-  conf.level = 0.95,
-  ...
-)
+\method{tidy}{VarCorr.lme}(x, scales = c("sdcor", "vcov"), conf.int = FALSE, conf.level = 0.95, ...)
 }
 \arguments{
-\item{object}{a VarCorr object}
+\item{x}{a VarCorr object}
 
-\item{scales}{see \code{\link{tidy.lme4}}}
+\item{scales}{see \code{\link{tidy.merMod}}}
+
+\item{conf.int}{whether to include a confidence interval}
+
+\item{conf.level}{confidence level for CI}
+
+\item{...}{Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})}
 }
 \description{
 Tidying VarCorr of Mixed Effect Models

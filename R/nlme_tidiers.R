@@ -143,10 +143,11 @@ tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
       stop(sprintf("unrecognized ran_pars scale %s", sQuote(rscale)))
     }
     nonlin <- inherits(x, "nlme")
-
+    grplen <- attr(x$modelStruct$reStruct, "plen")
+    multilevel <- length(grplen) > 1
     ## FIXME: work on multilevel models
-    if (nonlin) {
-        warning("ran_pars not yet implemented for nonlinear models")
+    if (nonlin || multilevel) {
+        warning("ran_pars not yet implemented for nonlinear or multilevel models")
         ret <- dplyr::tibble()
     } else {
         ret <- tidy_varcov(x, rscale = rscale, conf.int = conf.int, conf.level = conf.level)

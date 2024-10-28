@@ -1,3 +1,8 @@
+# CHANGES IN broom.mixed VERSION 0.2.9.6
+
+- CRAN maintenance release
+- `stanreg` tidiers should work for models without random effects
+
 # CHANGES IN broom.mixed VERSION 0.2.9.5
 
 ## NEW FEATURES

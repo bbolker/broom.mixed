@@ -1,34 +1,35 @@
 ## https://github.com/bbolker/broom.mixed/issues/152, @phargarten2
 
 #' Tidying VarCorr of Mixed Effect Models
-#' @param object a VarCorr object
-#' @param scales see \code{\link{tidy.lme4}}
+#' @param x a VarCorr object
+#' @param scales see \code{\link{tidy.merMod}}
+#' @inheritParams tidy.merMod
 #' @importFrom dplyr as_tibble
 #' @export
 tidy.VarCorr.lme <- function(
-                             object,    
+                             x,    
                              ## effects = c("ran_pars", "fixed"),  #effects are always "ran_pars"
                              scales = c("sdcor", "vcov"),
                              conf.int = FALSE, 
                              conf.level = 0.95, 
                              ...) {
 
-    vcov <- var1 <- NULL  ## NSE/R CMD check
+    grp <- vcov <- var1 <- var2 <- sdcor <- estimate <- s <- NULL  ## NSE/R CMD check
     check_dots(...)
     scales <- match.arg(scales)
-    
-    if(inherits(object, "VarCorr.lme")) {
+
+    if(inherits(x, "VarCorr.lme")) {
         ## Need to convert nlme object to a proper tibble
-        object <- convert_VarCorr.lme(object)
+        x <- convert_VarCorr.lme(x)
     } 
     
     if (conf.int) {
-        cli::cli_alert_info("Can't compute confidence intervals for random effect parameters in a crossed model.")
+        message("Can't compute confidence intervals from VarCorr")
     }
 
     if (scales == "vcov") {
-        ests_random <- as_tibble(object) |>
-            rename(group = grp, term = var1, estimate_var = vcov) |>
+        ests_random <- as_tibble(x) |>
+            rename(group = grp, term = var1, estimate = vcov) |>
             mutate(
                 term = case_when(
                     !is.na(term) & !is.na(var2) ~ paste0("cov_", term, "_", var2),
@@ -38,25 +39,11 @@ tidy.VarCorr.lme <- function(
             ) |>
             mutate(effect = "ran_pars", .before = "group")
         
-        total_var <- (ests_random
-            |> filter(is.na(var2))
-            |> summarize(s = sum(estimate_var))
-            |> pull(s)
-        )
-        
         ests_random <- ests_random |>
-            mutate(prop_var = case_when(
-                       !stringr::str_detect(term, "cov_") ~ estimate_var/total_var,
-                       TRUE ~ NA_real_
-                   )
-                   ) |>
             select(-var2, -sdcor)
         
-        ##Check
-        ## print(as_tibble(object))
-        
     } else if(scales == "sdcor") {
-        ests_random <- as_tibble(object) |>
+        ests_random <- as_tibble(x) |>
             rename(group = grp, term = var1, estimate = sdcor) |>
             mutate(
                 term = case_when(
@@ -72,11 +59,11 @@ tidy.VarCorr.lme <- function(
         total_var <- ests_random |> filter(is.na(var2)) |> summarize(s = sum(estimate^2)) |> pull(s)
         
         ests_random <- ests_random |>
-            mutate(prop_var = case_when(
-                       !stringr::str_detect(term, "cor_") ~ estimate^2/total_var,
-                       TRUE ~ NA_real_
-                   )
-                   ) |>
+            ## mutate(prop_var = case_when(
+            ##            !stringr::str_detect(term, "cor_") ~ estimate^2/total_var,
+            ##            TRUE ~ NA_real_
+            ##        )
+            ##        ) |>
             select(-var2, -vcov)
         
     }
@@ -84,27 +71,20 @@ tidy.VarCorr.lme <- function(
     return(ests_random)
 }
 
-                                        #  lmm.lme4 <- lme4::lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
-                                        #as.tibble(lme4::VarCorr(lmm.lme4))
-                                        # grp      var1        var2    vcov   sdcor
-                                        # <chr>    <chr>       <chr>  <dbl>   <dbl>
-                                        # 1 Subject  (Intercept) NA    612.   24.7   
-                                        # 2 Subject  Days        NA     35.1   5.92  
-                                        # 3 Subject  (Intercept) Days    9.60  0.0656
-                                        # 4 Residual NA          NA    655.   25.6  
-
-
-#' This function converts VarCorr on a nlme object to a tibble
+#' This function converts VarCorr on a nlme x to a tibble
 #' i.e. VarCorr.merMod -> tibble of VarCorr.lme
 #' @noRd
-#' @param object  A variance-correlation component of nlme::lme object. 
+#' @param x  A variance-correlation component of nlme::lme object. 
 #' @return A useful (?) tibble
-convert_VarCorr.lme <- function(object){
-    A <- as.matrix(object)
+convert_VarCorr.lme <- function(x) {
+    
+    sdcor <- NULL
+    
+    A <- as.matrix(x)
     row.residual <- stringr::str_which("Residual", rownames(A))
     
     ##Unsure how to generalize this
-    corr.A <- A[-row.residual, -(1:2), drop = TRUE]
+    corr.A <- A[-row.residual, "Corr", drop = TRUE]
     t.corr <- tibble(var = names(corr.A), corr = as.vector(corr.A))
     corr <- tibble(
         var1 = t.corr[1, "var", drop = TRUE],
@@ -112,7 +92,8 @@ convert_VarCorr.lme <- function(object){
         sdcor = t.corr[2, "corr", drop = TRUE]
     )
     
-    tib <-  tibble(grp = NA_character_, var1 = rownames(A), var2 = NA, vcov= A[ ,"Variance"], sdcor = A[ , "StdDev"]) |>
+    tib <-  tibble(grp = NA_character_, var1 = rownames(A), var2 = NA,
+                   vcov= A[ ,"Variance"], sdcor = A[ , "StdDev"]) |>
         bind_rows(corr) |>
         mutate(
             grp = case_when(

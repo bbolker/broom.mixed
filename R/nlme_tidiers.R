@@ -144,11 +144,12 @@ tidy.lme <- function(x, effects = c("var_model", "ran_pars", "fixed"),
     }
     nonlin <- inherits(x, "nlme")
 
+    ## FIXME: work on multilevel models
     if (nonlin) {
         warning("ran_pars not yet implemented for nonlinear models")
         ret <- dplyr::tibble()
     } else {
-        ret <- tidy.varcov(x, rscale = rscale, conf.int = conf.int, conf.level = conf.level)
+        ret <- tidy_varcov(x, rscale = rscale, conf.int = conf.int, conf.level = conf.level)
 
     }
     if (attr(x$modelStruct, 'fixedSigma')) {
@@ -426,8 +427,7 @@ tidy.varComb <- function(x, ...) {
   ret
 }
 
-tidy.varcov <- function(x, rscale = "sdcor", conf.int = TRUE, conf.level = 0.95, ...) {
-    browser()
+tidy_varcov <- function(x, rscale = "sdcor", conf.int = TRUE, conf.level = 0.95, ...) {
     vc <- nlme::getVarCov(x)
     grplen <- attr(x$modelStruct$reStruct, "plen")
     ran_prefix <- switch(rscale,

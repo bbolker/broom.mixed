@@ -124,3 +124,17 @@ tidy.TMB <- function(x, effects = c("fixed", "random"),
   ##
   return(ret)
 }
+
+#' @export
+glance.TMB <- function(x, nobs = NA, ...) {
+    assert_dependency("TMB")
+    pars <- x$env$last.par.best
+    random <- x$env$random
+    if (!is.null(random)) pars <- pars[-random]
+    npar <- length(pars)
+    dev <- x$fn(pars)
+    loglik <- -dev/2
+    AIC <-  dev + 2*npar
+    BIC <- dev + npar*log(nobs)
+    tibble(df = npar, loglik, AIC, BIC)
+}

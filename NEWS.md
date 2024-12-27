@@ -1,3 +1,7 @@
+# CHANGES IN broom.mixed VERSION 0.2.9.7
+
+- added `glance` method for `TMB` objects
+
 # CHANGES IN broom.mixed VERSION 0.2.9.6
 
 - CRAN maintenance release

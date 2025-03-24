@@ -134,4 +134,11 @@ if (require(glmmTMB, quietly = TRUE)
       expect_identical(nrow(t1), 1L)
       expect_identical(nrow(t2), 2L)
   } ## if requireNamespace("lme4")
+
+
+  test_that("vv without RE in conditional model", {
+      m <- glmmTMB(mpg ~ hp, data = mtcars,
+                   dispformula = ~ 1 + (1|cyl), family = gaussian)
+      expect_equal(nrow(tidy(m)), 2L)
+   })
 } ## if require(glmmTMB)

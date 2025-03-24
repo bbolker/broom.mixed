@@ -208,14 +208,16 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
     }
     ## kluge for now ...
     vv <- list()
-    if ("cond" %in% component) {
-      vv$cond <- VarCorr(x)[["cond"]]
-      class(vv$cond) <- "VarCorr.merMod"
+    mk_vcmm <- function(comp)  {
+        if (!is.null(vc <- VarCorr(x)[[comp]])) 
+            class(vc) <- "VarCorr.merMod"
+        return(vc)
     }
-    if ("zi" %in% component) {
-      if (!is.null(vv$zi <- VarCorr(x)[["zi"]])) {
-        class(vv$zi) <- "VarCorr.merMod"
-      }
+
+    for (comp in c("cond", "zi", "disp")) {
+        if (comp %in% component) {
+            vv[[comp]] <- mk_vcmm(comp)
+        }
     }
 
     ret <- (

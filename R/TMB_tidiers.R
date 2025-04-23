@@ -133,8 +133,8 @@ glance.TMB <- function(x, nobs = NA, ...) {
     if (!is.null(random)) pars <- pars[-random]
     npar <- length(pars)
     dev <- x$fn(pars)
-    loglik <- -dev
+    logLik <- -dev
     AIC <-  2*dev + 2*npar
     BIC <- 2*dev + npar*log(nobs)
-    tibble(df = npar, loglik, AIC, BIC)
+    tibble(df = npar, logLik, AIC, BIC)
 }

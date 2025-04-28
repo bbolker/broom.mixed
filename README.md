@@ -6,7 +6,7 @@
 [![R-CMD-check](https://github.com/bbolker/broom.mixed/workflows/R-CMD-check/badge.svg)](https://github.com/bbolker/broom.mixed/actions)
 <!-- badges: end -->
 
-This package is a spin-off from the [broom package](https://github.com/tidyverse/broom) for tidying output of statistical models; it imports basic functionality from `broom` and implements particular methods to handle a wide class of mixed (hierarchical, multi-level) models. It can be loaded directly or via the [broomExtra package](https://CRAN.R-project.org/package=broomExtra)
+This package is a spin-off from the [broom package](https://github.com/tidyverse/broom) for tidying output of statistical models; it imports basic functionality from `broom` and implements particular methods to handle a wide class of mixed (hierarchical, multi-level) models.
 
 ## Where to ask questions
 

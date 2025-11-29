@@ -14,6 +14,17 @@ context("lme4 models")
   colnames(d) <- c("y", "x", "subj", "tx")
   fit <<- lmer(y ~ tx * x + (x | subj), data = d)
 
+  cnms <- c("(Intercept)", "tx2", "tx3", "tx4", "x",
+        "tx2:x", "tx3:x", "tx4:x",
+        "sd__(Intercept)",
+        "cor__(Intercept).x",
+        "sd__x",
+        "sd__Observation"
+        )
+  if (packageVersion("lme4") >= "2.0.0") {
+    cnms <- cnms[c(1:9, 11, 10, 12)]
+  }
+
   test_that("tidy works on lme4 fits", {
     td <- tidy(fit)
     ## FIXME: fails if lmerTest has been loaded previously ...
@@ -27,17 +38,10 @@ context("lme4 models")
     )
     expect_equal(
       td$term,
-      c(
-        "(Intercept)", "tx2", "tx3", "tx4", "x",
-        "tx2:x", "tx3:x", "tx4:x",
-        "sd__(Intercept)",
-        "cor__(Intercept).x",
-        "sd__x",
-        "sd__Observation"
-      )
+      cnms
     )
   })
-
+  
   test_that("tidy/glance works on glmer fits", {
     gm <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
       cbpp, binomial,
@@ -209,7 +213,8 @@ test_that("augment returns a tibble", {
 test_that("conf intervals for ranef in correct order", {
     ## GH 65
     t1 <- tidy(lmm1,conf.int=TRUE,effect="ran_pars",conf.method="profile",quiet=TRUE)
-    cor_vals <- t1[t1$term=="cor__(Intercept).Days",]
+    
+cor_vals <- t1[t1$term=="cor__(Intercept).Days",]
     expect_true(cor_vals$conf.low>(-1) && cor_vals$conf.high<1)
 })
 }

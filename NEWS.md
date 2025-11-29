@@ -1,6 +1,7 @@
 # CHANGES IN broom.mixed VERSION 0.2.9.7
 
 - added `glance` method for `TMB` objects
+- changes for compatibility with `lme4` >= 2.0.0
 
 # CHANGES IN broom.mixed VERSION 0.2.9.6
 

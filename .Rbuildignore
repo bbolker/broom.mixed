@@ -21,3 +21,4 @@ pix/
 inst/extdata/8schools.rds
 inst/extdata/m1-*
 inst/extdata/m2-*
+reverse

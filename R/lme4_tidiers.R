@@ -250,7 +250,8 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
     }
     ## n.b. use order="lower.tri" here so that term order matches
     ## that returned by confint() !
-    ret <- as.data.frame(vc, order="lower.tri")
+    ord <- if (packageVersion("lme4") >= "2.0.0") "cov.last" else "lower.tri"
+    ret <- as.data.frame(vc, order=ord)
     ## purrr::map_at?
     ret[] <- lapply(ret, function(x) if (is.factor(x)) {
         as.character(x)

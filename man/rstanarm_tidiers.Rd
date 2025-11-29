@@ -95,7 +95,7 @@ into a summary.
 }
 \examples{
 
-if (require("rstanarm")) {
+if (require("rstanarm") && require("tibble")) {
 \dontrun{
 #'     ## original models
   fit <- stan_glmer(mpg ~ wt + (1|cyl) + (1+wt|gear), data = mtcars,
@@ -114,10 +114,10 @@ if (require("rstanarm")) {
 
   #  exponentiating (in this case, from log-odds to odds ratios)
   (tidy(fit2, conf.int = TRUE, conf.level = 0.5)
-          |> dplyr::filter(term != "(Intercept)")
+          \%>\% dplyr::filter(term != "(Intercept)")
   )
   (tidy(fit2, conf.int = TRUE, conf.level = 0.5, exponentiate = TRUE)
-          |> dplyr::filter(term != "(Intercept)")
+          \%>\% dplyr::filter(term != "(Intercept)")
   )
 
   # hierarchical sd & correlation parameters

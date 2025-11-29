@@ -247,9 +247,9 @@ tidy.brmsfit <- function(x, parameters = NA,
     ## nice, but needs to be done outside averaging loop ...
     ##   meltfun <- function(a) {
           
-    ##     dd <- as.data.frame(ftable(a)) |>  
-    ##         setNames(c("level", "var", "term", "value")) |>
-    ##         tidyr::pivot_wider(names_from = var, values_from = value) |>
+    ##     dd <- as.data.frame(ftable(a)) %>%  
+    ##         setNames(c("level", "var", "term", "value")) %>%
+    ##         tidyr::pivot_wider(names_from = var, values_from = value) %>%
     ##         rename(estimate = "Estimate",
     ##                std.error = "Est.Error",
     ##                ## FIXME: not robust to changing levels

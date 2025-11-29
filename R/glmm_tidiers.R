@@ -12,7 +12,7 @@ tidy.glmm <- function(x, effects = "fixed", ...) {
             tibble(
                 term = fix_nm,
                 estimate = coef(x),
-                std.error = sqrt(diag(vcov(x)))[fix_nm]) |>
+                std.error = sqrt(diag(vcov(x)))[fix_nm]) %>%
             mutate(statistic = estimate/std.error,
                    p.value = 2*pnorm(-abs(statistic)))
     }
@@ -21,7 +21,7 @@ tidy.glmm <- function(x, effects = "fixed", ...) {
             tibble(
                 term = ran_nm,
                 estimate = x$nu,
-                std.error = sqrt(diag(vcov(x)))[ran_nm]) |>
+                std.error = sqrt(diag(vcov(x)))[ran_nm]) %>%
             mutate(statistic = NA_real_,
                    p.value = NA_real_)
     }

@@ -28,42 +28,42 @@ tidy.VarCorr.lme <- function(
     }
 
     if (scales == "vcov") {
-        ests_random <- as_tibble(x) |>
-            rename(group = grp, term = var1, estimate = vcov) |>
+        ests_random <- as_tibble(x) %>%
+            rename(group = grp, term = var1, estimate = vcov) %>%
             mutate(
                 term = case_when(
                     !is.na(term) & !is.na(var2) ~ paste0("cov_", term, "_", var2),
                     group == "Residual" & is.na(term) ~ paste0("var_", "Observation"),
                     TRUE ~ paste0("var_", term)
                 )
-            ) |>
+            ) %>%
             mutate(effect = "ran_pars", .before = "group")
         
-        ests_random <- ests_random |>
+        ests_random <- ests_random %>%
             select(-var2, -sdcor)
         
     } else if(scales == "sdcor") {
-        ests_random <- as_tibble(x) |>
-            rename(group = grp, term = var1, estimate = sdcor) |>
+        ests_random <- as_tibble(x) %>%
+            rename(group = grp, term = var1, estimate = sdcor) %>%
             mutate(
                 term = case_when(
                     !is.na(term) & !is.na(var2) ~ paste0("cor_", term, "_", var2),
                     group == "Residual" & is.na(term) ~ paste0("sd_", "Observation"),
                     TRUE ~ paste0("sd_", term)
                 )
-            ) |>
+            ) %>%
             mutate(effect = "ran_pars", .before = "group")
         
         ##Can estimate covariance if requested with a bit more work...
         
-        total_var <- ests_random |> filter(is.na(var2)) |> summarize(s = sum(estimate^2)) |> pull(s)
+        total_var <- ests_random %>% filter(is.na(var2)) %>% summarize(s = sum(estimate^2)) %>% pull(s)
         
-        ests_random <- ests_random |>
+        ests_random <- ests_random %>%
             ## mutate(prop_var = case_when(
             ##            !stringr::str_detect(term, "cor_") ~ estimate^2/total_var,
             ##            TRUE ~ NA_real_
             ##        )
-            ##        ) |>
+            ##        ) %>%
             select(-var2, -vcov)
         
     }
@@ -93,8 +93,8 @@ convert_VarCorr.lme <- function(x) {
     )
     
     tib <-  tibble(grp = NA_character_, var1 = rownames(A), var2 = NA,
-                   vcov= A[ ,"Variance"], sdcor = A[ , "StdDev"]) |>
-        bind_rows(corr) |>
+                   vcov= A[ ,"Variance"], sdcor = A[ , "StdDev"]) %>%
+        bind_rows(corr) %>%
         mutate(
             grp = case_when(
                 var1 != "Residual" ~ "Subject",

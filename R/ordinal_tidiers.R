@@ -41,7 +41,7 @@ augment.clmm <- function( x,
     ## STUB
     ## call predict_all_clmm
     ## generate mean predictions via
-    ##  sweep([pred matrix], MARGIN = 2, FUN = "*", STATS = seq(ncol[pred matrix])) |> rowMeans
+    ##  sweep([pred matrix], MARGIN = 2, FUN = "*", STATS = seq(ncol[pred matrix])) %>% rowMeans
     ## get std dev similarly (sqrt(rowMeans(sweep with (1:n)^2)))
     ## residuals, pearson residuals?
 }

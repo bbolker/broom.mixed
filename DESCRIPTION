@@ -41,7 +41,7 @@ Description: Convert fitted objects from various R mixed-model packages
     provides a one-row summary of model-level statistics.
 Imports:
     broom,
-    coda,
+    coda (>= 0.19-4.1),
     dplyr,
     forcats,
     methods,

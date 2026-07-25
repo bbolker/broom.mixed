@@ -120,6 +120,16 @@ fix_ran_vals <- function(g) {
 #'   \item{statistic}{t- or Z-statistic (\code{NA} for modes)}
 #'   \item{p.value}{P-value computed from t-statistic (may be missing/NA)}
 #'
+#' @note for \code{glmer} families with an estimated scale parameter
+#' (e.g. \code{Gamma}), that parameter is not really a residual standard
+#' deviation/variance in the usual (Gaussian/\code{lmer}) sense -- it is
+#' more accurately described as a scale or dispersion parameter.
+#' \code{tidy()} nonetheless reports it as a \code{ran_pars} row with
+#' \code{group = "Residual"} and \code{term = "sd__Observation"} (or
+#' \code{"var__Observation"} for \code{scales = "vcov"}), for consistency
+#' with the \code{lmer} case; there is currently no separate \code{effects}
+#' category for scale/dispersion parameters.
+#'
 #' @importFrom dplyr mutate bind_rows bind_cols
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyr gather spread
@@ -276,6 +286,33 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
       ret[c("grp", "term", rscale)],
       c("group", "term", "estimate")
     )
+
+    ## Some GLMM families (e.g. Gamma, inverse.gaussian) have an estimated
+    ## scale/dispersion parameter that VarCorr() does not report (its
+    ## "useSc" attribute describes the internal Cholesky parameterization,
+    ## which is unscaled for *all* GLMMs regardless of family -- see
+    ## https://github.com/lme4/lme4/issues/935), but that IS included as a
+    ## ".sigma" row by confint(*, parm="theta_"). Add a matching Residual
+    ## row here (using the same useSc flag confint() itself relies on) so
+    ## (a) the dispersion estimate isn't silently dropped, and (b) later
+    ## cbind()ing with confint() output doesn't recycle/duplicate rows.
+    ## This only fires when VarCorr() hasn't already supplied a Residual
+    ## row (the LMM case) and only when the model truly has a scale
+    ## parameter (not Poisson/binomial/negative binomial).
+    if (is(x, "merMod") && !("Residual" %in% ret$group)) {
+      usesc <- x@devcomp$dims[["useSc"]]
+      if (usesc == 1L) {
+        resid_est <- switch(rscale, sdcor = sigma(x), vcov = sigma(x)^2)
+        resid_term <- ran_pars_name(c(NA_character_, NA_character_), ran_prefix = ran_prefix)
+        ret <- rbind(
+          ret,
+          data.frame(
+            group = "Residual", term = resid_term,
+            estimate = resid_est, stringsAsFactors = FALSE
+          )
+        )
+      }
+    }
 
     if (conf.int) {
         prof.scale <- if (rscale == "vcov") "varcov" else "sdcor"

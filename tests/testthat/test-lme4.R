@@ -112,6 +112,33 @@ if (require(lme4, quietly = TRUE)) {
     )
   })
 
+  test_that("tidy works on glmer fits with an estimated scale parameter", {
+    ## Gamma (and other non-Poisson/binomial) glmer fits have an estimated
+    ## dispersion/scale parameter that VarCorr() does not report as a
+    ## "Residual" row (unlike lmer fits), but confint(*, parm="theta_")
+    ## does return a row for it; previously this row-count mismatch caused
+    ## the ran_pars row(s) to be silently duplicated via recycling.
+    skip_if_not_installed("glmmTMB")
+    epil2 <- get(data("epil2", package = "glmmTMB", envir = environment()))
+    epil2_red <- subset(epil2, y > 0)
+    mod_glmer <- glmer(y ~ trt + (1 | subject),
+      data = epil2_red, family = Gamma(link = "log")
+    )
+
+    td <- tidy(mod_glmer)
+    td_ran <- td[td$effect == "ran_pars", ]
+    expect_equal(nrow(td_ran), 2)
+    expect_equal(td_ran$group, c("subject", "Residual"))
+    expect_equal(td_ran$term, c("sd__(Intercept)", "sd__Observation"))
+    expect_equal(td_ran$estimate[2], sigma(mod_glmer))
+
+    ## with conf.int=TRUE, rows must not be duplicated/recycled
+    td_ci <- tidy(mod_glmer, conf.int = TRUE)
+    td_ci_ran <- td_ci[td_ci$effect == "ran_pars", ]
+    expect_equal(nrow(td_ci_ran), 2)
+    expect_false(identical(td_ci_ran$estimate[1], td_ci_ran$estimate[2]))
+  })
+
   test_that("tidy works with more than one RE grouping variable", {
     dd <- expand.grid(f = factor(1:10), g = factor(1:5), rep = 1:3)
     dd$y <- suppressMessages(simulate(~(1 | f) + (1 | g),

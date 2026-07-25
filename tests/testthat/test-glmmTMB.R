@@ -141,4 +141,51 @@ if (require(glmmTMB, quietly = TRUE)
                    dispformula = ~ 1 + (1|cyl), family = gaussian)
       expect_equal(nrow(tidy(m)), 2L)
    })
+
+  test_that("tidy reports dispersion for glmmTMB fits with an estimated scale parameter", {
+      ## Families like Gamma (or nbinom2) have a genuinely estimated
+      ## residual/dispersion parameter that VarCorr()'s per-component
+      ## useSc attribute does not reflect (it describes glmmTMB's internal
+      ## Cholesky parameterization, which is unscaled regardless of
+      ## family), unlike the overall VarCorr object's own "sc" attribute.
+      ## Previously this meant the dispersion estimate was silently
+      ## dropped from tidy() output entirely for such models.
+      skip_if_not_installed("glmmTMB")
+      epil2 <- get(data("epil2", package = "glmmTMB", envir = environment()))
+      epil2_red <- subset(epil2, y > 0)
+      mod_tmb <- glmmTMB(y ~ trt + (1 | subject),
+        data = epil2_red, family = Gamma(link = "log")
+      )
+
+      td <- tidy(mod_tmb)
+      td_ran <- td[td$effect == "ran_pars", ]
+      expect_equal(nrow(td_ran), 2)
+      expect_equal(td_ran$group, c("subject", "Residual"))
+      expect_equal(td_ran$term, c("sd__(Intercept)", "sd__Observation"))
+      expect_equal(td_ran$estimate[2], sigma(mod_tmb))
+
+      ## models without a real scale parameter (e.g. binomial) must be
+      ## unaffected: no spurious Residual row
+      skip_if_not_installed("lme4")
+      cbpp <- get(data("cbpp", package = "lme4", envir = environment()))
+      gm1 <- glmmTMB(cbind(incidence, size - incidence) ~ period + (1 | herd),
+        data = cbpp, family = binomial
+      )
+      td_gm1 <- tidy(gm1, effects = "ran_pars")
+      expect_false("Residual" %in% td_gm1$group)
+
+      ## gaussian fits already got a Residual row via the lme4-borrowed
+      ## as.data.frame.VarCorr.merMod dispatch (useSc == TRUE there); must
+      ## not get a second, duplicate one
+      sleepstudy <- get(data("sleepstudy", package = "lme4", envir = environment()))
+      fm <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+      td_fm <- tidy(fm, effects = "ran_pars")
+      expect_equal(sum(td_fm$group == "Residual"), 1)
+
+      ## NB: conf.int=TRUE for ran_pars is not checked here -- it is
+      ## affected by a separate, pre-existing bug in the s_component
+      ## filtering used for theta_ confidence intervals (CIs are
+      ## currently misaligned/dropped for *all* glmmTMB models, not
+      ## specific to dispersion handling).
+   })
 } ## if require(glmmTMB)

@@ -97,6 +97,16 @@ warning is raised and the incomplete rows are dropped.
 \note{
 zero-inflation parameters (including the intercept) are reported
 on the logit scale
+
+for non-Gaussian families with an estimated scale parameter
+(e.g. \code{Gamma}, \code{nbinom2}), that parameter is not really a
+residual standard deviation/variance in the usual (Gaussian) sense --
+it is more accurately described as a scale or dispersion parameter.
+\code{tidy()} nonetheless reports it as a \code{ran_pars} row with
+\code{group = "Residual"} and \code{term = "sd__Observation"} (or
+\code{"var__Observation"} for \code{scales = "vcov"}), for consistency
+with the Gaussian/LMM case; there is currently no separate
+\code{effects} category for scale/dispersion parameters.
 }
 \examples{
 if (require("glmmTMB") && require("lme4")

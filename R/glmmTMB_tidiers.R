@@ -85,6 +85,16 @@ NULL
 #' @note zero-inflation parameters (including the intercept) are reported
 #' on the logit scale
 #'
+#' @note for non-Gaussian families with an estimated scale parameter
+#' (e.g. \code{Gamma}, \code{nbinom2}), that parameter is not really a
+#' residual standard deviation/variance in the usual (Gaussian) sense --
+#' it is more accurately described as a scale or dispersion parameter.
+#' \code{tidy()} nonetheless reports it as a \code{ran_pars} row with
+#' \code{group = "Residual"} and \code{term = "sd__Observation"} (or
+#' \code{"var__Observation"} for \code{scales = "vcov"}), for consistency
+#' with the Gaussian/LMM case; there is currently no separate
+#' \code{effects} category for scale/dispersion parameters.
+#'
 #' @import dplyr
 #' @importFrom tidyr gather spread
 #' @importFrom nlme VarCorr ranef
@@ -128,6 +138,7 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
 
   drop.missing <- function(x) x[vapply(x,length,numeric(1))>0]
   ss <- stats::coef(summary(x))
+  ## need 'disp' components?
   ss <- drop.missing(ss)
   ## FIXME: warn if !missing(component) and component includes
   ##  NULL terms
@@ -209,8 +220,9 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
     ## kluge for now ...
     vv <- list()
     mk_vcmm <- function(comp)  {
-        if (!is.null(vc <- VarCorr(x)[[comp]])) 
+        if (!is.null(vc <- VarCorr(x)[[comp]])) {
             class(vc) <- "VarCorr.merMod"
+        }
         return(vc)
     }
 
@@ -259,6 +271,38 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
                       estimate=numeric(0))
     }
     ## rownames(ret) <- seq(nrow(ret))
+
+    ## Some families (e.g. Gamma, nbinom2) have a genuinely estimated
+    ## scale/dispersion parameter that mk_vcmm()'s VarCorr.merMod-style
+    ## as.data.frame() does not report as a "Residual" row -- its useSc
+    ## attribute (per component) describes glmmTMB's internal Cholesky
+    ## parameterization, which is unscaled regardless of family, mirroring
+    ## the lme4::glmer situation (see lme4 issue #935). The *overall*
+    ## VarCorr object's own "sc" attribute correctly flags whether sigma
+    ## is a real free parameter; add a matching Residual row when it's
+    ## missing so the dispersion estimate isn't silently dropped, and so
+    ## the conf.int alignment below (which already computes a CI for
+    ## "sigma") doesn't get truncated away.
+    ## Only do this when the *conditional* formula itself has random
+    ## effects (VarCorr(x)$cond non-NULL): sigma(x) is the conditional
+    ## model's residual scale, which isn't a well-defined single scalar
+    ## when dispersion is instead modeled via a dispformula with its own
+    ## covariates/random effects (e.g. dispformula = ~ 1 + (1|g)) -- that
+    ## dispersion structure is already available via component = "disp".
+    if ("cond" %in% component &&
+        !is.null(VarCorr(x)[["cond"]]) &&
+        isTRUE(attr(VarCorr(x), "sc")) &&
+        !("Residual" %in% ret$group[ret$component == "cond"])) {
+      resid_est <- switch(rscale, sdcor = sigma(x), vcov = sigma(x)^2)
+      resid_term <- ran_pars_name(c(NA_character_, NA_character_), ran_prefix = ran_prefix)
+      ret <- rbind(
+        ret,
+        data.frame(
+          component = "cond", group = "Residual", term = resid_term,
+          estimate = resid_est, stringsAsFactors = FALSE
+        )
+      )
+    }
 
       if (conf.int) {
         thpar <- "theta_"

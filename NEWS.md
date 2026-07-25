@@ -5,6 +5,12 @@
 - `lme4` tidying with profile CIs now respects `scale = "vcov"` (GH #161, @richmaparker)
 - added `glance` method for `TMB` objects
 - changes for compatibility with `lme4` >= 2.0.0
+- fixed bug where `tidy.merMod()` dropped the residual/dispersion parameter
+  for `glmer` fits with an estimated scale parameter (e.g. `Gamma` family),
+  and duplicated `ran_pars` rows instead when `conf.int = TRUE`
+- fixed analogous bug in `tidy.glmmTMB()`: the residual/dispersion estimate
+  was silently dropped from `ran_pars` output for `glmmTMB` fits with an
+  estimated scale parameter (e.g. `Gamma`, `nbinom2`)
 
 # CHANGES IN broom.mixed VERSION 0.2.9.6 (2024-10-15)
 

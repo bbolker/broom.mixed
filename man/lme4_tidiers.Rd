@@ -128,6 +128,17 @@ rows (typically with NAs in place of the new columns). If the original data
 is not provided to \code{augment} and \code{na.action = "na.exclude"}, a
 warning is raised and the incomplete rows are dropped.
 }
+\note{
+for \code{glmer} families with an estimated scale parameter
+(e.g. \code{Gamma}), that parameter is not really a residual standard
+deviation/variance in the usual (Gaussian/\code{lmer}) sense -- it is
+more accurately described as a scale or dispersion parameter.
+\code{tidy()} nonetheless reports it as a \code{ran_pars} row with
+\code{group = "Residual"} and \code{term = "sd__Observation"} (or
+\code{"var__Observation"} for \code{scales = "vcov"}), for consistency
+with the \code{lmer} case; there is currently no separate \code{effects}
+category for scale/dispersion parameters.
+}
 \examples{
 
 if (require("lme4")) {

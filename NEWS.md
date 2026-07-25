@@ -11,6 +11,13 @@
 - fixed analogous bug in `tidy.glmmTMB()`: the residual/dispersion estimate
   was silently dropped from `ran_pars` output for `glmmTMB` fits with an
   estimated scale parameter (e.g. `Gamma`, `nbinom2`)
+- fixed bug in `tidy.glmmTMB()` where `ran_pars` confidence intervals
+  (`conf.int = TRUE`) were dropped or misaligned with the wrong term for
+  essentially all `glmmTMB` fits, because of an incorrect assumption about
+  how `confint(*, parm = "theta_")` names its rows; also ensured no
+  Residual row/CI is reported when `dispformula` includes covariates or
+  random effects, since `sigma()` is not a single well-defined scalar in
+  that case
 
 # CHANGES IN broom.mixed VERSION 0.2.9.6 (2024-10-15)
 

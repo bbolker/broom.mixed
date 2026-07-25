@@ -182,10 +182,104 @@ if (require(glmmTMB, quietly = TRUE)
       td_fm <- tidy(fm, effects = "ran_pars")
       expect_equal(sum(td_fm$group == "Residual"), 1)
 
-      ## NB: conf.int=TRUE for ran_pars is not checked here -- it is
-      ## affected by a separate, pre-existing bug in the s_component
-      ## filtering used for theta_ confidence intervals (CIs are
-      ## currently misaligned/dropped for *all* glmmTMB models, not
-      ## specific to dispersion handling).
+      ## conf.int=TRUE: the Residual row's CI must come from confint(x,
+      ## parm="sigma"), correctly aligned with (not swapped with, or
+      ## dropped in favour of) the random-effect term's own CI (see the
+      ## "conf.int alignment" tests below for the underlying bug this
+      ## depends on being fixed)
+      td_ci <- tidy(mod_tmb, conf.int = TRUE)
+      td_ci_ran <- td_ci[td_ci$effect == "ran_pars", ]
+      expect_equal(
+        as.numeric(td_ci_ran[1, c("conf.low", "conf.high")]),
+        as.numeric(confint(mod_tmb, parm = "theta_", method = "Wald")[1, 1:2])
+      )
+      expect_equal(
+        as.numeric(td_ci_ran[2, c("conf.low", "conf.high")]),
+        as.numeric(confint(mod_tmb, parm = "sigma", method = "Wald")[1, 1:2])
+      )
+   })
+
+  test_that("ran_pars conf.int alignment with theta_/sigma confint() (single component)", {
+      ## Regression test for a pre-existing bug: safe_confint()'s
+      ## s_component regex filter assumed theta_ CI row names are always
+      ## prefixed with the component name (e.g. "cond."), but glmmTMB only
+      ## adds that prefix when random effects span more than one
+      ## component; with a single component (the common case) row names
+      ## are unprefixed, so the filter matched nothing and CIs came out
+      ## entirely dropped, or (worse) misaligned with the wrong ran_pars
+      ## row once a Residual row was also present.
+      skip_if_not_installed("lme4")
+      sleepstudy <- get(data("sleepstudy", package = "lme4", envir = environment()))
+      fm <- glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+      td <- tidy(fm, conf.int = TRUE, effects = "ran_pars")
+      raw_theta <- confint(fm, parm = "theta_", method = "Wald")[, 1:2, drop = FALSE]
+      raw_sigma <- confint(fm, parm = "sigma", method = "Wald")
+      expect_equal(nrow(td), nrow(raw_theta) + 1)
+      expect_equal(
+        unname(as.matrix(td[seq_len(nrow(raw_theta)), c("conf.low", "conf.high")])),
+        unname(raw_theta),
+        ignore_attr = TRUE
+      )
+      expect_equal(
+        as.numeric(td[nrow(td), c("conf.low", "conf.high")]),
+        as.numeric(raw_sigma[1, 1:2])
+      )
+
+      cbpp <- get(data("cbpp", package = "lme4", envir = environment()))
+      gm1 <- glmmTMB(cbind(incidence, size - incidence) ~ period + (1 | herd),
+        data = cbpp, family = binomial
+      )
+      td_gm1 <- tidy(gm1, conf.int = TRUE, effects = "ran_pars")
+      raw_gm1 <- confint(gm1, parm = "theta_", method = "Wald")
+      expect_equal(
+        as.numeric(td_gm1[1, c("conf.low", "conf.high")]),
+        as.numeric(raw_gm1[1, 1:2])
+      )
+   })
+
+  test_that("ran_pars conf.int alignment with theta_/sigma confint() (multiple components)", {
+      ## when random effects DO span multiple components, glmmTMB prefixes
+      ## theta_ CI row names (e.g. "cond.Std.Dev...", "zi.Std.Dev..."), and
+      ## the s_component filter must still correctly select only the
+      ## requested component(s)
+      skip_if_not_installed("lme4")
+      sleepstudy <- get(data("sleepstudy", package = "lme4", envir = environment()))
+      suppressWarnings(
+        fm3ZIP <- glmmTMB(round(Reaction) ~ Days + (1 | Subject),
+          family = poisson, ziformula = ~ (1 | Subject), data = sleepstudy
+        )
+      )
+      td_both <- suppressWarnings(tidy(fm3ZIP, conf.int = TRUE, effects = "ran_pars"))
+      expect_equal(nrow(td_both), 2)
+      expect_equal(td_both$component, c("cond", "zi"))
+
+      td_cond <- suppressWarnings(
+        tidy(fm3ZIP, conf.int = TRUE, effects = "ran_pars", component = "cond")
+      )
+      expect_equal(nrow(td_cond), 1)
+      expect_equal(td_cond$component, "cond")
+      expect_equal(td_cond$estimate, td_both$estimate[1])
+   })
+
+  test_that("no Residual row/CI added when dispformula is non-trivial", {
+      ## sigma(x) and confint(x, parm="sigma") are not comparable when
+      ## dispformula has covariates/random effects of its own: glmmTMB's
+      ## own confint() falls back to reporting the raw (untransformed,
+      ## link-scale) dispformula coefficient CI instead of a natural-scale
+      ## CI for sigma() in that case, so no Residual row should be added
+      ## (and any pre-existing one from the lme4-borrowed VarCorr.merMod
+      ## dispatch must be stripped, since it would use the same
+      ## not-really-comparable sigma(x) value)
+      skip_if_not_installed("lme4")
+      sleepstudy <- get(data("sleepstudy", package = "lme4", envir = environment()))
+      sleepstudy$grp2 <- factor(rep(1:3, length.out = nrow(sleepstudy)))
+      suppressWarnings(
+        fm_nt <- glmmTMB(Reaction ~ Days + (1 | Subject), data = sleepstudy,
+          dispformula = ~ 1 + (1 | grp2)
+        )
+      )
+      td <- suppressWarnings(tidy(fm_nt, conf.int = TRUE, effects = "ran_pars"))
+      expect_false("Residual" %in% td$group)
+      expect_equal(nrow(td), 1)
    })
 } ## if require(glmmTMB)

@@ -123,9 +123,21 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
             args <- c(args, list(include_mapped = TRUE))
         }
         res <- do.call(confint, args)
-        if (!is.null(s_component)) {
-            re <- sprintf("^(%s)", paste(s_component, collapse = "|"))
-            res <- res[grepl(re, rownames(res)),]
+        if (!is.null(s_component) && nrow(res) > 0) {
+            ## glmmTMB only prefixes theta_ CI row names with "<component>."
+            ## (e.g. "cond.Std.Dev.(Intercept)|Subject") when the returned
+            ## parameters span more than one of cond/zi/disp; if only one
+            ## component has random effects, row names are left unprefixed
+            ## (e.g. "Std.Dev.(Intercept)|Subject"). A plain "^(cond|zi)"
+            ## regex silently matches nothing at all in the common
+            ## (single-component) case, dropping every CI row. Only filter
+            ## by prefix when at least one row actually has one.
+            all_comps <- c("cond", "zi", "disp")
+            any_prefixed <- any(grepl(sprintf("^(%s)\\.", paste(all_comps, collapse = "|")), rownames(res)))
+            if (any_prefixed) {
+                re <- sprintf("^(%s)\\.", paste(s_component, collapse = "|"))
+                res <- res[grepl(re, rownames(res)), , drop = FALSE]
+            }
         }
         return(res)
     }
@@ -283,25 +295,40 @@ tidy.glmmTMB <- function(x, effects = c("ran_pars", "fixed"),
     ## missing so the dispersion estimate isn't silently dropped, and so
     ## the conf.int alignment below (which already computes a CI for
     ## "sigma") doesn't get truncated away.
-    ## Only do this when the *conditional* formula itself has random
-    ## effects (VarCorr(x)$cond non-NULL): sigma(x) is the conditional
-    ## model's residual scale, which isn't a well-defined single scalar
-    ## when dispersion is instead modeled via a dispformula with its own
-    ## covariates/random effects (e.g. dispformula = ~ 1 + (1|g)) -- that
-    ## dispersion structure is already available via component = "disp".
-    if ("cond" %in% component &&
-        !is.null(VarCorr(x)[["cond"]]) &&
-        isTRUE(attr(VarCorr(x), "sc")) &&
-        !("Residual" %in% ret$group[ret$component == "cond"])) {
-      resid_est <- switch(rscale, sdcor = sigma(x), vcov = sigma(x)^2)
-      resid_term <- ran_pars_name(c(NA_character_, NA_character_), ran_prefix = ran_prefix)
-      ret <- rbind(
-        ret,
-        data.frame(
-          component = "cond", group = "Residual", term = resid_term,
-          estimate = resid_est, stringsAsFactors = FALSE
-        )
-      )
+    ##
+    ## This is only well-defined when the dispformula is trivial (~1):
+    ## sigma(x) and the dispformula intercept are the same underlying
+    ## parameter, but glmmTMB's own confint() only back-transforms it to
+    ## the natural sigma() scale when dispformula has no covariates/random
+    ## effects (glmmTMB:::trivialDisp()); as soon as dispformula has any
+    ## term (e.g. ~ 1 + (1|g)), confint(parm="sigma") instead returns the
+    ## raw dispformula coefficient's Wald CI on the untransformed link
+    ## scale, not comparable to sigma(x). For gaussian-family fits with
+    ## such a non-trivial dispformula, useSc is also TRUE for "cond" (as
+    ## in any LMM), so the lme4-borrowed as.data.frame.VarCorr.merMod
+    ## dispatch above may *already* have added a "Residual" row using that
+    ## same not-really-comparable sigma(x) value -- strip it out too, so
+    ## dispersion in that case is only reported (accurately) via
+    ## component = "disp".
+    if ("cond" %in% component && !is.null(VarCorr(x)[["cond"]]) &&
+        isTRUE(attr(VarCorr(x), "sc"))) {
+      disp_trivial <- length(all.vars(stats::formula(x, component = "disp"))) == 0
+      is_cond_resid <- ret$component == "cond" & ret$group == "Residual"
+      if (disp_trivial) {
+        if (!any(is_cond_resid)) {
+          resid_est <- switch(rscale, sdcor = sigma(x), vcov = sigma(x)^2)
+          resid_term <- ran_pars_name(c(NA_character_, NA_character_), ran_prefix = ran_prefix)
+          ret <- rbind(
+            ret,
+            data.frame(
+              component = "cond", group = "Residual", term = resid_term,
+              estimate = resid_est, stringsAsFactors = FALSE
+            )
+          )
+        }
+      } else {
+        ret <- ret[!is_cond_resid, ]
+      }
     }
 
       if (conf.int) {

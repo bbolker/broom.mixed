@@ -460,7 +460,7 @@ tidy_varcov <- function(x, rscale = "sdcor", conf.int = TRUE, conf.level = 0.95,
         lwrtri(nmvec),
         sprintf("%s_%s", ran_prefix[1], "Observation")
       )
-      grpnames <- c(rep(names(grplen), grplen), "Residual")
+      grpnames <- c(rep(names(grplen), length(nmvec) - 1L), "Residual")
       if (rscale == "vcov") {
         vals <- c(lwrtri(vc), sigma(x)^2)
       } else {

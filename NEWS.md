@@ -2,6 +2,10 @@
 
 # CHANGES IN broom.mixed VERSION 0.2.9.7
 
+- fixed `tidy.lme()` failing for structured random-effects covariance matrices,
+  including `pdDiag`, when the number of covariance entries differs from the
+  number of free parameters (GH #26)
+
 - `lme4` tidying with profile CIs now respects `scale = "vcov"` (GH #161, @richmaparker)
 - added `glance` method for `TMB` objects
 - changes for compatibility with `lme4` >= 2.0.0

@@ -1,6 +1,8 @@
 library(broom.mixed)
 library(testthat)
-if (require("TMB")) {
+## compiling TMB models needs the Eigen headers from RcppEigen,
+## which a binary install of TMB doesn't pull in
+if (require("TMB") && requireNamespace("RcppEigen", quietly = TRUE)) {
     if (identical(Sys.getenv("NOT_CRAN"), "true")) {
         cc <- capture.output(runExample("simple",thisR=TRUE))
         class(obj) <- "TMB"

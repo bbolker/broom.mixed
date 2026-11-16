@@ -77,6 +77,7 @@ Suggests:
     rstanarm,
     rstantools,
     R2jags,
+    RcppEigen,
     TMB,
     rmarkdown
 URL: https://github.com/bbolker/broom.mixed

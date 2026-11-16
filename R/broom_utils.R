@@ -68,9 +68,9 @@ as_tidy_tibble <- function(x, new_names = NULL, new_column = "term") {
 }
 
 na_types_dict <- list("r" = NA_real_,
-                      "i" = rlang::na_int,
+                      "i" = NA_integer_,
                       "c" = NA_character_,
-                      "l" = rlang::na_lgl)
+                      "l" = NA)
 
 # a function that converts a string to a vector of NA types.
 # e.g. "rri" -> c(NA_real_, NA_real_, rlang::na_int)

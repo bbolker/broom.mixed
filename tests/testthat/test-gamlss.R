@@ -22,7 +22,7 @@ if (require("testthat") && require("gamlss", quietly = TRUE) &&
 
     df <- structure(list(ID = structure(c(1L, 1L, 3L, 3L, 1L, 1L, 3L, 3L, 
                                           2L, 2L, 5L, 5L, 2L, 2L, 4L, 4L, 5L, 5L, 2L, 2L, 4L, 4L, 5L, 5L, 
-                                          1L, 1L, 3L, 3L), .Label = c("1", "2", "3", "4", "5"), class = "factor"), 
+                                          1L, 1L, 3L, 3L), levels = c("1", "2", "3", "4", "5"), class = "factor"), 
                          score = c(0.041929622875205, 0.0825927706160165, 0.0885016980957589, 
                                    0.10072436783134, 3.40303792499053e-05, 6.34114774779728e-05, 
                                    0.199542264154635, 0.485745295078827, 0.000192903619829098, 
@@ -34,10 +34,10 @@ if (require("testthat") && require("gamlss", quietly = TRUE) &&
                                    1.30094341980175e-06, 3.20199933225434e-06, 0.106151246774257, 
                                    0.443433279410949), time = structure(c(1L, 2L, 1L, 2L, 1L, 
                                                                           2L, 1L, 2L, 1L, 2L, 1L, 2L, 1L, 2L, 1L, 2L, 1L, 2L, 1L, 2L, 
-                                                                          1L, 2L, 1L, 2L, 1L, 2L, 1L, 2L), .Label = c("early", "late"
+                                                                          1L, 2L, 1L, 2L, 1L, 2L, 1L, 2L), levels = c("early", "late"
                                                                                                                       ), class = "factor"), region = structure(c(2L, 2L, 2L, 2L, 
                                                                                                                                                                  3L, 3L, 3L, 3L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 3L, 
-                                                                                                                                                                 3L, 3L, 3L, 3L, 3L, 1L, 1L, 1L, 1L), .Label = c("1", "2", 
+                                                                                                                                                                 3L, 3L, 3L, 3L, 3L, 1L, 1L, 1L, 1L), levels = c("1", "2", 
                                                                                                                                                                  "3"), class = "factor")), row.names = c(NA, -28L), class = "data.frame")
 
     m1 <- gamlss(score ~ time + region

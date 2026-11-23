@@ -156,7 +156,8 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
   variable <- level <- term <- estimate <- std.error <- grpvar <-
     .id <- grp <- condval <- condsd <- NULL
 
-  if(is.null(ddf.method)) {
+  use_default_ddf <- missing(ddf.method) || is.null(ddf.method)
+  if (use_default_ddf) {
       ddf.method <- if (inherits(x,"lmerModLmerTest")) "Satterthwaite" else NULL
   }
   effect_names <- c("ran_pars", "fixed", "ran_vals", "ran_coefs")
@@ -205,8 +206,9 @@ tidy.merMod <- function(x, effects = c("ran_pars", "fixed"),
 
     if (conf.int) {
       if (is(x, "merMod") || is(x, "rlmerMod")) {
+          ci_ddf <- if (conf.method == "Wald" || !use_default_ddf) ddf.method
           cifix <- cifun(p, parm = "beta_", method = conf.method,
-                         level = conf.level, ddf.method = ddf.method, ...)
+                         level = conf.level, ddf.method = ci_ddf, ...)
       } else {
         ## ?? for glmmTMB?  check ...
         cifix <- cifun(p, level = conf.level, ...)

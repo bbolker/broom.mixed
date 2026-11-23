@@ -90,9 +90,12 @@ rename_regex_match <- function(x, table = col_matches) {
 ## convert confint output to a data frame and relabel columns
 cifun <- function(x, method="Wald", ddf.method=NULL, level=0.95, ...) {
   Estimate <- `Std. Error` <- NULL ## global var check
+  if (!is.null(ddf.method) && method != "Wald") {
+      warning("ddf.method ignored when conf.method != \"Wald\"")
+      ddf.method <- NULL
+  }
   ## compute Wald-t estimates if necessary (not handled by confint for lmerTest)
   if (!is.null(ddf.method)) {
-     if (method != "Wald") warning("ddf.method ignored when conf.method != \"Wald\"")
      cc <-  as.data.frame(coef(summary(x, ddf=ddf.method)))
      if (!"df" %in% colnames(cc)) {
          mult <- qnorm((1 + level) / 2)

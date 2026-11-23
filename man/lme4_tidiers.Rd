@@ -72,7 +72,11 @@
 
 \item{debug}{print debugging output?}
 
-\item{...}{Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})}
+\item{...}{Additional arguments passed to \code{confint.merMod} for
+\code{tidy}, and to \code{augment_columns} for \code{augment} on the
+original data. With \code{newdata}, \code{augment} passes arguments to
+\code{predict}, including \code{re.form = NA} for population-level
+predictions. \code{glance} ignores these arguments.}
 
 \item{data}{original data this was fitted on; if not given this will
 attempt to be reconstructed}
@@ -94,14 +98,17 @@ It contains the columns
   \item{statistic}{t- or Z-statistic (\code{NA} for modes)}
   \item{p.value}{P-value computed from t-statistic (may be missing/NA)}
 
-\code{augment} returns one row for each original observation,
-with columns (each prepended by a .) added. Included are the columns
+\code{augment} adds columns to the original observations or to
+the rows used for prediction when \code{newdata} is supplied. Included are
+the columns
   \item{.fitted}{predicted values}
-  \item{.resid}{residuals}
-  \item{.fixed}{predicted values with no random effects}
+  \item{.resid}{residuals for the original observations}
+  \item{.fixed}{predicted values with no random effects. For new data,
+  this column is available for predictions that include fixed effects.}
+  \item{.se.fit}{prediction standard errors when returned by \code{predict}.}
 
-Also added for "merMod" objects, but not for "mer" objects,
-are values from the response object within the model (of type
+When augmenting the original data of a \code{merMod} fit, the result also
+includes values from the response object within the model (of type
 \code{lmResp}, \code{glmResp}, \code{nlsResp}, etc). These include \code{".mu",
 ".offset", ".sqrtXwt", ".sqrtrwt", ".eta"}.
 

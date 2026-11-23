@@ -158,6 +158,78 @@ if (require(lme4, quietly = TRUE)) {
     expect_equal(au1, au2[names(au1)])
   })
 
+  test_that("augment uses newdata for conditional and fixed predictions", {
+    fit <- lme4::lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+    newdata <- sleepstudy[c(150, 131, 10), c("Days", "Subject")]
+
+    expect_no_warning(out <- augment(fit, newdata = newdata))
+    expect_identical(out$.rownames, rownames(newdata))
+    expect_equal(out$.fitted, unname(predict(fit, newdata)))
+    expect_equal(out$.fixed, unname(predict(fit, newdata, re.form = NA)))
+    expect_false(any(c(".resid", ".mu", ".offset", ".wtres") %in% names(out)))
+
+    expect_error(augment(fit, newdata = newdata["Days"]), "Subject")
+    out <- augment(fit, newdata = newdata["Days"], re.form = NA)
+    expect_equal(out$.fitted, out$.fixed)
+  })
+
+  test_that("augment respects omission of rows in newdata predictions", {
+    fit <- lme4::lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+    newdata <- sleepstudy[c(150, 131, 10), c("Days", "Subject")]
+    newdata$Days[2] <- NA_real_
+
+    out <- augment(fit, newdata = newdata, na.action = na.omit)
+    expect_identical(out$.rownames, rownames(newdata)[-2])
+    expect_equal(out$.fitted, unname(predict(fit, newdata, na.action = na.omit)))
+    expect_equal(out$.fixed, unname(predict(fit, newdata[-2, ], re.form = NA)))
+
+    if ("se.fit" %in% names(formals(getS3method("predict", "merMod")))) {
+      out <- suppressWarnings(augment(fit, newdata = newdata, re.form = NA,
+                                       na.action = na.exclude, se.fit = TRUE))
+      expected <- suppressWarnings(predict(fit, newdata[-2, ], re.form = NA,
+                                            se.fit = TRUE))
+      expect_equal(out$.se.fit, unname(expected$se.fit)[c(1, NA, 2)])
+    }
+  })
+
+  test_that("augment forwards prediction type and new levels", {
+    fit <- lme4::glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
+                       data = cbpp, family = binomial)
+    newdata <- data.frame(period = c("2", "3"), herd = c("1", "new"))
+
+    out <- augment(fit, newdata = newdata, type = "response", allow.new.levels = TRUE)
+    expected <- predict(fit, newdata, type = "response", allow.new.levels = TRUE)
+    fixed <- predict(fit, newdata, re.form = NA, type = "response")
+    expect_equal(out$.fitted, unname(expected))
+    expect_equal(out$.fixed, unname(fixed))
+    expect_equal(augment(fit, newdata = newdata, type.predict = "response",
+                         allow.new.levels = TRUE), out)
+
+    newdata <- newdata["herd"]
+    out <- augment(fit, newdata = newdata, random.only = TRUE, allow.new.levels = TRUE)
+    expected <- predict(fit, newdata, random.only = TRUE, allow.new.levels = TRUE)
+    expect_equal(out$.fitted, unname(expected))
+    expect_false(".fixed" %in% names(out))
+  })
+
+  test_that("augment aligns response diagnostics using the model's omitted rows", {
+    training <- sleepstudy
+    training$Reaction[1] <- NA_real_
+    training$unused <- rep(1, nrow(training))
+    training$unused[2] <- NA_real_
+    fit <- lme4::lmer(Reaction ~ Days + (Days | Subject), training,
+                     na.action = na.exclude)
+
+    expect_no_warning(out <- augment(fit, data = training))
+    expect_equal(out$.mu, unname(fitted(fit)))
+    expect_equal(out$.offset, replace(rep(0, nrow(training)), 1, NA_real_))
+
+    rownames(training) <- paste0("row", seq_len(nrow(training)))
+    fit <- update(fit, data = training)
+    # Broom can warn when the original data are omitted with na.exclude.
+    expect_no_error(suppressWarnings(augment(fit)))
+  })
+
   dNAs <<- d
   dNAs$y[c(1, 3, 5)] <- NA
 

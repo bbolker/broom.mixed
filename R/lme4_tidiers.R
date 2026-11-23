@@ -8,7 +8,11 @@
 #' @aliases tidy.allFit
 #' @param x An object of class \code{merMod}, such as those from \code{lmer},
 #' \code{glmer}, or \code{nlmer}
-#' @param ... Additional arguments (passed to \code{confint.merMod} for \code{tidy}; \code{augment_columns} for \code{augment}; ignored for \code{glance})
+#' @param ... Additional arguments passed to \code{confint.merMod} for
+#'   \code{tidy}, and to \code{augment_columns} for \code{augment} on the
+#'   original data. With \code{newdata}, \code{augment} passes arguments to
+#'   \code{predict}, including \code{re.form = NA} for population-level
+#'   predictions. \code{glance} ignores these arguments.
 #'
 #' @return All tidying methods return a \code{data.frame} without rownames.
 #' The structure depends on the method chosen.
@@ -395,14 +399,17 @@ tidy.rlmerMod <- tidy.merMod
 #'
 #' @template augment_NAs
 #'
-#' @return \code{augment} returns one row for each original observation,
-#' with columns (each prepended by a .) added. Included are the columns
+#' @return \code{augment} adds columns to the original observations or to
+#' the rows used for prediction when \code{newdata} is supplied. Included are
+#' the columns
 #'   \item{.fitted}{predicted values}
-#'   \item{.resid}{residuals}
-#'   \item{.fixed}{predicted values with no random effects}
+#'   \item{.resid}{residuals for the original observations}
+#'   \item{.fixed}{predicted values with no random effects. For new data,
+#'   this column is available for predictions that include fixed effects.}
+#'   \item{.se.fit}{prediction standard errors when returned by \code{predict}.}
 #'
-#' Also added for "merMod" objects, but not for "mer" objects,
-#' are values from the response object within the model (of type
+#' When augmenting the original data of a \code{merMod} fit, the result also
+#' includes values from the response object within the model (of type
 #' \code{lmResp}, \code{glmResp}, \code{nlsResp}, etc). These include \code{".mu",
 #' ".offset", ".sqrtXwt", ".sqrtrwt", ".eta"}.
 #'
@@ -410,11 +417,10 @@ tidy.rlmerMod <- tidy.merMod
 #' @importFrom dplyr bind_cols
 #' @export
 augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
-  # move rownames if necessary
-  if (missing(newdata)) {
-    newdata <- NULL
+  if (!missing(newdata) && !is.null(newdata)) {
+    return(augment_merMod_newdata(x, newdata, ...))
   }
-  ret <- suppressMessages(augment_columns(x, data, newdata, se.fit = NULL, ...))
+  ret <- suppressMessages(augment_columns(x, data, se.fit = NULL, ...))
 
   # add predictions with no random effects (population means)
   predictions <- stats::predict(x, re.form = NA)
@@ -441,12 +447,57 @@ augment.merMod <- function(x, data = stats::model.frame(x), newdata, ...) {
 
   cols <- dplyr::bind_cols(cols[n_vals==min_n])
 
-  cols <- insert_NAs(cols, ret)
+  if (nrow(ret) == 0L) {
+    cols <- cols[0L, , drop = FALSE]
+  } else if (nrow(cols) != nrow(ret)) {
+    na_action <- attr(stats::model.frame(x), "na.action")
+    rows <- stats::napredict(na_action, seq_len(nrow(cols)))
+    cols <- cols[rows, , drop = FALSE]
+  }
   if (length(cols) > 0) {
     ret <- dplyr::bind_cols(ret, cols)
   }
 
   return(unrowname(ret))
+}
+
+augment_merMod_newdata <- function(x, newdata, ..., type = NULL, type.predict = type,
+                                  type.residuals) {
+  args <- c(list(object = x, newdata = newdata), list(...))
+  if (!is.null(type.predict)) {
+    args$type <- type.predict[1]
+  }
+  predictions <- do.call(stats::predict, args)
+  fitted <- if (is.list(predictions)) predictions$fit else predictions
+
+  rownames_col <- if (tibble::has_rownames(newdata)) ".rownames"
+  ret <- tibble::as_tibble(newdata, rownames = rownames_col)
+  if (length(fitted) != nrow(ret)) {
+    rows <- match(names(fitted), rownames(newdata))
+    if (length(rows) != length(fitted) || anyNA(rows)) {
+      stop("Cannot align predictions with rows of `newdata`.", call. = FALSE)
+    }
+    ret <- ret[rows, , drop = FALSE]
+    args$newdata <- newdata[rows, , drop = FALSE]
+  }
+  ret$.fitted <- as.vector(fitted)
+  if (is.list(predictions)) {
+    se <- predictions$se.fit
+    if (length(se) != length(fitted)) {
+      se <- se[match(names(fitted), names(se))]
+    }
+    ret$.se.fit <- as.vector(se)
+  }
+
+  if (!isTRUE(args$random.only)) {
+    args$re.form <- NA
+    args$se.fit <- NULL
+    fixed <- do.call(stats::predict, args)
+    if (length(fixed) == nrow(ret)) {
+      ret$.fixed <- as.vector(fixed)
+    }
+  }
+  ret
 }
 
 

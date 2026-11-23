@@ -48,16 +48,6 @@ tibblify <- function(x, var = "term") {
 #' @param x a vector or list
 compact <- function(x) Filter(Negate(is.null), x)
 
-#' insert a row of NAs into a data frame wherever another data frame has NAs
-#'
-#' @param x data frame that has one row for each non-NA row in original
-#' @param original data frame with NAs
-insert_NAs <- function(x, original) {
-  indices <- rep(NA, nrow(original))
-  indices[which(stats::complete.cases(original))] <- seq_len(nrow(x))
-  x[indices, ]
-}
-
 ## list of regex matches for mixed-effect columns -> broom names
 col_matches <- list(
   estimate = "^(Estimate|Value)$",

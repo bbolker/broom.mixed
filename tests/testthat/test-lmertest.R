@@ -22,6 +22,31 @@ if (require(lmerTest, quietly = TRUE)) {
     td_nodf <- tidy(lmm1, "fixed", ddf.method="lme4")
     check_tidy(td_nodf, 2, 5, c("effect", "term", "std.error", "statistic"))
   })
+
+  test_that("profile intervals use the fitted model or a precomputed profile", {
+    model <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+    profile_object <- profile(model, which = "beta_")
+    expected <- unname(confint(profile_object))
+    intervals <- function(x) unname(as.matrix(x[c("conf.low", "conf.high")]))
+
+    tidy_profile <- function(...) {
+      tidy(model, effects = "fixed", conf.int = TRUE, conf.method = "profile", ...)
+    }
+
+    expect_warning(result <- tidy_profile(), NA)
+    expect_equal(intervals(result), expected)
+    expect_equal(result$df, tidy(model, effects = "fixed")$df)
+
+    expect_warning(cached <- tidy_profile(profile = profile_object), NA)
+    expect_equal(intervals(cached), expected)
+
+    expect_warning(
+      explicit <- tidy_profile(profile = profile_object, ddf.method = "lme4"),
+      "ddf.method ignored"
+    )
+    expect_equal(intervals(explicit), expected)
+  })
+
   test_that("Wald t intervals", {
       set.seed(101)
       ## unbalance to make K-R slightly different from Satterthwaite

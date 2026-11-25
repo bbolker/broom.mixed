@@ -3,7 +3,9 @@
 #' @param x a model fit to be converted to a data frame
 #' @param pars (character) specification of which parameters to include
 #' @param effects which effects (fixed, random, etc.) to return
-#' @param robust use mean and standard deviation (if FALSE) or median and mean absolute deviation (if TRUE) to compute point estimates and uncertainty?
+#' @param robust If \code{FALSE}, summarize draws with the mean and standard
+#'   deviation. If \code{TRUE}, use the median and the scaled median absolute
+#'   deviation from \code{\link[stats]{mad}}.
 #' @param scales scales on which to report results
 #' @param conf.int (logical) include confidence interval?
 #' @param conf.level probability level for CI

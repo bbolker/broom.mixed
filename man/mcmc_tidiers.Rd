@@ -89,7 +89,9 @@ passed through to \code{tidy.mcmc} (e.g. \code{robust}, \code{conf.int}, \code{c
 
 \item{pars}{(character) specification of which parameters to include}
 
-\item{robust}{use mean and standard deviation (if FALSE) or median and mean absolute deviation (if TRUE) to compute point estimates and uncertainty?}
+\item{robust}{If \code{FALSE}, summarize draws with the mean and standard
+deviation. If \code{TRUE}, use the median and the scaled median absolute
+deviation from \code{\link[stats]{mad}}.}
 
 \item{conf.int}{(logical) include confidence interval?}
 

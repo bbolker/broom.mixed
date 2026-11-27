@@ -533,13 +533,16 @@ augment.ranef.mer <- function(x,
     pv <- attr(z, "postVar")
     cols <- 1:(dim(pv)[1])
     se <- unlist(lapply(cols, function(i) sqrt(pv[i, i, ])))
-    ## n.b.: depends on explicit column-major ordering of se/melt
-    zzz <- zz %>%
-           tidyr::pivot_longer(-level, values_to = "estimate", names_to = "variable") %>%
-           dplyr::arrange(variable, level)
-    zzz <- cbind(zzz, qq = qq, std.error = se)
-    ## reorder columns:
-    subset(zzz, select = c(variable, level, estimate, qq, std.error))
+    ## n.b.: depends on explicit column-major ordering of z, qq, and se
+    zzz <- data.frame(
+      variable = rep(names(z), each = nrow(z)),
+      level = rep(zz$level, times = ncol(z)),
+      estimate = unlist(z, use.names = FALSE),
+      qq = qq,
+      std.error = se,
+      stringsAsFactors = FALSE
+    )
+    zzz
   }
   dd <- purrr::map_dfr(x, tmpf, .id = "grp")
 

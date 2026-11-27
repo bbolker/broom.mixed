@@ -264,3 +264,38 @@ test_that("lme4 confint/profile respects vcov scale", {
   )
   expect_equal(t2B, ci_result, tolerance = 1e-3)
 })
+
+test_that("augment.ranef.mer aligns qq and std.error with level and variable", {
+  ## Unbalanced subset so subjects have distinct posterior SDs,
+  ## and non-alphabetical random-effect columns (z_slope before a_slope)
+  ss <- sleepstudy[!(sleepstudy$Subject == "308" & sleepstudy$Days > 2), ]
+  ss$z_slope <- ss$Days
+  ss$a_slope <- ss$Days^2 / 10
+  m <- lmer(Reaction ~ Days + (1 + z_slope + a_slope | Subject), data = ss)
+  rr <- ranef(m, condVar = TRUE)
+  aa <- broom::augment(rr)
+
+  ## Compare against lme4's own as.data.frame.ranef.mer()
+  ref <- as.data.frame(rr)
+  ref$term <- as.character(ref$term)
+  ref$grp <- as.character(ref$grp)
+  aa_cmp <- data.frame(
+    term = as.character(aa$variable),
+    grp = as.character(aa$level),
+    estimate = aa$estimate,
+    std.error = aa$std.error,
+    stringsAsFactors = FALSE
+  )
+  merged <- merge(aa_cmp, ref, by = c("term", "grp"))
+  expect_equal(nrow(merged), nrow(ref))
+  expect_equal(merged$estimate, merged$condval, tolerance = 1e-12)
+  expect_equal(merged$std.error, merged$condsd, tolerance = 1e-12)
+
+  ## qq must be monotone non-decreasing with estimate within each variable
+  for (v in unique(aa$variable)) {
+    sub_v <- aa[aa$variable == v, ]
+    ord_est <- order(sub_v$estimate)
+    expect_equal(sub_v$qq[ord_est], sort(sub_v$qq))
+    expect_equal(sub_v$qq[ord_est], qnorm(stats::ppoints(nrow(sub_v))))
+  }
+})
